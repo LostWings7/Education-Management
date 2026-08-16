@@ -29,6 +29,7 @@ from apps.academic.services import (
     ResourceService
 )
 from apps.portal.reporting import TranscriptService
+from apps.portal.services.timeline_service import AcademicTimelineService
 from apps.analytics.services import (
     RiskEngineService,
     AttendanceAnalyticsService,
@@ -378,7 +379,6 @@ class StudentTimelineView(StudentRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         student = self.request.user.student_profile
-        from apps.portal.services.timeline_service import AcademicTimelineService
         context['student'] = student
         context['timeline_events'] = AcademicTimelineService.get_student_timeline(student)
         return context

@@ -371,3 +371,8 @@ class InterventionEscalation(TimeStampedModel):
 
     def __str__(self):
         return f"Escalation of {self.intervention.title} to {self.escalated_to_role}"
+
+
+# Backwards Compatibility Alias
+InterventionCheckpoint = InterventionEvaluation
+

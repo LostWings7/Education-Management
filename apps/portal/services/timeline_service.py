@@ -78,7 +78,7 @@ class AcademicTimelineService:
                 'event_type': 'ASSESSMENT_SCORED',
                 'badge_class': 'badge-info',
                 'title': f"Assessment Scored: {r.assessment.title}",
-                'description': f"Scored {r.obtained_marks}/{r.assessment.max_marks} ({r.percentage}%) in {r.assessment.class_section.course.code}.",
+                'description': f"Scored {r.marks_obtained}/{r.assessment.max_marks} ({r.percentage:.1f}%) in {r.assessment.class_section.course.code}.",
                 'course_code': r.assessment.class_section.course.code,
                 'is_actionable': False
             })
