@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Programs & Courses - Education Management Portal{% endblock %}
+
+{% block content %}
+<div style="background: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 3rem 0 2.5rem;">
+  <div class="container">
+    <div style="max-width: 700px;">
+      <span class="badge badge-info" style="margin-bottom: 0.5rem;">Curriculum & Offerings</span>
+      <h1 style="font-size: 2.25rem; margin-bottom: 0.5rem;">Academic Programs & Course Catalog</h1>
+      <p style="font-size: 1.05rem;">Explore accredited undergraduate and graduate programs across all academic departments.</p>
+    </div>
+
+    <!-- Search & Filter Form -->
+    <form method="get" action="{% url 'public:courses' %}" style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 260px;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search program by name..." class="form-input">
+      </div>
+      <div style="min-width: 200px;">
+        <select name="department" class="form-select" onchange="this.form.submit()">
+          <option value="">All Departments</option>
+          {% for dept in departments %}
+            <option value="{{ dept.code }}" {% if selected_dept == dept.code %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+        <span>Search</span>
+      </button>
+      {% if search_query or selected_dept %}
+        <a href="{% url 'public:courses' %}" class="btn btn-secondary">Clear Filters</a>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="container" style="padding-top: 3rem; padding-bottom: 4rem;">
+  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+      Showing {{ programs|length }} program{{ programs|length|pluralize }}
+    </span>
+  </div>
+
+  <div class="grid-3">
+    {% for program in programs %}
+      <div class="card">
+        <div class="card-body">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <span class="badge badge-secondary">{{ program.code }}</span>
+            <span class="badge badge-student">{{ program.get_degree_level_display }}</span>
+          </div>
+
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem;">{{ program.name }}</h3>
+          <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">
+            Department of {{ program.department.name }}
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem; padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-sm);">
+            <div><strong>Duration:</strong> {{ program.duration_years }} Academic Years ({{ program.total_semesters }} Semesters)</div>
+            <div><strong>Department Code:</strong> {{ program.department.code }}</div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <a href="{% url 'public:course_detail' code=program.code %}" class="btn btn-secondary btn-sm">
+              <span>View Curriculum</span>
+              <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-state-icon">
+          <i data-lucide="search-x"></i>
+        </div>
+        <div class="empty-state-title">No Programs Found</div>
+        <p class="empty-state-desc">No academic programs matched your filter criteria. Try resetting the filters.</p>
+        <a href="{% url 'public:courses' %}" class="btn btn-secondary btn-sm">Reset Filters</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

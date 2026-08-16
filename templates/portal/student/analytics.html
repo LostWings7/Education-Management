@@ -1,0 +1,216 @@
+{% extends "portal_base.html" %}
+{% load analytics_tags %}
+
+{% block title %}Academic Intelligence & Risk Radar | Student Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header with Live Semester and Confidence Badge -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Academic Intelligence & Analytics</h2>
+      <p style="color: var(--text-muted); margin: 0;">Deterministic performance diagnostics, trajectory tracking, and risk radar.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      {{ overall_risk.data_confidence|confidence_badge }}
+      <a href="{% url 'portal:student_what_if' %}" class="btn btn-primary">
+        <i data-lucide="calculator" style="width: 16px; height: 16px;"></i>
+        <span>What-If Simulator</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Macro KPIs Row -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+    <!-- GPA -->
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Term Average</div>
+      <div style="font-size: 2rem; font-weight: 700; color: var(--color-primary); margin-top: 0.25rem;">
+        {{ overall_gpa.term_average_percentage|format_pct }}
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+        GPA: <strong>{{ overall_gpa.term_gpa_4|default:"—" }}</strong> / 4.0 ({{ overall_gpa.credits_attempted }} credits)
+      </div>
+    </div>
+
+    <!-- Attendance -->
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Overall Attendance</div>
+      <div style="font-size: 2rem; font-weight: 700; color: {% if overall_att.attendance_percentage >= 75 %}var(--color-success){% else %}var(--color-danger){% endif %}; margin-top: 0.25rem;">
+        {{ overall_att.attendance_percentage|format_pct }}
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+        {{ overall_att.present_count }} Present, {{ overall_att.absent_count }} Absent (Threshold: 75%)
+      </div>
+    </div>
+
+    <!-- Coursework Completion -->
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Assignments Completed</div>
+      <div style="font-size: 2rem; font-weight: 700; color: var(--color-info); margin-top: 0.25rem;">
+        {{ overall_assign.completion_rate|format_pct }}
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+        {{ overall_assign.submitted_count }} of {{ overall_assign.total_assigned }} Submitted
+      </div>
+    </div>
+
+    <!-- Academic Risk Radar -->
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid {% if overall_risk.risk_level == 'LOW' %}var(--color-success){% elif overall_risk.risk_level == 'MODERATE' %}var(--color-warning){% else %}var(--color-danger){% endif %};">
+      <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Academic Risk Level</div>
+      <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.25rem;">
+        <span style="font-size: 1.75rem; font-weight: 700; color: {% if overall_risk.risk_level == 'LOW' %}var(--color-success){% elif overall_risk.risk_level == 'MODERATE' %}var(--color-warning){% else %}var(--color-danger){% endif %};">
+          {{ overall_risk.risk_level }}
+        </span>
+        <span style="font-size: 0.9rem; color: var(--text-muted);">({{ overall_risk.composite_score }}/100)</span>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+        Academic Risk Index v{{ overall_risk.risk_model_version }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Contributing Factors Section -->
+  {% if overall_risk.contributing_factors %}
+    <div class="card">
+      <div class="card-header">
+        <h3>Risk Index Factor Breakdown & Underlying Evidence</h3>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div style="display: flex; flex-direction: column;">
+          {% for f in overall_risk.contributing_factors %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 0.75rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="badge {{ f.severity|severity_badge_class }}">{{ f.dimension }}</span>
+                  <strong style="font-size: 0.95rem;">{{ f.factor }}</strong>
+                </div>
+                <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: var(--text-secondary);">
+                  {{ f.evidence }}
+                </p>
+              </div>
+              <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">
+                Sub-score: {{ f.subscore|format_pct }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Per-Course Intelligence Section -->
+  <div style="display: flex; flex-direction: column; gap: 1rem;">
+    <h3 style="margin: 0;">Curricular Course Diagnostics</h3>
+
+    <div style="display: grid; grid-template-columns: 1fr; gap: 1.25rem;">
+      {% for item in courses_analytics %}
+        <div class="card">
+          <div class="card-header" style="background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h4 style="margin: 0; font-size: 1.1rem;">
+                {{ item.section.course.code }}: {{ item.section.course.title }} (Sec {{ item.section.section_code }})
+              </h4>
+              <span style="font-size: 0.85rem; color: var(--text-muted);">
+                Instructor: {{ item.section.primary_teacher.user.get_full_name|default:item.section.primary_teacher.user.email }}
+              </span>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span class="badge {{ item.risk.risk_level|risk_badge_class }}">
+                Risk: {{ item.risk.risk_level }} ({{ item.risk.composite_score }}/100)
+              </span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Diagnostics Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <!-- Weighted Grade -->
+              <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Weighted Score</div>
+                <div style="font-size: 1.4rem; font-weight: 700; color: var(--color-primary); margin: 0.25rem 0;">
+                  {{ item.performance.weighted_score|format_pct }}
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  Evaluated: {{ item.performance.completed_weight }}% weight
+                </div>
+              </div>
+
+              <!-- Trajectory -->
+              <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Assessment Trajectory</div>
+                <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 1.1rem; font-weight: 700; margin: 0.35rem 0;">
+                  <i data-lucide="{{ item.trend.direction|trend_icon }}" style="width: 18px; height: 18px; color: {% if item.trend.direction == 'IMPROVING' %}var(--color-success){% elif item.trend.direction == 'DECLINING' %}var(--color-danger){% else %}var(--text-muted){% endif %};"></i>
+                  <span>{{ item.trend.direction }}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  Slope: {{ item.trend.slope|default:"0.0" }} pts/step
+                </div>
+              </div>
+
+              <!-- Attendance & Buffer -->
+              <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Attendance & Buffer</div>
+                <div style="font-size: 1.4rem; font-weight: 700; color: {% if item.attendance.attendance_percentage >= 75 %}var(--color-success){% else %}var(--color-danger){% endif %}; margin: 0.25rem 0;">
+                  {{ item.attendance.attendance_percentage|format_pct }}
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  Absence Buffer: <strong>{{ item.attendance.absence_buffer }}</strong> classes remaining
+                </div>
+              </div>
+
+              <!-- Assignments -->
+              <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Coursework Completion</div>
+                <div style="font-size: 1.4rem; font-weight: 700; color: var(--color-info); margin: 0.25rem 0;">
+                  {{ item.assignments.completion_rate|format_pct }}
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  {{ item.assignments.submitted_count }}/{{ item.assignments.total_assigned }} Submitted (Missing: {{ item.assignments.missing_count }})
+                </div>
+              </div>
+            </div>
+
+            <!-- Anomaly Alert if Present -->
+            {% if item.anomaly.is_anomaly %}
+              <div style="padding: 0.75rem 1rem; background: #fff1f2; border: 1px solid #fecdd3; border-radius: var(--radius-md); margin-bottom: 1.25rem; display: flex; gap: 0.75rem; align-items: center;">
+                <i data-lucide="alert-triangle" style="width: 20px; height: 20px; color: var(--color-danger); flex-shrink: 0;"></i>
+                <div style="font-size: 0.875rem; color: #9f1239;">
+                  <strong>{{ item.anomaly.summary }}</strong>
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Syllabus Topics Mastery Matrix -->
+            {% if item.topics %}
+              <div style="margin-top: 1rem;">
+                <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);">
+                  Syllabus Topic Competencies
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                  {% for t in item.topics %}
+                    <div style="padding: 0.4rem 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--border-color); background: {% if t.status == 'STRONG_MASTERY' %}#f0fdf4{% elif t.status == 'DEVELOPING' %}#fffbeb{% elif t.status == 'NEEDS_ATTENTION' %}#fef2f2{% else %}var(--bg-subtle){% endif %};">
+                      <span style="font-weight: 500;">Topic {{ t.order_index }}: {{ t.title }}</span>
+                      {% if t.score_percentage is not None %}
+                        <span style="font-weight: 700; color: {% if t.status == 'STRONG_MASTERY' %}var(--color-success){% elif t.status == 'DEVELOPING' %}var(--color-warning){% else %}var(--color-danger){% endif %};">
+                          {{ t.score_percentage }}%
+                        </span>
+                      {% else %}
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">(No evals)</span>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="card" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+          No active course enrollments found for current semester.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

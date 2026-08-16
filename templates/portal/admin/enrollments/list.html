@@ -1,0 +1,168 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Enrollment Management - Admin Portal{% endblock %}
+{% block breadcrumb %}Student Enrollments{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Student Course Enrollments</h2>
+      <p>Manage student class registrations, capacity validation, drops, and historical transcript links</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <button type="button" class="btn btn-primary" onclick="document.getElementById('enrollModal').style.display='flex'">
+        <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
+        <span>Enroll Student in Section</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="background: var(--bg-subtle);">
+      <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; width: 100%;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search by student name, roll number, course..." class="form-input" style="flex: 1; min-width: 220px;">
+        <select name="semester" class="form-select" onchange="this.form.submit()" style="min-width: 170px;">
+          <option value="">All Semesters</option>
+          {% for sem in semesters %}
+            <option value="{{ sem.pk }}" {% if selected_semester == sem.pk %}selected{% endif %}>{{ sem.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="section" class="form-select" onchange="this.form.submit()" style="min-width: 170px;">
+          <option value="">All Sections</option>
+          {% for sec in sections %}
+            <option value="{{ sec.pk }}" {% if selected_section == sec.pk %}selected{% endif %}>{{ sec }}</option>
+          {% endfor %}
+        </select>
+        <select name="status" class="form-select" onchange="this.form.submit()" style="min-width: 140px;">
+          <option value="">All Statuses</option>
+          {% for st_val, st_label in statuses %}
+            <option value="{{ st_val }}" {% if selected_status == st_val %}selected{% endif %}>{{ st_label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Program</th>
+            <th>Class Section</th>
+            <th>Semester</th>
+            <th>Status</th>
+            <th>Grade Snapshot</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enr in enrollments %}
+            <tr>
+              <td>
+                <strong>{{ enr.student.student_id }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ enr.student.user.get_full_name }}</div>
+              </td>
+              <td><span class="badge badge-indigo">{{ enr.student.program.code }}</span></td>
+              <td>
+                <strong>{{ enr.class_section.course.code }}</strong> (Sec {{ enr.class_section.section_code }})
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ enr.class_section.primary_teacher.user.get_full_name }}</div>
+              </td>
+              <td>{{ enr.class_section.semester.name }}</td>
+              <td>
+                <span class="badge {% if enr.status == 'ENROLLED' %}badge-success{% elif enr.status == 'COMPLETED' %}badge-info{% else %}badge-danger{% endif %}">
+                  {{ enr.get_status_display }}
+                </span>
+              </td>
+              <td>
+                {% if enr.is_grade_published and enr.final_percentage is not None %}
+                  <span class="badge badge-success">{{ enr.final_percentage }}% ({{ enr.final_grade_letter }})</span>
+                {% else %}
+                  <span style="color: var(--text-muted); font-size: 0.8rem;">In Progress</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem;">
+                  <a href="{% url 'portal_admin:records' %}?student_id={{ enr.student.pk }}" class="btn btn-secondary btn-sm">Transcript</a>
+                  {% if enr.status == 'ENROLLED' %}
+                    <form method="post" action="{% url 'portal_admin:enrollment_drop' pk=enr.pk %}" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline" style="color: var(--color-danger);" onclick="return confirm('Drop {{ enr.student.student_id }} from this section?');">
+                        Drop
+                      </button>
+                    </form>
+                  {% elif enr.status == 'DROPPED' %}
+                    <form method="post" action="{% url 'portal_admin:enrollment_re_enroll' pk=enr.pk %}" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-primary btn-sm">Re-Enroll</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No enrollments match the criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if enrollments.has_other_pages %}
+      <div style="padding: 1rem 1.5rem; display: flex; justify-content: center; gap: 0.5rem; border-top: 1px solid var(--border-color);">
+        {% if enrollments.has_previous %}
+          <a href="?page={{ enrollments.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_semester %}&semester={{ selected_semester }}{% endif %}{% if selected_section %}&section={{ selected_section }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="btn btn-secondary btn-sm">&laquo; Prev</a>
+        {% endif %}
+        <span style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Page {{ enrollments.number }} of {{ enrollments.paginator.num_pages }}</span>
+        {% if enrollments.has_next %}
+          <a href="?page={{ enrollments.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_semester %}&semester={{ selected_semester }}{% endif %}{% if selected_section %}&section={{ selected_section }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="btn btn-secondary btn-sm">Next &raquo;</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Manual Enrollment Modal -->
+  <div id="enrollModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="card" style="width: 100%; max-width: 540px; box-shadow: var(--shadow-xl);">
+      <div class="card-header">
+        <h3>Enroll Student in Class Section</h3>
+        <button type="button" onclick="document.getElementById('enrollModal').style.display='none'" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'portal_admin:enrollment_create' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Select Student *</label>
+            <select name="student" class="form-select" required>
+              <option value="">-- Choose Student --</option>
+              {% for st in eligible_students %}
+                <option value="{{ st.pk }}">{{ st.student_id }} - {{ st.user.get_full_name }} ({{ st.program.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Select Class Section *</label>
+            <select name="class_section" class="form-select" required>
+              <option value="">-- Choose Active Section --</option>
+              {% for sc in sections %}
+                <option value="{{ sc.pk }}">{{ sc }} ({{ sc.enrolled_count }}/{{ sc.capacity }} enrolled)</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('enrollModal').style.display='none'">Cancel</button>
+            <button type="submit" class="btn btn-primary">Enroll Student</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

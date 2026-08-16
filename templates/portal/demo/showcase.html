@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block title %}Live Demo Showcase & 12-Step Academic Rescue - Education Management{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 1rem; max-width: 1200px;">
+  
+  <!-- Showcase Header -->
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.9rem; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem;">
+      <i data-lucide="award" style="width: 14px; height: 14px;"></i>
+      <span>Competition Presentation Mode & Live System Verification</span>
+    </div>
+    <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem; letter-spacing: -0.02em;">
+      Live Persona Verification & 12-Step Academic Rescue
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 750px; margin: 0 auto; line-height: 1.6;">
+      Explore real-time deterministic intelligence across seven diverse student personas, and witness the state-aware Katherine Johnson closed-loop remediation flow.
+    </p>
+  </div>
+
+  <!-- 7 Student Personas Grid -->
+  <div style="margin-bottom: 4rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0;">Seven Evaluated Student Personas</h2>
+      <span class="badge badge-info">Authoritative Live Database Values</span>
+    </div>
+
+    <div class="grid-3" style="gap: 1.5rem;">
+      {% for p in personas %}
+        <div class="card" style="border-top: 4px solid var(--primary); padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div>
+              <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800;">{{ p.name }}</h3>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">{{ p.id }} &bull; {{ p.email }}</div>
+            </div>
+            <span class="badge {{ p.badge }}">{{ p.role }}</span>
+          </div>
+
+          <div style="background: var(--bg-surface-secondary); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Attendance:</span>
+              <strong>{{ p.attendance }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Risk Evaluation:</span>
+              <strong>{{ p.risk }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Trajectory:</span>
+              <strong>{{ p.trajectory }}</strong>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ======================================================================== -->
+  <!-- 12-STEP STATE-AWARE ACADEMIC RESCUE SHOWCASE                             -->
+  <!-- ======================================================================== -->
+  <div class="card" style="background: #0f172a; color: white; border-radius: var(--radius-lg); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4); margin-bottom: 3rem;">
+    <div style="padding: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span class="badge badge-danger">Closed-Loop Case Study</span>
+          <span class="judge-badge judge-badge-deterministic">LIVE DATABASE EXECUTOR</span>
+        </div>
+        <h2 style="color: white; font-size: 1.75rem; font-weight: 800; margin: 0 0 0.25rem;">
+          Katherine Johnson (STU-007): 12-Step Academic Rescue Flow
+        </h2>
+        <p style="color: #cbd5e1; margin: 0; font-size: 0.95rem;">
+          MATH301 Differential Equations &bull; Pre-Rescue Risk: <strong>CRITICAL</strong> &bull; Acute Anomaly: <strong>76 &rarr; 38 (Z &le; -2.0)</strong>
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button id="runRescueStepBtn" class="btn btn-primary btn-sm" style="background: #10b981; border: none; font-weight: 700;">
+          <i data-lucide="play" style="width: 14px; height: 14px;"></i>
+          <span>Execute Live Recovery Step (Score 88% & Recalculate)</span>
+        </button>
+      </div>
+    </div>
+
+    <div style="padding: 2rem;">
+      <!-- 12-Step Visual Flow Grid -->
+      <div class="grid-4" style="gap: 1rem;" id="rescueStepsContainer">
+        
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 1: Detection</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Acute Score Plunge</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Quiz 3 drops to 38.0. Anomaly Detection flags $Z \le -2.0$.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 2: Analytics</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Risk Engine Evaluation</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Evaluates 5 dimensions and assigns high risk weighting.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 3: Alerting</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Teacher Early Warning</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Dispatches deduplicated notification to Prof. Alan Turing.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 4: Recommendation</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Support Plan Formed</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Generates Concept Remediation recommendation.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 5: Review</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Human Faculty Approval</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Teacher reviews class briefing and approves intervention.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 6: AI Explanation</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Grounded Copilot Briefing</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">AI synthesizes Laplace transform diagnostic context.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 7: Planning</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Targeted Study Plan</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Student action queue ranks problem sets to study.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 8: Action</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Student Checklist</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Katherine completes assigned recovery action items.</p>
+        </div>
+
+        <div class="step-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 9: Monitoring</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Faculty Checkpoint</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Teacher logs qualitative diagnostic checkpoint.</p>
+        </div>
+
+        <div class="step-card" id="stepCard10" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 10: Recovery Evidence</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Assessment Scored (88%)</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;" id="step10Text">Post-remediation assessment recorded in database.</p>
+        </div>
+
+        <div class="step-card" id="stepCard11" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 11: Recalculation</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Deterministic Recalc</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;" id="step11Text">Risk Engine recalculates trajectory downwards.</p>
+        </div>
+
+        <div class="step-card" id="stepCard12" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Step 12: Outcome</div>
+          <h4 style="color: white; font-size: 0.95rem; margin: 0.25rem 0 0.5rem;">Closed-Loop Resolution</h4>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;" id="step12Text">Status verified as EFFECTIVE & institutional statement updated.</p>
+        </div>
+
+      </div>
+
+      <!-- Live Execution Output Box -->
+      <div id="liveRescueResultBox" style="margin-top: 1.5rem; padding: 1.25rem; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: var(--radius-md); display: none;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <i data-lucide="check-circle" style="width: 20px; height: 20px; color: #34d399;"></i>
+          <h3 style="margin: 0; color: #34d399; font-size: 1.1rem; font-weight: 800;">Live Recovery Assessment Recorded & Risk Recalculated!</h3>
+        </div>
+        <p style="margin: 0; font-size: 0.9rem; color: #e2e8f0; line-height: 1.5;" id="liveRescueResultText">
+          Recorded new real assessment result (88.0%). Phase 3 RiskEngineService evaluated updated trajectory and downgraded course risk. Intervention status updated to EFFECTIVE.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('runRescueStepBtn').addEventListener('click', () => {
+    const btn = document.getElementById('runRescueStepBtn');
+    btn.disabled = true;
+    btn.textContent = 'Recording Evidence & Recalculating...';
+
+    const formData = new FormData();
+    formData.append('action', 'record_recovery_assessment');
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch("{% url 'public:demo_execute_rescue_step' %}", {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('stepCard10').style.background = 'rgba(16, 185, 129, 0.2)';
+        document.getElementById('stepCard10').style.borderColor = '#10b981';
+        document.getElementById('step10Text').textContent = 'Live Assessment Result: ' + data.recovery_score + '% Recorded';
+
+        document.getElementById('stepCard11').style.background = 'rgba(16, 185, 129, 0.2)';
+        document.getElementById('stepCard11').style.borderColor = '#10b981';
+        document.getElementById('step11Text').textContent = 'Recalculated Risk: ' + data.new_risk_level + ' (' + data.new_risk_score + '/100)';
+
+        document.getElementById('stepCard12').style.background = 'rgba(16, 185, 129, 0.2)';
+        document.getElementById('stepCard12').style.borderColor = '#10b981';
+        document.getElementById('step12Text').textContent = 'Status: ' + data.intervention_status;
+
+        document.getElementById('liveRescueResultBox').style.display = 'block';
+        document.getElementById('liveRescueResultText').innerHTML = `
+          <strong>Authoritative Recalculation Complete:</strong><br>
+          Recovery Assessment: <strong>${data.recovery_score}%</strong><br>
+          Recalculated Risk Level: <strong>${data.new_risk_level}</strong> (Score: <strong>${data.new_risk_score}</strong>/100)<br>
+          Intervention Outcome: <strong>${data.intervention_status}</strong>
+        `;
+        btn.textContent = 'Rescue Flow Executed & Verified (EFFECTIVE)';
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = 'Retry Execution';
+    });
+  });
+</script>
+{% endblock %}

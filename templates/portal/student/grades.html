@@ -1,0 +1,131 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Grades & Results - Student Portal{% endblock %}
+{% block breadcrumb %}Academic Results{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Academic Grades & Examination Results</h2>
+      <p>Authoritative continuous assessment scoring and term GPA calculated by GradingService</p>
+    </div>
+
+    <!-- Semester Selector Filter -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="semester" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+        {% for sem in semesters %}
+          <option value="{{ sem.pk }}" {% if selected_semester.pk == sem.pk %}selected{% endif %}>{{ sem.name }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <!-- Term Summary Cards -->
+  <div class="grid-3" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Calculated Term GPA</div>
+        <div class="stat-value" style="font-size: 1.85rem; color: var(--brand-primary);">
+          {{ term_gpa }} <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">/ 4.00</span>
+        </div>
+      </div>
+      <div class="stat-icon indigo">
+        <i data-lucide="award"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Term Academic Credits</div>
+        <div class="stat-value">{{ total_credits }}</div>
+      </div>
+      <div class="stat-icon sky">
+        <i data-lucide="layers"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Selected Term</div>
+        <div class="stat-value" style="font-size: 1.15rem; font-weight: 700;">
+          {{ selected_semester.name|default:"Spring 2026" }}
+        </div>
+      </div>
+      <div class="stat-icon emerald">
+        <i data-lucide="calendar"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course-By-Course Assessment Breakdowns -->
+  <div style="display: flex; flex-direction: column; gap: 2rem;">
+    {% for item in course_grades %}
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span class="badge badge-secondary" style="margin-bottom: 0.25rem;">{{ item.course.code }}</span>
+            <h3 style="font-size: 1.2rem;">{{ item.course.title }} ({{ item.credits }} Credits)</h3>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">
+              {{ item.calc.final_percentage }}%
+            </div>
+            <span class="badge badge-indigo">Grade: {{ item.calc.final_grade_letter }}</span>
+            {% if item.enrollment.is_grade_published %}
+              <span class="badge badge-success" title="Published on {{ item.enrollment.published_at|date:'M d, Y' }}">Official Result</span>
+            {% else %}
+              <span class="badge badge-warning" title="Provisional continuous score">Provisional</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Evaluative Assessment</th>
+                <th>Category</th>
+                <th>Max Marks</th>
+                <th>Marks Obtained</th>
+                <th>Score %</th>
+                <th>Weightage %</th>
+                <th>Weighted Contribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for b in item.calc.breakdowns %}
+                <tr>
+                  <td><strong>{{ b.title }}</strong></td>
+                  <td><span class="badge badge-secondary">{{ b.type }}</span></td>
+                  <td>{{ b.max_marks }}</td>
+                  <td><strong>{{ b.marks_obtained }}</strong></td>
+                  <td>{{ b.percentage }}%</td>
+                  <td>{{ b.weightage }}%</td>
+                  <td><strong>{{ b.weighted_contribution }}%</strong></td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                    No assessment scores evaluated for this course yet.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <i data-lucide="award"></i>
+        </div>
+        <div class="empty-state-title">No Course Grades Found</div>
+        <p class="empty-state-desc">No academic grades or assessment records found for the selected semester.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Learning Resources - Admin Portal{% endblock %}
+{% block breadcrumb %}Learning Resources{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Learning Resources Catalog</h2>
+      <p>Institutional repository of course syllabi, lecture notes, reference PDFs, and videos</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="background: var(--bg-subtle);">
+      <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; width: 100%;">
+        <select name="course" class="form-select" onchange="this.form.submit()" style="min-width: 220px;">
+          <option value="">All Courses</option>
+          {% for c in courses %}
+            <option value="{{ c.pk }}" {% if selected_course == c.pk %}selected{% endif %}>{{ c.code }} - {{ c.title }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Resource Title</th>
+            <th>Type</th>
+            <th>Syllabus Topic</th>
+            <th>Uploaded By</th>
+            <th>Date Added</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in resources %}
+            <tr>
+              <td><span class="badge badge-secondary" style="font-weight: 700;">{{ r.course.code }}</span></td>
+              <td>
+                <strong>{{ r.title }}</strong>
+                {% if r.description %}
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ r.description|truncatewords:8 }}</div>
+                {% endif %}
+              </td>
+              <td><span class="badge badge-indigo">{{ r.get_resource_type_display }}</span></td>
+              <td>
+                {% if r.topic %}
+                  Topic {{ r.topic.order_index }}: {{ r.topic.title }}
+                {% else %}
+                  <span style="color: var(--text-muted);">General</span>
+                {% endif %}
+              </td>
+              <td>{{ r.uploaded_by.get_full_name|default:"System" }}</td>
+              <td>{{ r.created_at|date:"M d, Y" }}</td>
+              <td>
+                <form method="post" action="{% url 'portal_admin:resource_delete' pk=r.pk %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline" style="color: var(--color-danger);" onclick="return confirm('Delete resource {{ r.title }}?');">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No learning resources uploaded.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

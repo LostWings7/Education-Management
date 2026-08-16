@@ -1,0 +1,86 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{% if is_create %}Create Assessment{% else %}Edit Assessment{% endif %} - Teacher Portal{% endblock %}
+{% block breadcrumb %}{% if is_create %}New Assessment{% else %}Edit Assessment{% endif %}{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal:teacher_gradebook' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Gradebook</span>
+    </a>
+    <h2>{% if is_create %}Create Evaluative Assessment Component{% else %}Edit Assessment: {{ assessment.title }}{% endif %}</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Class Section *</label>
+            {{ form.class_section }}
+            {% if form.class_section.errors %}<div class="form-error">{{ form.class_section.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Component Type *</label>
+            {{ form.assessment_type }}
+            {% if form.assessment_type.errors %}<div class="form-error">{{ form.assessment_type.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Assessment Title *</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Evaluation Date *</label>
+            {{ form.date }}
+            {% if form.date.errors %}<div class="form-error">{{ form.date.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Max Marks *</label>
+            {{ form.max_marks }}
+            {% if form.max_marks.errors %}<div class="form-error">{{ form.max_marks.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Weightage (%) *</label>
+            {{ form.weightage_percentage }}
+            {% if form.weightage_percentage.errors %}<div class="form-error">{{ form.weightage_percentage.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Syllabus Topic Focus (Optional)</label>
+          {{ form.topic }}
+          {% if form.topic.errors %}<div class="form-error">{{ form.topic.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            {{ form.is_published }}
+            <span>Publish assessment score breakdown to students</span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <a href="{% url 'portal:teacher_gradebook' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if is_create %}Create Assessment Component{% else %}Save Changes{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

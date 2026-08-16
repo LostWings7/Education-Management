@@ -1,0 +1,50 @@
+{% extends 'portal_base.html' %}
+{% load core_tags %}
+
+{% block title %}Master Timetable - Admin Portal{% endblock %}
+{% block breadcrumb %}Master Timetable{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem;">
+    <div>
+      <h2>Master Institutional Timetable</h2>
+      <p>All scheduled lecture commitments across all 7 days for {{ active_semester.name|default:"Spring 2026" }}</p>
+    </div>
+    <span class="badge badge-admin">{{ active_semester.name|default:"Active Term" }}</span>
+  </div>
+
+  <div class="grid-1" style="gap: 1.5rem;">
+    {% for day_num, day_name in day_choices %}
+      <div class="card">
+        <div class="card-header" style="background: var(--bg-subtle); padding: 0.75rem 1.25rem;">
+          <h3 style="font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="calendar" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
+            <span>{{ day_name }}</span>
+          </h3>
+        </div>
+        <div class="card-body" style="padding: 1rem;">
+          <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+            {% for slot in days_map|dict_lookup:day_num %}
+              <div style="flex: 1; min-width: 260px; padding: 1rem; border-left: 4px solid var(--brand-primary); background: var(--bg-subtle); border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); margin-bottom: 0.25rem;">
+                  {{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}
+                </div>
+                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">{{ slot.class_section.course.code }}: {{ slot.class_section.course.title }}</h4>
+                <div style="font-size: 0.825rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.15rem;">
+                  <div>Section: <strong>{{ slot.class_section.section_code }}</strong> &bull; Room: <strong>{{ slot.room }}</strong></div>
+                  <div>Faculty: <strong>{{ slot.teacher.user.get_full_name }}</strong></div>
+                </div>
+              </div>
+            {% empty %}
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; padding: 0.5rem;">No institutional lecture slots scheduled for {{ day_name }}.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

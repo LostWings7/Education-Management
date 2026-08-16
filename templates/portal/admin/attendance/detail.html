@@ -1,0 +1,62 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Attendance Session Detail - Admin Portal{% endblock %}
+{% block breadcrumb %}Session Detail{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal_admin:attendance_list' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Attendance Sessions</span>
+    </a>
+    <h2>{{ session.class_section.course.code }} (Sec {{ session.class_section.section_code }}) &ndash; {{ session.title }}</h2>
+    <p>
+      Date: <strong>{{ session.session_date|date:"l, M d, Y" }}</strong> &bull;
+      Conducted by: <strong>{{ session.teacher.user.get_full_name }}</strong>
+      {% if session.topic %}&bull; Syllabus: <strong>Topic {{ session.topic.order_index }} ({{ session.topic.title }})</strong>{% endif %}
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Session Roll Call Record</h3>
+      <span class="badge badge-info">{{ records|length }} Students Logged</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Program</th>
+            <th>Attendance Status</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in records %}
+            <tr>
+              <td><strong>{{ r.student.student_id }}</strong></td>
+              <td>{{ r.student.user.get_full_name }}</td>
+              <td><span class="badge badge-indigo">{{ r.student.program.code }}</span></td>
+              <td>
+                <span class="badge {% if r.status == 'PRESENT' %}badge-success{% elif r.status == 'LATE' %}badge-warning{% elif r.status == 'EXCUSED' %}badge-info{% else %}badge-danger{% endif %}">
+                  {{ r.get_status_display }}
+                </span>
+              </td>
+              <td>{{ r.remarks|default:"&ndash;" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No student records attached to this session.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

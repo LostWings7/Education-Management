@@ -1,0 +1,76 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Class Sections - Admin Portal{% endblock %}
+{% block breadcrumb %}Class Sections{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Class Sections & Faculty Allocations</h2>
+      <p>Term-wise offerings, capacity management, and primary teacher assignments</p>
+    </div>
+
+    <!-- Semester Selector -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="semester" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+        {% for sem in semesters %}
+          <option value="{{ sem.pk }}" {% if selected_semester.pk == sem.pk %}selected{% endif %}>{{ sem.name }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Semester</th>
+            <th>Course</th>
+            <th>Section</th>
+            <th>Primary Instructor</th>
+            <th>Room / Lab</th>
+            <th>Enrolled / Capacity</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for section in sections %}
+            <tr>
+              <td><strong>{{ section.semester.name }}</strong></td>
+              <td>
+                <strong>{{ section.course.code }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ section.course.title }}</div>
+              </td>
+              <td><span class="badge badge-secondary">{{ section.section_code }}</span></td>
+              <td>
+                <strong>{{ section.primary_teacher.user.get_full_name }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ section.primary_teacher.department.code }}</div>
+              </td>
+              <td>{{ section.room_number|default:"TBA" }}</td>
+              <td>
+                <strong>{{ section.enrolled_count }}</strong> / {{ section.capacity }}
+                {% if section.is_full %}<span class="badge badge-danger" style="margin-left: 0.25rem;">Full</span>{% endif %}
+              </td>
+              <td>
+                {% if section.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-secondary">Inactive</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No class sections configured for this semester.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

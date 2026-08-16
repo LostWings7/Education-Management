@@ -1,0 +1,188 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Longitudinal Academic Journey - Education Management{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'portal:student_dashboard' %}">Student Dashboard</a> / <span>Academic Journey</span>
+{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  
+  <!-- Journey Header Banner -->
+  <div class="card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white; border: none; border-radius: var(--radius-lg);">
+    <div class="card-body" style="padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+          <span class="badge" style="background: rgba(99, 102, 241, 0.3); color: #c7d2fe; margin-bottom: 0.5rem;">
+            Longitudinal Progress & Trajectory
+          </span>
+          <h1 style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.5rem;">
+            {{ journey.student_name }}'s Academic Journey
+          </h1>
+          <p style="color: #cbd5e1; margin: 0; font-size: 0.95rem;">
+            ID: <strong>{{ journey.student_id }}</strong> &bull; Completed Terms: <strong>{{ journey.completed_terms_count }}</strong>
+          </p>
+        </div>
+
+        <div>
+          <a href="{% url 'portal:student_transcript' %}" class="btn btn-primary btn-sm" style="background: #4f46e5; border-color: #6366f1;">
+            <i data-lucide="printer" style="width: 14px; height: 14px;"></i>
+            <span>Official Print Transcript</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-Stage Progress Horizon Strip -->
+  <div class="grid-3" style="gap: 1.5rem;">
+    
+    <!-- Stage 1: Where You Started -->
+    <div class="card" style="border-top: 4px solid #6366f1;">
+      <div class="card-body" style="padding: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <i data-lucide="play-circle" style="width: 18px; height: 18px; color: #6366f1;"></i>
+          <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;">1. Where You Started</h3>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Initial Academic Baseline
+        </div>
+        <div style="background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Term</div>
+          <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+            {{ journey.where_you_started.semester_name }}
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Term GPA</div>
+          <div style="font-weight: 800; font-size: 1.5rem; color: #6366f1;">
+            {{ journey.where_you_started.initial_gpa|floatformat:2|default:"N/A" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 2: Where You Are -->
+    <div class="card" style="border-top: 4px solid #10b981;">
+      <div class="card-body" style="padding: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <i data-lucide="compass" style="width: 18px; height: 18px; color: #10b981;"></i>
+          <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;">2. Where You Are</h3>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Current Cumulative Standing
+        </div>
+        <div style="background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm);">
+          <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Active Term</div>
+          <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+            {{ journey.where_you_are.semester_name }}
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Cumulative GPA</div>
+          <div style="font-weight: 800; font-size: 1.5rem; color: #10b981;">
+            {{ journey.where_you_are.current_cgpa|floatformat:2|default:"N/A" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 3: Where You Are Headed -->
+    <div class="card" style="border-top: 4px solid #f59e0b;">
+      <div class="card-body" style="padding: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <i data-lucide="sparkles" style="width: 18px; height: 18px; color: #f59e0b;"></i>
+          <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;">3. Where You Are Headed</h3>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          [PROJECTION] Statistical Trajectory
+        </div>
+        <div style="background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm);">
+          {% if journey.where_you_are_headed.status == 'VALID' %}
+            <div style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Projected Next Term GPA</div>
+            <div style="font-weight: 800; font-size: 1.5rem; color: #f59e0b; margin-bottom: 0.25rem;">
+              ~{{ journey.where_you_are_headed.projected_next_gpa|floatformat:2 }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+              Trajectory: <strong>{{ journey.where_you_are_headed.direction }}</strong> ({{ journey.where_you_are_headed.confidence }} Confidence)
+            </div>
+          {% else %}
+            <div style="font-size: 0.85rem; color: var(--text-muted); padding: 0.5rem 0;">
+              <strong>INSUFFICIENT_DATA</strong>: Requires at least 3 completed academic semesters to calculate linear trajectory projections.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Detailed Multi-Term Milestones Timeline -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Academic Semesters & Milestones Record</h3>
+    </div>
+    <div class="card-body" style="padding: 1.5rem;">
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% for m in journey.milestones %}
+          <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; background: var(--bg-surface);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+              <div>
+                <span class="badge {% if m.is_active %}badge-primary{% elif m.is_completed %}badge-success{% else %}badge-neutral{% endif %}" style="margin-bottom: 0.25rem;">
+                  {% if m.is_active %}CURRENT ACTIVE TERM{% elif m.is_completed %}COMPLETED TERM{% else %}SCHEDULED{% endif %}
+                </span>
+                <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800;">{{ m.semester_name }} ({{ m.academic_year }})</h4>
+              </div>
+              <div style="display: flex; gap: 1.5rem;">
+                <div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Term GPA:</span>
+                  <strong style="font-size: 1.1rem; color: var(--text-primary);">{{ m.term_gpa|floatformat:2|default:"In Progress" }}</strong>
+                </div>
+                <div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Cumulative GPA:</span>
+                  <strong style="font-size: 1.1rem; color: var(--primary);">{{ m.cumulative_gpa|floatformat:2|default:"In Progress" }}</strong>
+                </div>
+                <div>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Credits:</span>
+                  <strong style="font-size: 1.1rem;">{{ m.earned_credits }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Term Courses Subtable -->
+            <div class="table-responsive">
+              <table class="data-table" style="font-size: 0.85rem;">
+                <thead>
+                  <tr>
+                    <th>Course Code</th>
+                    <th>Course Title</th>
+                    <th>Credits</th>
+                    <th>Score %</th>
+                    <th>Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in m.courses %}
+                    <tr>
+                      <td><strong>{{ c.course_code }}</strong></td>
+                      <td>{{ c.course_title }}</td>
+                      <td>{{ c.credits }}</td>
+                      <td>{{ c.percentage|floatformat:1|default:"In Progress" }}%</td>
+                      <td>
+                        {% if c.is_published %}
+                          <span class="badge {% if c.grade == 'A' %}badge-success{% elif c.grade == 'F' %}badge-danger{% else %}badge-info{% endif %}">{{ c.grade }}</span>
+                        {% else %}
+                          <span class="badge badge-neutral">IP</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% empty %}
+          <p style="text-align: center; color: var(--text-muted); padding: 2rem;">No historical milestones recorded.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{% if is_create %}Create Assignment{% else %}Edit Assignment{% endif %} - Teacher Portal{% endblock %}
+{% block breadcrumb %}{% if is_create %}New Assignment{% else %}Edit Assignment{% endif %}{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal:teacher_assignments' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Assignments</span>
+    </a>
+    <h2>{% if is_create %}Create New Coursework Assignment{% else %}Edit Assignment: {{ assignment.title }}{% endif %}</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label">Class Section *</label>
+          {{ form.class_section }}
+          {% if form.class_section.errors %}<div class="form-error">{{ form.class_section.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Assignment Title *</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Instructions / Problem Description *</label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="form-error">{{ form.description.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Issue Date *</label>
+            {{ form.issue_date }}
+            {% if form.issue_date.errors %}<div class="form-error">{{ form.issue_date.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Due Date *</label>
+            {{ form.due_date }}
+            {% if form.due_date.errors %}<div class="form-error">{{ form.due_date.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Max Marks *</label>
+            {{ form.max_marks }}
+            {% if form.max_marks.errors %}<div class="form-error">{{ form.max_marks.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Syllabus Topic (Optional)</label>
+            {{ form.topic }}
+            {% if form.topic.errors %}<div class="form-error">{{ form.topic.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Attachment / Problem Sheet (PDF, ZIP, DOCX)</label>
+          {{ form.attachment }}
+          {% if form.attachment.errors %}<div class="form-error">{{ form.attachment.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            {{ form.allow_late_submission }}
+            <span>Allow late submissions</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            {{ form.is_published }}
+            <span>Publish immediately to students</span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <a href="{% url 'portal:teacher_assignments' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if is_create %}Create Assignment{% else %}Save Changes{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

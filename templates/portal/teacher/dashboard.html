@@ -1,0 +1,328 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Faculty Command Hub & Attention Radar - Education Management{% endblock %}
+{% block breadcrumb %}Faculty Overview{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  
+  <!-- Welcome Banner -->
+  <div class="card" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); color: white; border: none; border-radius: var(--radius-lg); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">
+    <div class="card-body" style="padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="badge" style="background: rgba(16, 185, 129, 0.3); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.5);">
+              <i data-lucide="radar" style="width: 12px; height: 12px;"></i> Faculty Portal &bull; Attention Radar
+            </span>
+            {% if judge_mode %}
+              <span class="judge-badge judge-badge-deterministic">DETERMINISTIC RADAR</span>
+            {% endif %}
+          </div>
+          <h1 style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.25rem;">
+            Welcome, {{ user.get_full_name|default:user.email }}!
+          </h1>
+          <p style="color: #a7f3d0; margin: 0; font-size: 0.95rem;">
+            {{ teacher_profile.designation }} &bull; Department of {{ teacher_profile.department.name }} &bull; Active Term: <strong>{{ active_semester.name|default:"Active Term" }}</strong>
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="{% url 'portal:teacher_classes' %}" class="btn btn-sm" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+            <i data-lucide="grid" style="width: 14px; height: 14px;"></i>
+            <span>My Class Sections</span>
+          </a>
+          <a href="{% url 'portal:teacher_interventions' %}" class="btn btn-sm" style="background: #10b981; color: white; border: none;">
+            <i data-lucide="shield-alert" style="width: 14px; height: 14px;"></i>
+            <span>Support & Interventions</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operational Quick Metrics Strip -->
+  <div class="grid-4" style="gap: 1rem;">
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Students Monitored</div>
+        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800;">{{ attention_radar.total_monitored }}</div>
+      </div>
+      <div class="stat-icon indigo">
+        <i data-lucide="users"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Require Immediate Focus</div>
+        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800; color: var(--danger);">
+          {{ attention_radar.needs_attention_count }}
+        </div>
+      </div>
+      <div class="stat-icon red">
+        <i data-lucide="alert-triangle"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Submissions To Grade</div>
+        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800;">{{ pending_submissions_count }}</div>
+      </div>
+      <div class="stat-icon {% if pending_submissions_count > 0 %}amber{% else %}sky{% endif %}">
+        <i data-lucide="file-check"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Teaching Sections</div>
+        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800;">{{ assigned_sections|length }}</div>
+      </div>
+      <div class="stat-icon emerald">
+        <i data-lucide="book-open"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================== -->
+  <!-- MAIN: STUDENT ATTENTION RADAR (Multi-Dimensional Triage)                 -->
+  <!-- ======================================================================== -->
+  <div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="radar" style="width: 20px; height: 20px; color: var(--primary);"></i>
+          <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800;">Student Attention Radar</h3>
+        </div>
+        <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-muted);">
+          Deterministic multi-factor risk, acute anomaly, and attendance deficit triage across all assigned sections.
+        </p>
+      </div>
+
+      <!-- Quick Filter Chips -->
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;" id="radar-filter-chips">
+        <button class="btn btn-sm btn-primary radar-filter-btn" data-target="all">All ({{ attention_radar.total_monitored }})</button>
+        <button class="btn btn-sm btn-outline radar-filter-btn" data-target="critical" style="color: var(--danger); border-color: rgba(239,68,68,0.3);">Critical Focus ({{ attention_radar.critical|length }})</button>
+        <button class="btn btn-sm btn-outline radar-filter-btn" data-target="high" style="color: var(--danger); border-color: rgba(239,68,68,0.3);">High Risk ({{ attention_radar.high|length }})</button>
+        <button class="btn btn-sm btn-outline radar-filter-btn" data-target="medium" style="color: var(--warning); border-color: rgba(245,158,11,0.3);">Moderate ({{ attention_radar.medium|length }})</button>
+        <button class="btn btn-sm btn-outline radar-filter-btn" data-target="stable" style="color: var(--success); border-color: rgba(16,185,129,0.3);">Stable ({{ attention_radar.stable|length }})</button>
+      </div>
+    </div>
+
+    <div class="card-body" style="padding: 1.5rem;">
+      
+      <!-- Tier 1: Critical Attention -->
+      <div class="radar-tier-group" data-tier="critical" style="margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--danger);">
+          <span class="badge badge-danger" style="font-size: 0.8rem; font-weight: 800;">CRITICAL ATTENTION TIER</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Acute score plunges, critical risk escalation, or attendance &lt; 50%</span>
+        </div>
+
+        <div class="grid-2" style="gap: 1rem;">
+          {% for item in attention_radar.critical %}
+            <div style="border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.02); border-radius: var(--radius-md); padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <div>
+                  <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800;">{{ item.student_name }}</h4>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">ID: {{ item.student_id }} &bull; Course: <strong>{{ item.course_code }}</strong></div>
+                </div>
+                <span class="badge badge-danger">{{ item.risk_level }} RISK</span>
+              </div>
+
+              {% if item.is_anomaly %}
+                <div style="background: #fee2e2; border-left: 3px solid #ef4444; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; color: #991b1b; margin-bottom: 0.75rem;">
+                  <strong>Acute Anomaly:</strong> {{ item.anomaly_desc }}
+                </div>
+              {% endif %}
+
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 1rem; background: var(--bg-surface-secondary); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);">
+                <div>Attendance: <strong {% if item.attendance_pct < 60 %}style="color: var(--danger);"{% endif %}>{{ item.attendance_pct|floatformat:1 }}%</strong></div>
+                <div>Risk Index: <strong>{{ item.risk_score|floatformat:1 }}</strong>/100</div>
+                <div>Trend: <strong>{{ item.trajectory }}</strong></div>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem;">
+                <a href="{% url 'portal:teacher_class_detail' section_id=item.section_id %}" class="btn btn-outline btn-sm" style="flex: 1; justify-content: center;">Roster Record</a>
+                <a href="{% url 'portal:teacher_interventions' %}" class="btn btn-danger btn-sm" style="flex: 1; justify-content: center;">Support Plan</a>
+              </div>
+            </div>
+          {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem; grid-column: span 2;">No students currently in critical attention tier.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Tier 2: High Attention -->
+      <div class="radar-tier-group" data-tier="high" style="margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ef4444;">
+          <span class="badge badge-danger" style="font-size: 0.8rem; font-weight: 800;">HIGH RISK TIER</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Attendance &lt; 60% or multi-factor high risk</span>
+        </div>
+
+        <div class="grid-2" style="gap: 1rem;">
+          {% for item in attention_radar.high %}
+            <div style="border: 1px solid var(--border-color); background: var(--bg-surface); border-radius: var(--radius-md); padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <div>
+                  <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800;">{{ item.student_name }}</h4>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">ID: {{ item.student_id }} &bull; Course: <strong>{{ item.course_code }}</strong></div>
+                </div>
+                <span class="badge badge-danger">HIGH RISK</span>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 1rem; background: var(--bg-surface-secondary); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);">
+                <div>Attendance: <strong style="color: var(--danger);">{{ item.attendance_pct|floatformat:1 }}%</strong></div>
+                <div>Risk Index: <strong>{{ item.risk_score|floatformat:1 }}</strong>/100</div>
+                <div>Active Plans: <strong>{{ item.active_interventions }}</strong></div>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem;">
+                <a href="{% url 'portal:teacher_class_detail' section_id=item.section_id %}" class="btn btn-outline btn-sm" style="flex: 1; justify-content: center;">Roster Record</a>
+                <a href="{% url 'portal:teacher_interventions' %}" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center;">Review Support</a>
+              </div>
+            </div>
+          {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem; grid-column: span 2;">No students currently in high risk tier.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Tier 3: Medium Attention -->
+      <div class="radar-tier-group" data-tier="medium" style="margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--warning);">
+          <span class="badge badge-warning" style="font-size: 0.8rem; font-weight: 800;">MODERATE MONITORING TIER</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Declining trajectory or moderate risk</span>
+        </div>
+
+        <div class="grid-2" style="gap: 1rem;">
+          {% for item in attention_radar.medium %}
+            <div style="border: 1px solid var(--border-color); background: var(--bg-surface); border-radius: var(--radius-md); padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <div>
+                  <h4 style="margin: 0; font-size: 1rem; font-weight: 700;">{{ item.student_name }}</h4>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">ID: {{ item.student_id }} &bull; Course: <strong>{{ item.course_code }}</strong></div>
+                </div>
+                <span class="badge badge-warning">{{ item.risk_level }}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.75rem; background: var(--bg-surface-secondary); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);">
+                <div>Attendance: <strong>{{ item.attendance_pct|floatformat:1 }}%</strong></div>
+                <div>Risk: <strong>{{ item.risk_score|floatformat:1 }}</strong></div>
+                <div>Trend: <strong>{{ item.trajectory }}</strong></div>
+              </div>
+              <a href="{% url 'portal:teacher_class_detail' section_id=item.section_id %}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;">View Student Roster</a>
+            </div>
+          {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem; grid-column: span 2;">No students currently in moderate monitoring tier.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Tier 4: Stable -->
+      <div class="radar-tier-group" data-tier="stable">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--success);">
+          <span class="badge badge-success" style="font-size: 0.8rem; font-weight: 800;">STABLE & CONSISTENT TIER ({{ attention_radar.stable|length }})</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Low risk, consistent participation & mastery</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+          {{ attention_radar.stable|length }} student(s) maintaining consistent attendance and low risk across your sections.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Lower Modules Grid -->
+  <div class="grid-2" style="gap: 1.5rem;">
+    <!-- Assigned Sections Hub -->
+    <div class="card">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Teaching Sections Hub</h3>
+        <a href="{% url 'portal:teacher_classes' %}" class="btn btn-outline btn-sm">Manage All</a>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Section</th>
+              <th>Course Title</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sec in assigned_sections %}
+              <tr>
+                <td><strong>{{ sec.course.code }} (Sec {{ sec.section_code }})</strong></td>
+                <td>{{ sec.course.title }}</td>
+                <td style="display: flex; gap: 0.5rem;">
+                  <a href="{% url 'portal:teacher_class_detail' section_id=sec.pk %}" class="btn btn-outline btn-sm">Classroom</a>
+                  <a href="{% url 'portal:teacher_class_analytics' section_id=sec.pk %}" class="btn btn-primary btn-sm">Intelligence</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Today's Schedule -->
+    <div class="card">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Today's Lectures</h3>
+        <a href="{% url 'portal:teacher_timetable' %}" class="btn btn-outline btn-sm">Full Timetable</a>
+      </div>
+      <div class="card-body" style="padding: 1rem;">
+        {% if today_schedule %}
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for slot in today_schedule %}
+              <div style="padding: 0.75rem; background: var(--bg-surface-secondary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary);">
+                <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.85rem;">
+                  <span>{{ slot.class_section.course.code }} (Sec {{ slot.class_section.section_code }})</span>
+                  <span style="color: var(--primary);">{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                  Room: {{ slot.room|default:"TBD" }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin: 1rem 0;">
+            No teaching sessions scheduled for today.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Client-side filter script for Attention Radar -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const filterBtns = document.querySelectorAll('.radar-filter-btn');
+    const tierGroups = document.querySelectorAll('.radar-tier-group');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => {
+          b.classList.remove('btn-primary');
+          b.classList.add('btn-outline');
+        });
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-outline');
+
+        const target = btn.getAttribute('data-target');
+        tierGroups.forEach(group => {
+          if (target === 'all' || group.getAttribute('data-tier') === target) {
+            group.style.display = 'block';
+          } else {
+            group.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}

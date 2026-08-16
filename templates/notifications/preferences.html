@@ -1,0 +1,85 @@
+{% extends "portal_base.html" %}
+
+{% block title %}Notification Preferences | Education Management Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px;">
+  <!-- Header -->
+  <div>
+    <h2>Notification Preferences</h2>
+    <p style="color: var(--text-muted); margin: 0;">
+      Control which notifications you receive and your periodic academic digest frequency.
+    </p>
+  </div>
+
+  <form method="post" class="card" style="display: flex; flex-direction: column; gap: 1.25rem; padding: 1.5rem;">
+    {% csrf_token %}
+
+    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+      <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">Academic & Safety Alerts</h3>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; background: var(--bg-subtle); padding: 0.75rem 1rem; border-radius: var(--radius-md);">
+        <input type="checkbox" checked disabled style="margin-top: 0.25rem;">
+        <div>
+          <strong>Critical Risk & Attendance Escalations (Mandatory)</strong>
+          <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+            Institutional safety policy requires critical academic risk and attendance deficit notifications to remain enabled.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+      <h3 style="margin: 0; font-size: 1.1rem;">Coursework & Support Toggles</h3>
+
+      <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+        <input type="checkbox" name="enable_assignment_reminders" {% if preferences.enable_assignment_reminders %}checked{% endif %} style="margin-top: 0.25rem;">
+        <div>
+          <strong>Assignment Due Dates & Reminders</strong>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Upcoming 24-hour deadline warnings and overdue submissions.</div>
+        </div>
+      </label>
+
+      <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+        <input type="checkbox" name="enable_attendance_warnings" {% if preferences.enable_attendance_warnings %}checked{% endif %} style="margin-top: 0.25rem;">
+        <div>
+          <strong>Attendance Standing Alerts</strong>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Absence buffer exhaustion warnings (&lt;75%).</div>
+        </div>
+      </label>
+
+      <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+        <input type="checkbox" name="enable_intervention_updates" {% if preferences.enable_intervention_updates %}checked{% endif %} style="margin-top: 0.25rem;">
+        <div>
+          <strong>Academic Support Plans & Interventions</strong>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Action checklist reminders and supervisor review updates.</div>
+        </div>
+      </label>
+
+      <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+        <input type="checkbox" name="enable_announcements" {% if preferences.enable_announcements %}checked{% endif %} style="margin-top: 0.25rem;">
+        <div>
+          <strong>Course Announcements</strong>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Notices published by instructors and academic departments.</div>
+        </div>
+      </label>
+    </div>
+
+    <div>
+      <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem;">Smart Periodic Digest</h3>
+      <div class="form-group">
+        <label class="form-label">Digest Frequency</label>
+        <select name="digest_frequency" class="form-input" style="max-width: 300px;">
+          <option value="DAILY" {% if preferences.digest_frequency == 'DAILY' %}selected{% endif %}>Daily Morning Digest</option>
+          <option value="WEEKLY" {% if preferences.digest_frequency == 'WEEKLY' %}selected{% endif %}>Weekly Monday Digest</option>
+          <option value="NONE" {% if preferences.digest_frequency == 'NONE' %}selected{% endif %}>No Periodic Digest</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+      <a href="{% url 'notifications:list' %}" class="btn btn-outline">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save Preferences</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

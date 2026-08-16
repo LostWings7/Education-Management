@@ -1,0 +1,72 @@
+{% extends "portal_base.html" %}
+
+{% block title %}Academic Lifecycle Timeline | Student Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 900px;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <h2>Academic Lifecycle Timeline</h2>
+        <span class="badge badge-info">Chronological Journey</span>
+      </div>
+      <p style="color: var(--text-muted); margin: 0;">
+        Verified chronological record of enrollments, coursework submissions, assessment scores, support interventions, and grade publications.
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'portal:student_transcript' %}" class="btn btn-outline">
+        <i data-lucide="award" style="width: 16px; height: 16px;"></i>
+        <span>Official Transcript</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Timeline Flow -->
+  <div class="card" style="padding: 2rem; position: relative;">
+    <div style="position: absolute; top: 2.5rem; bottom: 2.5rem; left: 3.25rem; width: 2px; background: var(--border-color); z-index: 1;"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.75rem; position: relative; z-index: 2;">
+      {% for event in timeline_events %}
+        <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+          <!-- Timestamp dot -->
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--surface-color); border: 2px solid var(--color-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.25rem; box-shadow: 0 0 0 4px var(--bg-subtle);">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-primary);"></div>
+          </div>
+
+          <!-- Event Body -->
+          <div style="flex: 1; background: var(--bg-subtle); padding: 1rem 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="badge {{ event.badge_class }}">{{ event.event_type }}</span>
+                {% if event.course_code %}
+                  <span class="badge badge-neutral">{{ event.course_code }}</span>
+                {% endif %}
+                <strong style="font-size: 0.95rem;">{{ event.title }}</strong>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">
+                {{ event.timestamp|date:"M d, Y H:i" }}
+              </div>
+            </div>
+
+            <p style="margin: 0.35rem 0 0 0; font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;">
+              {{ event.description }}
+            </p>
+
+            {% if event.link_url %}
+              <div style="margin-top: 0.5rem;">
+                <a href="{{ event.link_url }}" style="font-size: 0.8rem; font-weight: 600; color: var(--color-primary);">View Support Plan &rarr;</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          No lifecycle events recorded yet.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

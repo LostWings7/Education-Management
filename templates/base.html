@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Education Management Portal{% endblock %}</title>
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Core Theme CSS -->
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Public Header -->
+  <header class="public-header">
+    <div class="container">
+      <nav class="public-navbar">
+        <a href="{% url 'public:home' %}" class="brand-logo">
+          <div class="brand-icon">
+            <i data-lucide="graduation-cap"></i>
+          </div>
+          <span>Education Management</span>
+        </a>
+
+        <ul class="nav-menu">
+          <li><a href="{% url 'public:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+          <li><a href="{% url 'public:courses' %}" class="nav-link {% if request.resolver_match.url_name == 'courses' %}active{% endif %}">Programs & Courses</a></li>
+          <li><a href="{% url 'public:demo_showcase' %}" class="nav-link {% if request.resolver_match.url_name == 'demo_showcase' %}active{% endif %}">Live Demo</a></li>
+          <li><a href="{% url 'public:contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          {% if user.is_authenticated %}
+            <a href="{% url 'portal:dispatcher' %}" class="btn btn-primary btn-sm">
+              <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
+              Go to Portal
+            </a>
+            <form method="post" action="{% url 'core:logout' %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-secondary btn-sm">Log out</button>
+            </form>
+          {% else %}
+            <a href="{% url 'core:login' %}" class="btn btn-secondary btn-sm">Log In</a>
+            <a href="{% url 'core:register' %}" class="btn btn-primary btn-sm">Student Registration</a>
+          {% endif %}
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Global Flash Messages -->
+  {% if messages %}
+    <div class="container" style="margin-top: 1.5rem;">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }}">
+          <span>{{ message }}</span>
+          <button type="button" class="alert-close">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Public Footer -->
+  <footer class="public-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="brand-logo" style="color: white; margin-bottom: 1rem;">
+            <div class="brand-icon">
+              <i data-lucide="graduation-cap"></i>
+            </div>
+            <span>Education Management</span>
+          </div>
+          <p style="color: #94a3b8; font-size: 0.875rem; max-width: 320px;">
+            A unified academic management platform providing reliable institutional workflows, secure role-based portals, and foundational intelligence architecture.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Academic Portals</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'core:login' %}">Student Portal</a></li>
+            <li><a href="{% url 'core:login' %}">Teacher Portal</a></li>
+            <li><a href="{% url 'portal_admin:dashboard' %}">Administrator Dashboard</a></li>
+            <li><a href="/django-admin/">Internal Admin</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'public:home' %}">Home</a></li>
+            <li><a href="{% url 'public:courses' %}">Programs & Catalog</a></li>
+            <li><a href="{% url 'public:contact' %}">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Security & Access</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'core:login' %}">Sign In</a></li>
+            <li><a href="{% url 'core:register' %}">Student Sign Up</a></li>
+            <li><span style="font-size: 0.8rem; color: #64748b;">RBAC Enforced</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Education Management Portal. All rights reserved.</div>
+        <div style="display: flex; gap: 1rem;">
+          <span>Version 1.0.0 (Foundation)</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{% static 'js/app.js' %}"></script>
+  <script>
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

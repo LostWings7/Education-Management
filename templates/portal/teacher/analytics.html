@@ -1,0 +1,198 @@
+{% extends "portal_base.html" %}
+{% load analytics_tags %}
+
+{% block title %}Class Analytics & Topic Diagnostics | Faculty Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header with Section Selector -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Class Intelligence & Topic Diagnostics</h2>
+      <p style="color: var(--text-muted); margin: 0;">Deterministic class performance distribution, syllabus weak spots, and student risk radar.</p>
+    </div>
+    <div>
+      <a href="{% url 'portal:teacher_early_warnings' %}" class="btn btn-primary">
+        <i data-lucide="bell" style="width: 16px; height: 16px;"></i>
+        <span>Early Warning Alerts</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Class Selector -->
+  <div class="card" style="padding: 1rem 1.25rem;">
+    <form method="get" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      <label class="form-label" style="margin: 0; font-weight: 600;">Teaching Section:</label>
+      <select name="section_id" class="form-select" style="max-width: 400px;" onchange="location.href='{% url 'portal:teacher_analytics' %}?section_id=' + this.value">
+        {% for s in sections %}
+          <option value="{{ s.pk }}" {% if selected_section and selected_section.pk == s.pk %}selected{% endif %}>
+            {{ s.course.code }}: {{ s.course.title }} (Sec {{ s.section_code }})
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if selected_section %}
+    <!-- Section Distribution KPIs -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+      <div class="card" style="padding: 1.25rem;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Class Mean Score</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--color-primary); margin-top: 0.25rem;">
+          {{ distribution.class_mean|format_pct }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Evaluated on {{ distribution.evaluated_count }} of {{ distribution.enrolled_count }} students</div>
+      </div>
+
+      <div class="card" style="padding: 1.25rem;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Class Median</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--color-info); margin-top: 0.25rem;">
+          {{ distribution.class_median|format_pct }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Range: {{ distribution.class_min|format_pct }} – {{ distribution.class_max|format_pct }}</div>
+      </div>
+
+      <div class="card" style="padding: 1.25rem;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Standard Deviation</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">
+          {{ distribution.std_dev|default:"0.0" }}%
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Score Dispersion</div>
+      </div>
+
+      <div class="card" style="padding: 1.25rem;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Statistical Association</div>
+        <div style="font-size: 1.2rem; font-weight: 700; color: var(--color-success); margin-top: 0.25rem;">
+          r = {{ correlation.pearson_r|default:"N/A" }}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Attendance vs Marks (N={{ correlation.sample_size }})</div>
+      </div>
+    </div>
+
+    <!-- Syllabus Topic Diagnostic Matrix -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Class-Wide Syllabus Topic Diagnostics</h3>
+      </div>
+      <div class="card-body">
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Identifies syllabus modules where students collectively excel or require remedial lecture reinforcement.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+          {% for ts in topic_summary %}
+            <div style="padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: {% if ts.status == 'STRONG' %}#f0fdf4{% elif ts.status == 'DEVELOPING' %}#fffbeb{% elif ts.status == 'NEEDS_REVISION' %}#fef2f2{% else %}var(--bg-subtle){% endif %};">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">Topic {{ ts.topic.order_index }}</div>
+                  <strong style="font-size: 0.95rem; display: block; margin-top: 0.15rem;">{{ ts.topic.title }}</strong>
+                </div>
+                <div>
+                  {% if ts.average_score is not None %}
+                    <span style="font-size: 1.25rem; font-weight: 700; color: {% if ts.status == 'STRONG' %}#166534{% elif ts.status == 'DEVELOPING' %}#854d0e{% else %}#9f1239{% endif %};">
+                      {{ ts.average_score }}%
+                    </span>
+                  {% else %}
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">No evals</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div style="margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-secondary);">
+                Evaluated on {{ ts.evaluated_students_count }} student submissions
+              </div>
+            </div>
+          {% empty %}
+            <div style="color: var(--text-muted); font-size: 0.875rem;">No syllabus topics defined for this course yet.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Roster Risk Radar Matrix -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Enrolled Student Risk Radar Matrix</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Student ID & Name</th>
+              <th>Weighted Score</th>
+              <th>Attendance</th>
+              <th>Trajectory</th>
+              <th>Academic Risk</th>
+              <th>Status / Signals</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in student_matrix %}
+              <tr>
+                <td>
+                  <strong>{{ row.student.student_id }}</strong>
+                  <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    {{ row.student.user.get_full_name|default:row.student.user.email }}
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ row.performance.weighted_score|format_pct }}</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    {{ row.performance.consistency_label }}
+                  </div>
+                </td>
+                <td>
+                  <span style="font-weight: 600; color: {% if row.attendance.attendance_percentage >= 75 %}var(--color-success){% else %}var(--color-danger){% endif %};">
+                    {{ row.attendance.attendance_percentage|format_pct }}
+                  </span>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    Buffer: {{ row.attendance.absence_buffer }} classes
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.35rem;">
+                    <i data-lucide="{{ row.trend.direction|trend_icon }}" style="width: 16px; height: 16px;"></i>
+                    <span>{{ row.trend.direction }}</span>
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    Slope: {{ row.trend.slope|default:"0.0" }} pts
+                  </div>
+                </td>
+                <td>
+                  <span class="badge {{ row.risk.risk_level|risk_badge_class }}">
+                    {{ row.risk.risk_level }} ({{ row.risk.composite_score }}/100)
+                  </span>
+                </td>
+                <td>
+                  {% if row.anomaly.is_anomaly %}
+                    <span class="badge badge-danger" title="{{ row.anomaly.summary }}">
+                      <i data-lucide="alert-triangle" style="width: 12px; height: 12px;"></i>
+                      Acute Drop
+                    </span>
+                  {% elif row.risk.risk_level == 'CRITICAL' %}
+                    <span class="badge badge-danger">Needs Immediate Attention</span>
+                  {% elif row.risk.risk_level == 'HIGH' %}
+                    <span class="badge badge-warning">At Risk</span>
+                  {% else %}
+                    <span class="badge badge-success">Good Standing</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                  No students currently enrolled in this section.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="card" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+      No assigned teaching sections found.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

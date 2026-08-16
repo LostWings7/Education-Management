@@ -1,0 +1,88 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Attendance Management - Faculty Portal{% endblock %}
+{% block breadcrumb %}Attendance Management{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Faculty Attendance Hub</h2>
+      <p>Manage lecture sessions and log student attendance records</p>
+    </div>
+
+    <!-- Section Filter Form -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="section" class="form-select" onchange="this.form.submit()" style="min-width: 220px;">
+        {% for s in sections %}
+          <option value="{{ s.pk }}" {% if selected_section.pk == s.pk %}selected{% endif %}>{{ s.course.code }} (Sec {{ s.section_code }})</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if selected_section %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h3 style="font-size: 1.25rem;">{{ selected_section.course.code }}: {{ selected_section.course.title }} (Sec {{ selected_section.section_code }})</h3>
+        <p style="margin: 0; font-size: 0.85rem;">Enrolled: <strong>{{ roster|length }} Students</strong> &bull; Total Sessions Conducted: <strong>{{ sessions|length }}</strong></p>
+      </div>
+
+      <a href="{% url 'portal:teacher_take_attendance' section_id=selected_section.pk %}" class="btn btn-primary">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+        <span>Take Attendance For New Session</span>
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Conducted Lecture Sessions</h3>
+        <span class="badge badge-secondary">{{ sessions|length }} Logged</span>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Session Topic / Title</th>
+              <th>Covered Topic</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sess in sessions %}
+              <tr>
+                <td><strong>{{ sess.session_date|date:"M d, Y" }}</strong></td>
+                <td>
+                  <strong>{{ sess.title }}</strong>
+                  {% if sess.session_notes %}
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ sess.session_notes }}</div>
+                  {% endif %}
+                </td>
+                <td>{{ sess.topic.title|default:"General Lecture" }}</td>
+                <td><span class="badge badge-success">Completed</span></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                  No attendance sessions conducted for this class section yet. Click above to log your first session.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <i data-lucide="clipboard-check"></i>
+      </div>
+      <div class="empty-state-title">No Class Sections Available</div>
+      <p class="empty-state-desc">You are not assigned as the primary teacher for any active class sections.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

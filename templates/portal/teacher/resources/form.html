@@ -1,0 +1,76 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Upload Learning Resource - Teacher Portal{% endblock %}
+{% block breadcrumb %}Upload Resource{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal:teacher_resources' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Resources</span>
+    </a>
+    <h2>Upload New Learning Resource</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Course *</label>
+            {{ form.course }}
+            {% if form.course.errors %}<div class="form-error">{{ form.course.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Resource Type *</label>
+            {{ form.resource_type }}
+            {% if form.resource_type.errors %}<div class="form-error">{{ form.resource_type.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Resource Title *</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Brief Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="form-error">{{ form.description.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Upload File (PDF, Slides, DOCX, ZIP)</label>
+          {{ form.file }}
+          {% if form.file.errors %}<div class="form-error">{{ form.file.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Or External URL / Link</label>
+          {{ form.external_url }}
+          {% if form.external_url.errors %}<div class="form-error">{{ form.external_url.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            {{ form.is_published }}
+            <span>Publish immediately to enrolled students</span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <a href="{% url 'portal:teacher_resources' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Upload Resource</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

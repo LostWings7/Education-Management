@@ -1,0 +1,95 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Curricular Intelligence - {{ section.course.code }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'portal:teacher_dashboard' %}">Faculty Dashboard</a> / <a href="{% url 'portal:teacher_classes' %}">Classes</a> / <span>{{ section.course.code }} Intelligence</span>
+{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  
+  <div class="card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: var(--radius-lg);">
+    <div class="card-body" style="padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge" style="background: rgba(99, 102, 241, 0.3); color: #c7d2fe; margin-bottom: 0.5rem;">Curricular Intelligence & Friction Analysis</span>
+          <h1 style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.5rem;">
+            {{ section.course.code }}: {{ section.course.title }}
+          </h1>
+          <p style="color: #cbd5e1; margin: 0; font-size: 0.95rem;">
+            Section {{ section.section_code }} &bull; Enrolled Students: <strong>{{ enrolled_count }}</strong>
+          </p>
+        </div>
+        <a href="{% url 'portal:teacher_class_detail' section_id=section.pk %}" class="btn btn-outline btn-sm" style="color: white; border-color: rgba(255,255,255,0.3);">
+          Back to Section Hub
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Topics Requiring Attention & Friction Matrix -->
+  <div class="card">
+    <div class="card-header">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <i data-lucide="alert-circle" style="width: 18px; height: 18px; color: var(--warning);"></i>
+        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Syllabus Topic Friction Analysis</h3>
+      </div>
+      <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-muted);">
+        Identifies curricular friction points where cohort topic mastery drops below standards.
+      </p>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 60px;">Order</th>
+            <th>Topic Title</th>
+            <th>Observed Mastery</th>
+            <th>Friction Level</th>
+            <th>Suggested Pedagogical Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in topic_analysis %}
+            <tr>
+              <td><strong>#{{ t.topic.order_index }}</strong></td>
+              <td>{{ t.topic.title }}</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div style="flex: 1; max-width: 120px; height: 8px; background: var(--bg-surface-secondary); border-radius: 4px; overflow: hidden;">
+                    <div style="width: {{ t.average_score|default:0 }}%; height: 100%; background: {% if t.friction_level == 'HIGH' %}var(--danger){% elif t.friction_level == 'MODERATE' %}var(--warning){% else %}var(--success){% endif %};"></div>
+                  </div>
+                  <span style="font-weight: 700; font-size: 0.85rem;">{{ t.average_score|floatformat:1|default:"N/A" }}%</span>
+                </div>
+              </td>
+              <td>
+                {% if t.friction_level == 'HIGH' %}
+                  <span class="badge badge-danger">HIGH FRICTION (&lt;60%)</span>
+                {% elif t.friction_level == 'MODERATE' %}
+                  <span class="badge badge-warning">MODERATE (&lt;75%)</span>
+                {% else %}
+                  <span class="badge badge-success">HEALTHY (&ge;75%)</span>
+                {% endif %}
+              </td>
+              <td style="font-size: 0.85rem; color: var(--text-secondary);">
+                {% if t.friction_level == 'HIGH' %}
+                  Conduct targeted recitation & upload supplementary practice questions.
+                {% elif t.friction_level == 'MODERATE' %}
+                  Review formative assignment questions during next lecture.
+                {% else %}
+                  Cohort demonstrates solid foundational comprehension.
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">No syllabus topics linked to this course.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

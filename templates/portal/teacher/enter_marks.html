@@ -1,0 +1,74 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Record Marks: {{ assessment.title }} - Teacher Portal{% endblock %}
+{% block breadcrumb %}Record Assessment Marks{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal:teacher_gradebook' %}?section={{ assessment.class_section.pk }}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Gradebook</span>
+    </a>
+    <h2>Record Scores: {{ assessment.title }}</h2>
+    <p>
+      Course: <strong>{{ assessment.class_section.course.code }}</strong> (Sec {{ assessment.class_section.section_code }}) &bull;
+      Type: <strong>{{ assessment.get_assessment_type_display }}</strong> &bull;
+      Max Marks: <strong>{{ assessment.max_marks }}</strong> &bull;
+      Weightage: <strong>{{ assessment.weightage_percentage }}%</strong>
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Student Score Entry Matrix</h3>
+      <span class="badge badge-info">{{ student_rows|length }} Students</span>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="table-responsive" style="margin-bottom: 1.5rem;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Student Full Name</th>
+                <th>Program</th>
+                <th>Obtained Marks (Max: {{ assessment.max_marks }})</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in student_rows %}
+                <tr>
+                  <td><strong>{{ row.enrollment.student.student_id }}</strong></td>
+                  <td>{{ row.enrollment.student.user.get_full_name }}</td>
+                  <td><span class="badge badge-indigo">{{ row.enrollment.student.program.code }}</span></td>
+                  <td>
+                    <input type="number" step="0.5" min="0" max="{{ assessment.max_marks }}" 
+                           name="marks_{{ row.enrollment.student.pk }}" 
+                           value="{{ row.marks }}" 
+                           placeholder="0 &ndash; {{ assessment.max_marks }}" 
+                           class="form-input" style="max-width: 160px;">
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students enrolled in this section.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <a href="{% url 'portal:teacher_gradebook' %}?section={{ assessment.class_section.pk }}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Save Assessment Marks</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

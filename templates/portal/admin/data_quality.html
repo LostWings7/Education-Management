@@ -1,0 +1,128 @@
+{% extends "portal_base.html" %}
+
+{% block title %}Academic Data Quality Center | Admin Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <h2>Academic Data Quality Center</h2>
+        {% if audit.critical_count == 0 and audit.overall_score >= 90.0 %}
+          <span class="badge badge-success">Data Healthy</span>
+        {% else %}
+          <span class="badge badge-danger">Attention Required</span>
+        {% endif %}
+      </div>
+      <p style="color: var(--text-muted); margin: 0;">
+        Deterministic 6-dimension institutional data audit inspecting profile, curriculum, assessment, and timetable integrity.
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'portal_admin:analytics' %}" class="btn btn-outline">
+        <i data-lucide="line-chart" style="width: 16px; height: 16px;"></i>
+        <span>University Analytics</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Overall Score & Alert Summary Banner -->
+  <div class="card" style="padding: 1.75rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+      <div>
+        <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8;">Institutional Quality Score</div>
+        <div style="font-size: 3rem; font-weight: 800; color: {% if audit.overall_score >= 90 %}#10b981{% elif audit.overall_score >= 75 %}#f59e0b{% else %}#ef4444{% endif %}; margin-top: 0.25rem;">
+          {{ audit.overall_score }}%
+        </div>
+        <div style="font-size: 0.85rem; opacity: 0.85; margin-top: 0.25rem;">
+          Weighted composite across 6 authoritative academic structural dimensions.
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <div class="card" style="padding: 1rem 1.5rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); text-align: center;">
+          <div style="font-size: 0.8rem; color: #fca5a5;">🔴 Critical Issues</div>
+          <div style="font-size: 2rem; font-weight: 800; color: #f87171; margin-top: 0.25rem;">
+            {{ audit.critical_count }}
+          </div>
+        </div>
+
+        <div class="card" style="padding: 1rem 1.5rem; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); text-align: center;">
+          <div style="font-size: 0.8rem; color: #fcd34d;">⚠ Warnings</div>
+          <div style="font-size: 2rem; font-weight: 800; color: #fbbf24; margin-top: 0.25rem;">
+            {{ audit.warning_count }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6-Dimension Score Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+    {% for dim_name, score in audit.dimension_scores.items %}
+      <div class="card" style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">{{ dim_name }}</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">
+            {{ score }}%
+          </div>
+        </div>
+        <div>
+          {% if score >= 95.0 %}
+            <span class="badge badge-success">✓ Optimal</span>
+          {% elif score >= 80.0 %}
+            <span class="badge badge-warning">⚠ Minor Gaps</span>
+          {% else %}
+            <span class="badge badge-danger">🔴 Action Req</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Detected Integrity Issues Table -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div class="card-header" style="background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-size: 1.05rem;">Detected Academic Data Issues ({{ audit.total_issues }})</h3>
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Resolved via Administrative CRUD</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border-color); text-align: left; font-size: 0.8rem; color: var(--text-muted);">
+            <th style="padding: 0.75rem 1rem;">Severity</th>
+            <th style="padding: 0.75rem 1rem;">Dimension</th>
+            <th style="padding: 0.75rem 1rem;">Affected Entity</th>
+            <th style="padding: 0.75rem 1rem;">Description</th>
+            <th style="padding: 0.75rem 1rem;">Suggested Remediation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for issue in audit.issues %}
+            <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.875rem;">
+              <td style="padding: 0.75rem 1rem;">
+                <span class="badge {% if issue.severity == 'CRITICAL' %}badge-danger{% elif issue.severity == 'WARNING' %}badge-warning{% else %}badge-info{% endif %}">
+                  {{ issue.severity }}
+                </span>
+              </td>
+              <td style="padding: 0.75rem 1rem; font-weight: 600;">{{ issue.dimension }}</td>
+              <td style="padding: 0.75rem 1rem; color: var(--color-primary); font-weight: 600;">{{ issue.entity }}</td>
+              <td style="padding: 0.75rem 1rem; color: var(--text-secondary); line-height: 1.4;">{{ issue.description }}</td>
+              <td style="padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--text-muted);">{{ issue.suggestion }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                <i data-lucide="check-circle" style="width: 32px; height: 32px; color: #10b981; margin-bottom: 0.5rem;"></i>
+                <div>Zero integrity issues detected. Academic database satisfies 100% structural quality rules.</div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

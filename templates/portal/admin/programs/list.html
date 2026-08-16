@@ -1,0 +1,95 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Degree Programs - Admin Portal{% endblock %}
+{% block breadcrumb %}Degree Programs{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Degree Programs</h2>
+      <p>Manage degree curricula, levels, duration, and departmental affiliations</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'portal_admin:program_create' %}" class="btn btn-primary">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+        <span>Add Degree Program</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="background: var(--bg-subtle);">
+      <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; width: 100%;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search program code or title..." class="form-input" style="flex: 1; min-width: 200px;">
+        <select name="department" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+          <option value="">All Departments</option>
+          {% for d in departments %}
+            <option value="{{ d.pk }}" {% if selected_dept == d.pk|stringformat:"i" %}selected{% endif %}>{{ d.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="level" class="form-select" onchange="this.form.submit()" style="min-width: 160px;">
+          <option value="">All Degree Levels</option>
+          {% for lvl_val, lvl_label in degree_levels %}
+            <option value="{{ lvl_val }}" {% if selected_level == lvl_val %}selected{% endif %}>{{ lvl_label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Program Code</th>
+            <th>Program Name</th>
+            <th>Department</th>
+            <th>Degree Level</th>
+            <th>Duration</th>
+            <th>Enrolled Students</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for prog in programs %}
+            <tr>
+              <td><span class="badge badge-indigo" style="font-weight: 700;">{{ prog.code }}</span></td>
+              <td><strong>{{ prog.name }}</strong></td>
+              <td>{{ prog.department.name }}</td>
+              <td><span class="badge badge-secondary">{{ prog.get_degree_level_display }}</span></td>
+              <td>{{ prog.duration_years }} Yrs ({{ prog.total_semesters }} Sem)</td>
+              <td><strong>{{ prog.students.count }}</strong></td>
+              <td>
+                {% if prog.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-secondary">Archived</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="{% url 'portal_admin:program_edit' pk=prog.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                  <form method="post" action="{% url 'portal_admin:program_toggle_status' pk=prog.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm {% if prog.is_active %}btn-outline{% else %}btn-primary{% endif %}">
+                      {% if prog.is_active %}Archive{% else %}Activate{% endif %}
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No degree programs match the criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

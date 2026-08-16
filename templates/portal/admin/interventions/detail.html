@@ -1,0 +1,179 @@
+{% extends "portal_base.html" %}
+{% load intervention_tags %}
+
+{% block title %}Audit Inspector | {{ intervention.title }}{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <span class="badge badge-neutral">{{ intervention.course.code }} (Sec {{ intervention.class_section.section_code }})</span>
+        {{ intervention.priority|intervention_priority_badge }}
+        {{ intervention.status|intervention_status_badge }}
+      </div>
+      <h2>{{ intervention.title }}</h2>
+      <p style="color: var(--text-muted); margin: 0;">
+        Student: <strong>{{ intervention.student.user.get_full_name|default:intervention.student.user.email }}</strong> ({{ intervention.student.student_id }}) | Department: {{ intervention.student.department.code }}
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'portal_admin:interventions_overview' %}" class="btn btn-outline">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        <span>Back to Oversight</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Plan Specification & Frozen Baseline -->
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem;">
+    <div class="card">
+      <div class="card-header">
+        <h3>Intervention Details & Governance</h3>
+      </div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+          <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Supervising Educator</div>
+            <div style="font-weight: 700; margin-top: 0.25rem;">{{ intervention.assigned_to.user.get_full_name|default:intervention.assigned_to.user.email }}</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Initiator / Creator</div>
+            <div style="font-weight: 700; margin-top: 0.25rem;">{{ intervention.created_by.get_full_name|default:intervention.created_by.email }}</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Target Due Date</div>
+            <div style="font-weight: 700; margin-top: 0.25rem;">{{ intervention.due_date }}</div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Objective</h4>
+          <p style="font-size: 0.9rem; color: var(--text-primary); margin: 0 0 1rem 0;">{{ intervention.objective }}</p>
+
+          {% if intervention.effectiveness_summary %}
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Impact & Effectiveness Summary</h4>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">{{ intervention.effectiveness_summary }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background: var(--bg-subtle);">
+      <div class="card-header">
+        <h3 style="font-size: 1rem;">Frozen Trigger Baseline</h3>
+      </div>
+      <div class="card-body" style="font-size: 0.85rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div>Trigger: <strong>{{ intervention.trigger_insight_type }}</strong></div>
+          <div>Baseline Risk: <strong>{{ intervention.baseline_metrics.risk_score|default:"—" }}/100</strong></div>
+          <div>Attendance: <strong>{{ intervention.baseline_metrics.attendance_percentage }}%</strong></div>
+          <div>Missing Coursework: <strong>{{ intervention.baseline_metrics.missing_assignment_rate }}%</strong></div>
+          <div>Trajectory: <strong>{{ intervention.baseline_metrics.trajectory_direction }}</strong> ({{ intervention.baseline_metrics.trajectory_slope }} pts/step)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+            Frozen: {{ intervention.baseline_metrics.captured_at|slice:":19" }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Checklist Inspection -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Configured Action Steps</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Title & Description</th>
+            <th>Verification Type</th>
+            <th>Status</th>
+            <th>Attached Resource</th>
+            <th>Completed At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for act in actions %}
+            <tr>
+              <td><strong>Step {{ act.order_index }}</strong></td>
+              <td>
+                <strong>{{ act.title }}</strong>
+                {% if act.description %}
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ act.description }}</div>
+                {% endif %}
+              </td>
+              <td>{{ act.get_verification_type_display }}</td>
+              <td>{{ act.status|action_status_badge }}</td>
+              <td>{{ act.resource.title|default:"—" }}</td>
+              <td>{{ act.completed_at|date:"M d, Y H:i"|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No actions configured.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Progress Checkpoints & Escalations -->
+  {% if evaluations or escalations %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+      {% if evaluations %}
+        <div class="card">
+          <div class="card-header">
+            <h3>Progress Checkpoints</h3>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div style="display: flex; flex-direction: column;">
+              {% for ev in evaluations %}
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+                  <div style="display: flex; justify-content: space-between;">
+                    <strong>{{ ev.get_evaluation_type_display }} #{{ ev.checkpoint_number }}</strong>
+                    {{ ev.classification|effectiveness_badge }}
+                  </div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    {{ ev.created_at|date:"M d, Y H:i" }} by {{ ev.evaluator.email }}
+                  </div>
+                  {% if ev.evaluation_notes %}
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.35rem 0 0 0;">{{ ev.evaluation_notes }}</p>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if escalations %}
+        <div class="card">
+          <div class="card-header">
+            <h3>Escalation History</h3>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div style="display: flex; flex-direction: column;">
+              {% for esc in escalations %}
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+                  <div style="display: flex; justify-content: space-between;">
+                    <strong>Escalated to: {{ esc.escalated_to_role }}</strong>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">{{ esc.created_at|date:"M d, Y H:i" }}</span>
+                  </div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    By: {{ esc.escalated_by.email }} (Previous: {{ esc.previous_status }})
+                  </div>
+                  <p style="font-size: 0.85rem; color: var(--text-primary); margin: 0.35rem 0 0 0;">{{ esc.reason }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

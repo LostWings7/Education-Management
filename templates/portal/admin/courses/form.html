@@ -1,0 +1,150 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{% if is_create %}Add Course{% else %}Edit Course: {{ course.code }}{% endif %} - Admin Portal{% endblock %}
+{% block breadcrumb %}{% if is_create %}Add Course{% else %}Edit Course{% endif %}{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal_admin:courses' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Course Catalog</span>
+    </a>
+    <h2>{% if is_create %}Create New Curricular Course{% else %}Edit Course: {{ course.code }} - {{ course.title }}{% endif %}</h2>
+  </div>
+
+  <div class="grid-sidebar">
+    
+    <!-- Left Column: Course Main Form -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div class="card">
+        <div class="card-header">
+          <h3>Course Specifications & Curriculum</h3>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+              <div class="form-group">
+                <label class="form-label">Course Code *</label>
+                {{ form.code }}
+                {% if form.code.errors %}<div class="form-error">{{ form.code.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Course Title *</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label class="form-label">Administering Department *</label>
+                {{ form.department }}
+                {% if form.department.errors %}<div class="form-error">{{ form.department.errors.0 }}</div>{% endif %}
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Academic Credits *</label>
+                {{ form.credits }}
+                {% if form.credits.errors %}<div class="form-error">{{ form.credits.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Applicable Degree Programs (Many-to-Many)</label>
+              {{ form.programs }}
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Hold Ctrl (or Cmd) to select multiple programs where this course is part of the curriculum.
+              </div>
+              {% if form.programs.errors %}<div class="form-error">{{ form.programs.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Course Syllabus Overview</label>
+              {{ form.description }}
+              {% if form.description.errors %}<div class="form-error">{{ form.description.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                {{ form.is_active }}
+                <span>Course is active in academic catalog</span>
+              </label>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+              <a href="{% url 'portal_admin:courses' %}" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">
+                {% if is_create %}Create Course{% else %}Save Course Changes{% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Topics Management (When Editing) -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {% if not is_create %}
+        <div class="card">
+          <div class="card-header">
+            <h3>Syllabus Topics ({{ topics|length }})</h3>
+          </div>
+          <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+              {% for topic in topics %}
+                <div style="padding: 0.75rem 1rem; background: var(--bg-subtle); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <strong>Topic {{ topic.order_index }}:</strong> {{ topic.title }}
+                    {% if topic.description %}
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">{{ topic.description }}</div>
+                    {% endif %}
+                  </div>
+                  <form method="post" action="{% url 'portal_admin:topic_delete' course_id=course.pk topic_id=topic.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline" style="color: var(--color-danger); border-color: #fecdd3;" onclick="return confirm('Delete topic {{ topic.title }}?');">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              {% empty %}
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">No topics added to syllabus yet.</p>
+              {% endfor %}
+            </div>
+
+            <!-- Add Topic Sub-Form -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+              <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Add New Topic to Syllabus</h4>
+              <form method="post" action="{% url 'portal_admin:topic_create' course_id=course.pk %}">
+                {% csrf_token %}
+                <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  {{ topic_form.order_index }}
+                  {{ topic_form.title }}
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                  {{ topic_form.description }}
+                </div>
+                <button type="submit" class="btn btn-secondary btn-sm btn-block">Add Topic</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="card" style="padding: 2rem 1.5rem; text-align: center;">
+          <div class="stat-icon indigo" style="margin: 0 auto 0.75rem;">
+            <i data-lucide="layers"></i>
+          </div>
+          <h4 style="margin-bottom: 0.25rem;">Topics Syllabus</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">You can add detailed syllabus topics after creating the course.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

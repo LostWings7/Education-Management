@@ -1,0 +1,170 @@
+{% extends "portal_base.html" %}
+{% load ai_tags %}
+
+{% block title %}Faculty AI Assistant | Teacher Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.25rem; height: calc(100vh - 140px);">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <h2>Faculty AI Teaching Assistant</h2>
+        {% ai_provider_status_indicator %}
+      </div>
+      <p style="color: var(--text-muted); margin: 0; font-size: 0.875rem;">
+        Section-scoped academic intelligence, student diagnostic briefings, and curriculum friction analysis.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      {% if sections %}
+        <a href="{% url 'portal:teacher_class_briefing' section_id=sections.0.pk %}" class="btn btn-primary btn-sm">
+          <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+          <span>Section Briefing</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="card" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; padding: 0;">
+    <!-- Message History Stream -->
+    <div id="chatStream" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+      <!-- Welcome Assistant Card -->
+      <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: var(--color-primary); flex-shrink: 0;">
+          <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+        </div>
+        <div style="background: var(--bg-subtle); padding: 1rem 1.25rem; border-radius: var(--radius-md); max-width: 85%;">
+          <div style="font-weight: 600; margin-bottom: 0.25rem; font-size: 0.9rem;">Faculty Teaching Assistant</div>
+          <p style="margin: 0; font-size: 0.9rem;">
+            Welcome Professor {{ teacher.user.last_name|default:teacher.user.email }}. I can synthesize class section performance, highlight weak syllabus topics, detect acute performance plunge anomalies, and monitor active support plans for your assigned courses.
+          </p>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Academic metrics sourced from authoritative portal systems. Interpretations and recommendations are advisory.
+          </div>
+        </div>
+      </div>
+
+      <!-- Render Existing Messages -->
+      {% for msg in chat_messages %}
+        {% if msg.sender == 'USER' %}
+          <div style="display: flex; justify-content: flex-end;">
+            <div style="background: var(--color-primary); color: #ffffff; padding: 0.85rem 1.25rem; border-radius: var(--radius-md); max-width: 75%; font-size: 0.9rem;">
+              {{ msg.content|linebreaksbr }}
+              <div style="font-size: 0.7rem; opacity: 0.8; text-align: right; margin-top: 0.25rem;">{{ msg.created_at|date:"H:i" }}</div>
+            </div>
+          </div>
+        {% elif msg.sender == 'ASSISTANT' %}
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: var(--color-primary); flex-shrink: 0;">
+              <i data-lucide="bot" style="width: 18px; height: 18px;"></i>
+            </div>
+            <div style="background: var(--bg-subtle); padding: 1rem 1.25rem; border-radius: var(--radius-md); max-width: 85%;">
+              <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">Faculty Assistant</div>
+              <div style="font-size: 0.9rem; line-height: 1.5;">{{ msg.content|linebreaksbr }}</div>
+
+              {% if msg.structured_payload.facts_used or msg.structured_payload.calculations_used or msg.structured_payload.actions_used %}
+                <details style="margin-top: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+                  <summary style="cursor: pointer; font-size: 0.8rem; color: var(--color-primary); font-weight: 600;">🔍 View Verified Evidence & Sources</summary>
+                  <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; background: var(--surface-color); padding: 0.75rem; border-radius: var(--radius-sm);">
+                    {% for f in msg.structured_payload.facts_used %}
+                      <div><span class="badge" style="background: #f0fdf4; color: #166534; font-size: 0.65rem;">FACT</span> <strong>{{ f.metric_name }}:</strong> {{ f.value }} <span style="color: var(--text-muted);">({{ f.fact_id }})</span></div>
+                    {% endfor %}
+                    {% for c in msg.structured_payload.calculations_used %}
+                      <div><span class="badge" style="background: #eff6ff; color: #1e40af; font-size: 0.65rem;">CALCULATION</span> <strong>{{ c.metric_name }}:</strong> {{ c.value }} <span style="color: var(--text-muted);">({{ c.fact_id }})</span></div>
+                    {% endfor %}
+                  </div>
+                </details>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Suggested Starter Prompts -->
+    <div style="padding: 0.5rem 1.25rem; background: var(--bg-subtle); border-top: 1px solid var(--border-color); display: flex; gap: 0.5rem; overflow-x: auto; white-space: nowrap;">
+      <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); align-self: center;">Suggested:</span>
+      {% for prompt in suggested_prompts %}
+        <button type="button" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 20px;" onclick="populatePrompt('{{ prompt|escapejs }}')">
+          {{ prompt }}
+        </button>
+      {% endfor %}
+    </div>
+
+    <!-- Input Form -->
+    <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color); background: var(--surface-color);">
+      <form id="chatForm" style="display: flex; gap: 0.75rem; align-items: center;" onsubmit="sendMessage(event)">
+        {% csrf_token %}
+        <input type="hidden" name="conversation_id" value="{{ active_conversation.pk }}">
+        <input type="text" id="userInput" class="form-input" placeholder="Ask about flagged students, topic mastery, or intervention progress..." style="flex: 1;" required autocomplete="off">
+        <button type="submit" id="sendBtn" class="btn btn-primary">
+          <i data-lucide="send" style="width: 16px; height: 16px;"></i>
+          <span>Send</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function populatePrompt(text) {
+  document.getElementById('userInput').value = text;
+  document.getElementById('userInput').focus();
+}
+
+function sendMessage(e) {
+  e.preventDefault();
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const stream = document.getElementById('chatStream');
+  const sendBtn = document.getElementById('sendBtn');
+
+  const userDiv = document.createElement('div');
+  userDiv.style.cssText = "display: flex; justify-content: flex-end;";
+  userDiv.innerHTML = `
+    <div style="background: var(--color-primary); color: #ffffff; padding: 0.85rem 1.25rem; border-radius: var(--radius-md); max-width: 75%; font-size: 0.9rem;">
+      ${text}
+    </div>
+  `;
+  stream.appendChild(userDiv);
+  input.value = '';
+  sendBtn.disabled = true;
+  stream.scrollTop = stream.scrollHeight;
+
+  const formData = new FormData(document.getElementById('chatForm'));
+  formData.set('message', text);
+
+  fetch("{% url 'portal:teacher_ai_chat_api' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    sendBtn.disabled = false;
+    if (data.success) {
+      const botDiv = document.createElement('div');
+      botDiv.style.cssText = "display: flex; gap: 0.75rem; align-items: flex-start;";
+      botDiv.innerHTML = `
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: var(--color-primary); flex-shrink: 0;">
+          <i data-lucide="bot" style="width: 18px; height: 18px;"></i>
+        </div>
+        <div style="background: var(--bg-subtle); padding: 1rem 1.25rem; border-radius: var(--radius-md); max-width: 85%;">
+          <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">Faculty Assistant</div>
+          <div style="font-size: 0.9rem; line-height: 1.5;">${data.assistant_message.replace(/\\n/g, '<br>')}</div>
+        </div>
+      `;
+      stream.appendChild(botDiv);
+      lucide.createIcons();
+      stream.scrollTop = stream.scrollHeight;
+    }
+  });
+}
+</script>
+{% endblock %}

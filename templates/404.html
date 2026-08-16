@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found (404) | Education Management Portal{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 1rem; text-align: center; max-width: 600px; margin: 0 auto;">
+  <div style="font-size: 4rem; font-weight: 800; color: var(--color-primary); margin-bottom: 0.5rem;">404</div>
+  <h1 style="font-size: 1.8rem; margin: 0 0 1rem 0;">Page Not Found</h1>
+  <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem;">
+    The academic page, course resource, or record you requested could not be located or may have been moved.
+  </p>
+  <div style="display: flex; justify-content: center; gap: 1rem;">
+    <a href="{% url 'public:home' %}" class="btn btn-primary">Return to Home</a>
+    <a href="{% url 'portal:dispatcher' %}" class="btn btn-outline">My Portal Dashboard</a>
+  </div>
+</div>
+{% endblock %}

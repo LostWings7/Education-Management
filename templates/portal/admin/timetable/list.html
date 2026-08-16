@@ -1,0 +1,142 @@
+{% extends 'portal_base.html' %}
+{% load core_tags %}
+
+{% block title %}Master Timetable - Admin Portal{% endblock %}
+{% block breadcrumb %}Master Timetable{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Institutional Master Timetable</h2>
+      <p>7-Day weekly schedule matrix across all departments, lecture halls, and faculty</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <button type="button" class="btn btn-primary" onclick="document.getElementById('slotModal').style.display='flex'">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+        <span>Add Timetable Slot</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-body" style="padding: 1rem 1.5rem;">
+      <form method="get" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Semester:</label>
+        <select name="semester" class="form-select" onchange="this.form.submit()" style="max-width: 250px;">
+          {% for sem in semesters %}
+            <option value="{{ sem.pk }}" {% if selected_semester.pk == sem.pk %}selected{% endif %}>{{ sem.name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7-Day Timetable Matrix -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Weekly Schedule ({{ selected_semester.name|default:"Active Term" }})</h3>
+      <span class="badge badge-info">{{ schedules|length }} Total Slots</span>
+    </div>
+    <div class="card-body">
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        {% for day_num, day_name in day_choices %}
+          {% with day_slots=days_map|get_item:day_num %}
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden;">
+              <div style="background: var(--bg-subtle); padding: 0.6rem 1rem; font-weight: 700; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>{{ day_name }}</span>
+                <span class="badge badge-secondary" style="font-size: 0.75rem;">{{ day_slots|length }} Slots</span>
+              </div>
+              <div style="padding: 0.75rem 1rem;">
+                {% if day_slots %}
+                  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem;">
+                    {% for slot in day_slots %}
+                      <div style="padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--border-color); border-left: 4px solid var(--brand-primary); border-radius: var(--radius-sm); position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3rem;">
+                          <strong style="color: var(--brand-primary);">{{ slot.class_section.course.code }} (Sec {{ slot.class_section.section_code }})</strong>
+                          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">
+                            {{ slot.start_time|time:"H:i" }} &ndash; {{ slot.end_time|time:"H:i" }}
+                          </span>
+                        </div>
+                        <div style="font-size: 0.8rem; margin-bottom: 0.3rem;">{{ slot.class_section.course.title }}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted);">
+                          <span>Instructor: {{ slot.teacher.user.get_full_name }}</span>
+                          <span class="badge badge-secondary" style="font-size: 0.7rem;">{{ slot.room }}</span>
+                        </div>
+                        <div style="margin-top: 0.5rem; text-align: right;">
+                          <form method="post" action="{% url 'portal_admin:timetable_delete' pk=slot.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline" style="color: var(--color-danger); padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="return confirm('Delete this schedule slot?');">
+                              Delete Slot
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div style="color: var(--text-muted); font-size: 0.8rem; padding: 0.5rem 0;">No lectures scheduled on this day.</div>
+                {% endif %}
+              </div>
+            </div>
+          {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Slot Modal -->
+  <div id="slotModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="card" style="width: 100%; max-width: 580px; box-shadow: var(--shadow-xl);">
+      <div class="card-header">
+        <h3>Create Timetable Schedule Slot</h3>
+        <button type="button" onclick="document.getElementById('slotModal').style.display='none'" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'portal_admin:timetable_create' %}">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label">Class Section *</label>
+            {{ schedule_form.class_section }}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Instructor *</label>
+            {{ schedule_form.teacher }}
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label">Day *</label>
+              {{ schedule_form.day_of_week }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Start Time *</label>
+              {{ schedule_form.start_time }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Time *</label>
+              {{ schedule_form.end_time }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lecture Hall / Room *</label>
+            {{ schedule_form.room }}
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('slotModal').style.display='none'">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Slot</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

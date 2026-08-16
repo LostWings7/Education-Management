@@ -1,0 +1,58 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{% if is_create %}New Academic Year{% else %}Edit Academic Year{% endif %} - Admin Portal{% endblock %}
+{% block breadcrumb %}{% if is_create %}New Academic Year{% else %}Edit Year{% endif %}{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 600px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal_admin:terms_list' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Terms</span>
+    </a>
+    <h2>{% if is_create %}Create New Academic Year{% else %}Edit Academic Year: {{ year.name }}{% endif %}</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label">Academic Year Name *</label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="form-error">{{ form.name.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Start Date *</label>
+            {{ form.start_date }}
+            {% if form.start_date.errors %}<div class="form-error">{{ form.start_date.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">End Date *</label>
+            {{ form.end_date }}
+            {% if form.end_date.errors %}<div class="form-error">{{ form.end_date.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            {{ form.is_current }}
+            <span>Mark as current academic year</span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <a href="{% url 'portal_admin:terms_list' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Save Academic Year</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

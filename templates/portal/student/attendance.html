@@ -1,0 +1,126 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Attendance Records - Student Portal{% endblock %}
+{% block breadcrumb %}Attendance Summary{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Attendance Records</h2>
+      <p>Dynamic course-by-course lecture attendance derived from verified class sessions</p>
+    </div>
+
+    <!-- Semester Selector Filter -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="semester" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+        {% for sem in semesters %}
+          <option value="{{ sem.pk }}" {% if selected_semester.pk == sem.pk %}selected{% endif %}>{{ sem.name }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <!-- Overall Term Stats Strip -->
+  <div class="grid-4" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Term Attendance</div>
+        <div class="stat-value">{{ overall_summary.attendance_percentage }}%</div>
+      </div>
+      <div class="stat-icon {{ overall_summary.badge_class }}">
+        <i data-lucide="percent"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Total Conducted</div>
+        <div class="stat-value">{{ overall_summary.total_sessions }}</div>
+      </div>
+      <div class="stat-icon indigo">
+        <i data-lucide="layers"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Present / Attended</div>
+        <div class="stat-value">{{ overall_summary.attended_sessions }}</div>
+      </div>
+      <div class="stat-icon emerald">
+        <i data-lucide="check-circle"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Absences Logged</div>
+        <div class="stat-value">{{ overall_summary.absent_count }}</div>
+      </div>
+      <div class="stat-icon {% if overall_summary.absent_count > 3 %}rose{% else %}amber{% endif %}">
+        <i data-lucide="x-circle"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course Breakdown Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Course-Wise Attendance Breakdown</h3>
+      <span class="badge badge-info">{{ selected_semester.name|default:"Active Term" }}</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Instructor</th>
+            <th>Total Sessions</th>
+            <th>Attended (Present + Late)</th>
+            <th>Absences</th>
+            <th>Attendance %</th>
+            <th>Standing</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in course_matrix %}
+            <tr>
+              <td>
+                <strong>{{ item.course.code }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ item.course.title }} (Sec {{ item.class_section.section_code }})</div>
+              </td>
+              <td>{{ item.class_section.primary_teacher.user.get_full_name }}</td>
+              <td><strong>{{ item.metrics.total_sessions }}</strong></td>
+              <td>{{ item.metrics.attended_sessions }} <span style="font-size: 0.75rem; color: var(--text-muted);">({{ item.metrics.present_count }}P, {{ item.metrics.late_count }}L)</span></td>
+              <td>
+                {% if item.metrics.absent_count > 0 %}
+                  <span style="color: var(--color-danger); font-weight: 700;">{{ item.metrics.absent_count }}</span>
+                {% else %}
+                  0
+                {% endif %}
+              </td>
+              <td>
+                <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">
+                  {{ item.metrics.attendance_percentage }}%
+                </div>
+              </td>
+              <td>
+                <span class="badge {{ item.metrics.badge_class }}">{{ item.metrics.status }}</span>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No attendance sessions recorded for this semester.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

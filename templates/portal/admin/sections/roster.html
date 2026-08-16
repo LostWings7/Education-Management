@@ -1,0 +1,95 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Class Roster: {{ section }} - Admin Portal{% endblock %}
+{% block breadcrumb %}Section Roster{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal_admin:sections' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Class Sections</span>
+    </a>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h2>{{ section.course.code }}: {{ section.course.title }} (Section {{ section.section_code }})</h2>
+        <p>
+          Semester: <strong>{{ section.semester.name }}</strong> &bull; 
+          Instructor: <strong>{{ section.primary_teacher.user.get_full_name }}</strong> &bull;
+          Enrollment: <strong>{{ roster|length }}</strong> / {{ section.capacity }}
+        </p>
+      </div>
+      <div>
+        <a href="{% url 'portal_admin:enrollments' %}?section={{ section.pk }}" class="btn btn-primary btn-sm">
+          <i data-lucide="user-plus" style="width: 14px; height: 14px;"></i>
+          <span>Manage Enrollments</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Enrolled Student Roster</h3>
+      <span class="badge badge-info">{{ roster|length }} Students</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Full Name</th>
+            <th>Program</th>
+            <th>Enrollment Status</th>
+            <th>Grade Snapshot</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enr in roster %}
+            <tr>
+              <td><strong>{{ enr.student.student_id }}</strong></td>
+              <td>
+                <strong>{{ enr.student.user.get_full_name }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ enr.student.user.email }}</div>
+              </td>
+              <td><span class="badge badge-indigo">{{ enr.student.program.code }}</span></td>
+              <td>
+                <span class="badge {% if enr.status == 'ENROLLED' %}badge-success{% elif enr.status == 'COMPLETED' %}badge-info{% else %}badge-danger{% endif %}">
+                  {{ enr.get_status_display }}
+                </span>
+              </td>
+              <td>
+                {% if enr.is_grade_published and enr.final_percentage is not None %}
+                  <span class="badge badge-success">{{ enr.final_percentage }}% ({{ enr.final_grade_letter }})</span>
+                {% else %}
+                  <span style="color: var(--text-muted); font-size: 0.8rem;">In Progress</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem;">
+                  <a href="{% url 'portal_admin:records' %}?student_id={{ enr.student.pk }}" class="btn btn-secondary btn-sm">Transcript</a>
+                  {% if enr.status == 'ENROLLED' %}
+                    <form method="post" action="{% url 'portal_admin:enrollment_drop' pk=enr.pk %}" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline" style="color: var(--color-danger);" onclick="return confirm('Drop {{ enr.student.student_id }} from {{ section }}?');">
+                        Drop
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students enrolled in this section yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

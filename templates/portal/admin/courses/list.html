@@ -1,0 +1,121 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Curricular Courses - Admin Portal{% endblock %}
+{% block breadcrumb %}Courses & Topics{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Curricular Course Catalog & Topics</h2>
+      <p>Manage canonical courses, syllabus topics, and multi-program curriculum eligibility</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'portal_admin:course_create' %}" class="btn btn-primary">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+        <span>Add Course</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="background: var(--bg-subtle);">
+      <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; width: 100%;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search course code or title..." class="form-input" style="flex: 1; min-width: 220px;">
+        <select name="department" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+          <option value="">All Departments</option>
+          {% for d in departments %}
+            <option value="{{ d.pk }}" {% if selected_dept == d.pk|stringformat:"i" %}selected{% endif %}>{{ d.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="program" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+          <option value="">All Programs</option>
+          {% for p in programs %}
+            <option value="{{ p.pk }}" {% if selected_prog == p.pk|stringformat:"i" %}selected{% endif %}>{{ p.code }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Course Code</th>
+            <th>Title</th>
+            <th>Department</th>
+            <th>Credits</th>
+            <th>Curriculum Programs (M2M)</th>
+            <th>Syllabus Topics</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in courses %}
+            <tr>
+              <td><span class="badge badge-secondary" style="font-size: 0.9rem; font-weight: 700;">{{ course.code }}</span></td>
+              <td>
+                <strong>{{ course.title }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 250px;">{{ course.description|truncatewords:8 }}</div>
+              </td>
+              <td>{{ course.department.code }}</td>
+              <td><strong>{{ course.credits }}</strong></td>
+              <td>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; max-width: 220px;">
+                  {% for prog in course.programs.all %}
+                    <span class="badge badge-indigo" style="font-size: 0.75rem;">{{ prog.code }}</span>
+                  {% empty %}
+                    <span style="color: var(--text-muted); font-size: 0.75rem;">General Elective</span>
+                  {% endfor %}
+                </div>
+              </td>
+              <td>
+                <span class="badge badge-info">{{ course.topics.count }} Topics</span>
+              </td>
+              <td>
+                {% if course.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-secondary">Archived</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem;">
+                  <a href="{% url 'portal_admin:course_edit' pk=course.pk %}" class="btn btn-secondary btn-sm">Edit & Topics</a>
+                  <form method="post" action="{% url 'portal_admin:course_toggle_status' pk=course.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm {% if course.is_active %}btn-outline{% else %}btn-primary{% endif %}">
+                      {% if course.is_active %}Archive{% else %}Activate{% endif %}
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No courses match the criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if courses.has_other_pages %}
+      <div style="padding: 1rem 1.5rem; display: flex; justify-content: center; gap: 0.5rem; border-top: 1px solid var(--border-color);">
+        {% if courses.has_previous %}
+          <a href="?page={{ courses.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_dept %}&department={{ selected_dept }}{% endif %}{% if selected_prog %}&program={{ selected_prog }}{% endif %}" class="btn btn-secondary btn-sm">&laquo; Prev</a>
+        {% endif %}
+        <span style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Page {{ courses.number }} of {{ courses.paginator.num_pages }}</span>
+        {% if courses.has_next %}
+          <a href="?page={{ courses.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_dept %}&department={{ selected_dept }}{% endif %}{% if selected_prog %}&program={{ selected_prog }}{% endif %}" class="btn btn-secondary btn-sm">Next &raquo;</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

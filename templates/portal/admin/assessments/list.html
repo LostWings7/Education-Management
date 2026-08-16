@@ -1,0 +1,87 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Assessments & Grades Oversight - Admin Portal{% endblock %}
+{% block breadcrumb %}Assessments & Grades{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Assessments & Grade Governance</h2>
+      <p>Oversight of evaluative assessment components, weights, marks, and published snapshots</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="background: var(--bg-subtle);">
+      <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; width: 100%;">
+        <select name="semester" class="form-select" onchange="this.form.submit()" style="min-width: 170px;">
+          <option value="">All Semesters</option>
+          {% for sem in semesters %}
+            <option value="{{ sem.pk }}" {% if selected_semester == sem.pk %}selected{% endif %}>{{ sem.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="section" class="form-select" onchange="this.form.submit()" style="min-width: 220px;">
+          <option value="">All Class Sections</option>
+          {% for sec in sections %}
+            <option value="{{ sec.pk }}" {% if selected_section == sec.pk %}selected{% endif %}>{{ sec }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Class Section</th>
+            <th>Assessment Component</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Max Marks</th>
+            <th>Weightage</th>
+            <th>Status</th>
+            <th>Results Logged</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in assessments %}
+            <tr>
+              <td>
+                <strong>{{ a.class_section.course.code }}</strong> (Sec {{ a.class_section.section_code }})
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ a.class_section.semester.name }}</div>
+              </td>
+              <td>
+                <strong>{{ a.title }}</strong>
+                {% if a.topic %}
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Topic: {{ a.topic.title }}</div>
+                {% endif %}
+              </td>
+              <td><span class="badge badge-secondary">{{ a.get_assessment_type_display }}</span></td>
+              <td>{{ a.date|date:"M d, Y" }}</td>
+              <td><strong>{{ a.max_marks }}</strong></td>
+              <td><span class="badge badge-indigo">{{ a.weightage_percentage }}%</span></td>
+              <td>
+                {% if a.is_published %}
+                  <span class="badge badge-success">Published</span>
+                {% else %}
+                  <span class="badge badge-secondary">Draft</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge badge-info">{{ a.results.count }} Scores</span>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No assessment components found for the selected criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

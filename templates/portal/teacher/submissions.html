@@ -1,0 +1,106 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Review Submissions - {{ assignment.title }}{% endblock %}
+{% block breadcrumb %}Assignment Submissions{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal:teacher_assignments' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Assignments</span>
+    </a>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span class="badge badge-secondary">{{ assignment.class_section.course.code }}</span>
+          <span class="badge badge-teacher">Sec {{ assignment.class_section.section_code }}</span>
+          <span class="badge badge-info">Max Marks: {{ assignment.max_marks }}</span>
+        </div>
+        <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">{{ assignment.title }}</h1>
+        <p style="font-size: 0.95rem;">Deadline: {{ assignment.due_date|date:"M d, Y H:i" }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Class Submission Roster ({{ submission_rows|length }} Students)</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Submission Date</th>
+            <th>Status</th>
+            <th>Solution Text / File</th>
+            <th>Marks (Max {{ assignment.max_marks }})</th>
+            <th>Feedback & Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in submission_rows %}
+            <tr>
+              <td><strong>{{ item.student.student_id }}</strong></td>
+              <td>
+                <strong>{{ item.student.user.get_full_name }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.student.program.code }}</div>
+              </td>
+              <td>
+                {% if item.submission %}
+                  <div>{{ item.submission.submission_date|date:"M d, H:i" }}</div>
+                {% else %}
+                  <span style="color: var(--text-muted);">-</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge {% if item.submission.status == 'GRADED' %}badge-success{% elif item.submission.status == 'LATE' %}badge-warning{% elif item.submission %}badge-info{% else %}badge-danger{% endif %}">
+                  {{ item.status }}
+                </span>
+              </td>
+              <td>
+                {% if item.submission %}
+                  {% if item.submission.submission_text %}
+                    <p style="font-size: 0.8rem; margin: 0 0 0.25rem; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ item.submission.submission_text }}">
+                      {{ item.submission.submission_text }}
+                    </p>
+                  {% endif %}
+                  {% if item.submission.attachment %}
+                    <a href="{{ item.submission.attachment.url }}" class="btn btn-secondary btn-sm" target="_blank" download>
+                      <i data-lucide="file" style="width: 12px; height: 12px;"></i>
+                      <span>Attachment</span>
+                    </a>
+                  {% endif %}
+                {% else %}
+                  <span style="color: var(--text-muted); font-size: 0.8rem;">No submission</span>
+                {% endif %}
+              </td>
+              <td colspan="2">
+                {% if item.submission %}
+                  <form method="post" action="{% url 'portal:teacher_grade_submission' submission_id=item.submission.pk %}" style="display: flex; gap: 0.5rem; align-items: center;">
+                    {% csrf_token %}
+                    <input type="number" name="obtained_marks" value="{{ item.submission.obtained_marks|default:'' }}" step="0.5" min="0" max="{{ assignment.max_marks }}" class="form-input" style="width: 80px; padding: 0.35rem 0.5rem;" placeholder="Marks" required>
+                    <input type="text" name="feedback" value="{{ item.submission.feedback|default:'' }}" placeholder="Feedback note" class="form-input" style="flex: 1; padding: 0.35rem 0.5rem; font-size: 0.8rem;">
+                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                  </form>
+                {% else %}
+                  <span style="color: var(--text-muted); font-size: 0.8rem;">Awaiting submission</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students enrolled.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}My Classes - Faculty Portal{% endblock %}
+{% block breadcrumb %}My Assigned Classes{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Assigned Class Sections</h2>
+      <p>Manage curriculum, enrolled student rosters, assignments, and gradebooks</p>
+    </div>
+
+    <!-- Semester Selector -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="semester" class="form-select" onchange="this.form.submit()" style="min-width: 180px;">
+        {% for sem in semesters %}
+          <option value="{{ sem.pk }}" {% if selected_semester.pk == sem.pk %}selected{% endif %}>{{ sem.name }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <div class="grid-3">
+    {% for section in sections %}
+      <div class="card">
+        <div class="card-body">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <span class="badge badge-secondary">{{ section.course.code }}</span>
+            <span class="badge badge-teacher">Sec {{ section.section_code }}</span>
+          </div>
+
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem;">{{ section.course.title }}</h3>
+          <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">
+            {{ section.semester.name }} &bull; Room: <strong>{{ section.room_number|default:"TBA" }}</strong>
+          </p>
+
+          <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md); font-size: 0.8rem; display: flex; justify-content: space-between; margin-bottom: 1.25rem;">
+            <div><strong>Capacity:</strong> {{ section.capacity }}</div>
+            <div><strong>Active Enrolled:</strong> <span style="font-weight: 700; color: var(--brand-primary);">{{ section.enrolled_count }}</span></div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'portal:teacher_class_detail' section_id=section.pk %}" class="btn btn-secondary btn-sm" style="flex: 1;">
+              Manage Class
+            </a>
+            <a href="{% url 'portal:teacher_take_attendance' section_id=section.pk %}" class="btn btn-primary btn-sm" style="flex: 1;">
+              Roll-Call
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-state-icon">
+          <i data-lucide="users"></i>
+        </div>
+        <div class="empty-state-title">No Class Sections Assigned</div>
+        <p class="empty-state-desc">You do not have assigned class sections for the selected academic term.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

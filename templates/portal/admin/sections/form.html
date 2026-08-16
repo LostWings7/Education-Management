@@ -1,0 +1,82 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{% if is_create %}Create Class Section{% else %}Edit Section{% endif %} - Admin Portal{% endblock %}
+{% block breadcrumb %}{% if is_create %}Create Section{% else %}Edit Section{% endif %}{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal_admin:sections' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Class Sections</span>
+    </a>
+    <h2>{% if is_create %}Create New Class Section{% else %}Edit Section: {{ section }}{% endif %}</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Course *</label>
+            {{ form.course }}
+            {% if form.course.errors %}<div class="form-error">{{ form.course.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Section Code *</label>
+            {{ form.section_code }}
+            {% if form.section_code.errors %}<div class="form-error">{{ form.section_code.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Academic Semester / Term *</label>
+            {{ form.semester }}
+            {% if form.semester.errors %}<div class="form-error">{{ form.semester.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Primary Instructor *</label>
+            {{ form.primary_teacher }}
+            {% if form.primary_teacher.errors %}<div class="form-error">{{ form.primary_teacher.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Max Student Capacity *</label>
+            {{ form.capacity }}
+            {% if form.capacity.errors %}<div class="form-error">{{ form.capacity.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Default Lecture Room</label>
+            {{ form.room_number }}
+            {% if form.room_number.errors %}<div class="form-error">{{ form.room_number.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            {{ form.is_active }}
+            <span>Section is active and open for registrations</span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <a href="{% url 'portal_admin:sections' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if is_create %}Create Section{% else %}Save Section Changes{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

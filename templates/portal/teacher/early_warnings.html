@@ -1,0 +1,90 @@
+{% extends "portal_base.html" %}
+{% load analytics_tags %}
+
+{% block title %}Early Warning Alerts & Risk Signals | Faculty Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Early Warning Alert Center</h2>
+      <p style="color: var(--text-muted); margin: 0;">Deterministic pre-crisis detection feed: acute plunges, failing streaks, and attendance shortfalls.</p>
+    </div>
+    <div>
+      <a href="{% url 'portal:teacher_analytics' %}" class="btn btn-outline">
+        <i data-lucide="bar-chart-2" style="width: 16px; height: 16px;"></i>
+        <span>Class Analytics Hub</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Alert Summary Metrics -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--color-danger);">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Critical Alerts</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-danger); margin-top: 0.25rem;">
+        {{ critical_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Requires immediate faculty attention</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid #ea580c;">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Elevated Danger Alerts</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: #ea580c; margin-top: 0.25rem;">
+        {{ danger_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Consecutive failing grades / missing coursework</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--color-warning);">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Advisory Warnings</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-warning); margin-top: 0.25rem;">
+        {{ warning_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Effort discordance & early attendance slips</div>
+    </div>
+  </div>
+
+  <!-- Alert Feed Cards -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Active Early Warning Signals</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; flex-direction: column;">
+        {% for item in warnings_list %}
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 1.25rem; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; background: {% if item.warning.severity == 'CRITICAL' %}#fff1f2{% elif item.warning.severity == 'DANGER' %}#fff7ed{% else %}var(--surface-color){% endif %};">
+            <div style="flex: 1; min-width: 280px;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span class="badge {{ item.warning.severity|severity_badge_class }}">{{ item.warning.severity }}</span>
+                <strong style="font-size: 1rem; color: var(--text-primary);">{{ item.warning.title }}</strong>
+                <span class="badge badge-neutral">{{ item.section.course.code }} (Sec {{ item.section.section_code }})</span>
+              </div>
+
+              <div style="margin-top: 0.4rem; font-size: 0.9rem; color: var(--text-secondary);">
+                <strong>Student:</strong> {{ item.student.user.get_full_name|default:item.student.user.email }} ({{ item.student.student_id }})
+              </div>
+
+              <p style="margin: 0.4rem 0 0 0; font-size: 0.875rem; color: var(--text-primary);">
+                {{ item.warning.summary }}
+              </p>
+            </div>
+
+            <div style="text-align: right;">
+              <span style="font-size: 0.8rem; color: var(--text-muted);">
+                Triggered: {{ item.warning.created_at|slice:":10" }}
+              </span>
+            </div>
+          </div>
+        {% empty %}
+          <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            <i data-lucide="check-circle" style="width: 32px; height: 32px; color: var(--color-success); margin-bottom: 0.5rem;"></i>
+            <div>All assigned students are currently in good standing. No active early warnings triggered.</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

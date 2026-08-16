@@ -1,0 +1,90 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Intervention Outcome Analysis - Education Management{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'portal_admin:dashboard' %}">Admin Dashboard</a> / <span>Intervention Outcome Analysis</span>
+{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  
+  <div class="card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: var(--radius-lg);">
+    <div class="card-body" style="padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge" style="background: rgba(59, 130, 246, 0.3); color: #bfdbfe; margin-bottom: 0.5rem;">
+            Closed-Loop Academic Remediation Analytics
+          </span>
+          <h1 style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.5rem;">
+            Intervention Outcome Analysis & Effectiveness Overview
+          </h1>
+          <p style="color: #cbd5e1; margin: 0; font-size: 0.95rem;">
+            Total Managed Support Plans: <strong>{{ total_interventions }}</strong> across all categories.
+          </p>
+        </div>
+        <a href="{% url 'portal_admin:dashboard' %}" class="btn btn-outline btn-sm" style="color: white; border-color: rgba(255,255,255,0.3);">
+          Back to Command Hub
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Non-Causal Statistical Disclosure -->
+  <div style="background: rgba(99, 102, 241, 0.08); border-left: 4px solid var(--primary); padding: 1.25rem; border-radius: var(--radius-sm);">
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+      <i data-lucide="info" style="width: 16px; height: 16px; color: var(--primary);"></i>
+      <strong style="color: var(--primary); font-size: 0.9rem;">Statistical Disclosure & Non-Causal Framing</strong>
+    </div>
+    <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+      {{ non_causal_disclaimer }}
+    </p>
+  </div>
+
+  <!-- Category Outcomes Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Intervention Category Resolution Rates</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Total Plans</th>
+            <th style="color: #15803d;">Effective</th>
+            <th style="color: #3b82f6;">Partially Effective</th>
+            <th style="color: #b91c1c;">Ineffective</th>
+            <th style="color: #64748b;">In Evaluation</th>
+            <th>Resolution Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cat in category_analytics %}
+            <tr>
+              <td><strong>{{ cat.category_label }}</strong></td>
+              <td>{{ cat.total_count }}</td>
+              <td><span class="badge badge-success">{{ cat.effective_count }}</span></td>
+              <td><span class="badge badge-info">{{ cat.partially_effective_count }}</span></td>
+              <td><span class="badge badge-danger">{{ cat.ineffective_count }}</span></td>
+              <td><span class="badge badge-neutral">{{ cat.in_progress_count }}</span></td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <div style="flex: 1; max-width: 100px; height: 8px; background: var(--bg-surface-secondary); border-radius: 4px; overflow: hidden;">
+                    <div style="width: {{ cat.resolution_rate }}%; height: 100%; background: #10b981;"></div>
+                  </div>
+                  <strong style="font-size: 0.9rem;">{{ cat.resolution_rate }}%</strong>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No intervention plans recorded.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

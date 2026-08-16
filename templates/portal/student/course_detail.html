@@ -1,0 +1,186 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{{ course.code }} - {{ course.title }} - Student Portal{% endblock %}
+{% block breadcrumb %}{{ course.code }} Details{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal:student_courses' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to My Courses</span>
+    </a>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span class="badge badge-secondary">{{ course.code }}</span>
+          <span class="badge badge-student">Sec {{ class_section.section_code }}</span>
+          <span class="badge badge-info">{{ class_section.semester.name }}</span>
+        </div>
+        <h1 style="font-size: 1.85rem; margin-bottom: 0.25rem;">{{ course.title }}</h1>
+        <p style="font-size: 0.95rem;">
+          Department of {{ course.department.name }} &bull; {{ course.credits }} Academic Credits
+        </p>
+      </div>
+
+      <div class="card" style="padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1.5rem;">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Course Attendance</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-main);">{{ attendance_metrics.attendance_percentage }}%</div>
+        </div>
+        <span class="badge {{ attendance_metrics.badge_class }}">{{ attendance_metrics.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-sidebar">
+    
+    <!-- Left Column: Syllabus Topics, Announcements, Resources -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      
+      <!-- Course Announcements -->
+      {% if announcements %}
+        <div class="card">
+          <div class="card-header">
+            <h3>Class Announcements</h3>
+            <span class="badge badge-info">Latest Notices</span>
+          </div>
+          <div class="card-body" style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for notice in announcements %}
+              <div style="padding: 1rem; background: var(--bg-subtle); border-radius: var(--radius-md); {% if notice.is_pinned %}border-left: 3px solid var(--brand-primary);{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <strong style="font-size: 0.95rem;">{{ notice.title }}</strong>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">{{ notice.created_at|date:"M d, Y" }}</span>
+                </div>
+                <p style="font-size: 0.875rem; margin: 0; color: var(--text-main); white-space: pre-line;">{{ notice.content }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Syllabus Topics -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Course Topics & Syllabus Outline</h3>
+          <span class="badge badge-secondary">{{ topics|length }} Topics</span>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for topic in topics %}
+              <div style="padding: 1rem; background: var(--bg-subtle); border-radius: var(--radius-md); display: flex; align-items: flex-start; gap: 1rem;">
+                <div class="brand-icon" style="width: 32px; height: 32px; font-size: 0.85rem; flex-shrink: 0;">
+                  {{ topic.order_index }}
+                </div>
+                <div style="flex: 1;">
+                  <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">{{ topic.title }}</h4>
+                  <p style="font-size: 0.85rem; margin-bottom: 0.5rem;">{{ topic.description }}</p>
+                  {% if topic.learning_objectives %}
+                    <div style="font-size: 0.8rem; color: var(--text-muted); padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.7); border-radius: var(--radius-sm);">
+                      <strong>Competencies:</strong> {{ topic.learning_objectives }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            {% empty %}
+              <p style="color: var(--text-muted); margin: 0;">No syllabus topics logged yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Resources -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Course Learning Resources</h3>
+          <span class="badge badge-info">{{ resources|length }} Files</span>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for res in resources %}
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+                <div>
+                  <strong style="font-size: 0.9rem;">{{ res.title }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    {{ res.get_resource_type_display }} {% if res.topic %}&bull; Topic: {{ res.topic.title }}{% endif %}
+                  </div>
+                </div>
+                <div>
+                  {% if res.file %}
+                    <a href="{{ res.file.url }}" class="btn btn-secondary btn-sm" target="_blank" download>
+                      <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                      <span>Download</span>
+                    </a>
+                  {% elif res.external_url %}
+                    <a href="{{ res.external_url }}" class="btn btn-secondary btn-sm" target="_blank">
+                      <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                      <span>Open Link</span>
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            {% empty %}
+              <p style="color: var(--text-muted); margin: 0;">No course resources uploaded.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Instructor Profile & Grading Summary -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      
+      <!-- Primary Instructor -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Course Instructor</h3>
+        </div>
+        <div class="card-body" style="text-align: center;">
+          <div class="user-avatar" style="width: 64px; height: 64px; font-size: 1.5rem; margin: 0 auto 0.75rem; background: var(--color-success);">
+            {{ class_section.primary_teacher.user.first_name|first }}
+          </div>
+          <h4 style="margin-bottom: 0.25rem;">{{ class_section.primary_teacher.user.get_full_name }}</h4>
+          <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">{{ class_section.primary_teacher.designation }}</p>
+          <span class="badge badge-teacher">{{ class_section.primary_teacher.department.code }}</span>
+
+          <div style="margin-top: 1.25rem; text-align: left; border-top: 1px solid var(--border-color); padding-top: 1rem; font-size: 0.825rem; display: flex; flex-direction: column; gap: 0.4rem;">
+            <div><strong>Email:</strong> {{ class_section.primary_teacher.user.email }}</div>
+            <div><strong>Office:</strong> {{ class_section.primary_teacher.office_location|default:"Academic Block" }}</div>
+            <div><strong>Lecture Room:</strong> {{ class_section.room_number|default:"TBA" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grade Breakdown Snapshot -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Calculated Assessment Status</h3>
+        </div>
+        <div class="card-body">
+          <div style="text-align: center; margin-bottom: 1rem;">
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);">
+              {{ grade_breakdown.final_percentage }}%
+            </div>
+            <span class="badge badge-indigo" style="font-size: 0.85rem;">Grade: {{ grade_breakdown.final_grade_letter }}</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8rem;">
+            {% for item in grade_breakdown.breakdowns %}
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-color); padding-bottom: 0.35rem;">
+                <span style="color: var(--text-muted);">{{ item.title }} ({{ item.weightage }}%)</span>
+                <strong>{{ item.percentage }}%</strong>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Take Attendance - {{ class_section.course.code }}{% endblock %}
+{% block breadcrumb %}Take Roll-Call{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 960px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal:teacher_attendance' %}?section={{ class_section.pk }}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Attendance Hub</span>
+    </a>
+
+    <h2>Lecture Session Roll-Call</h2>
+    <p>{{ class_section.course.code }}: {{ class_section.course.title }} (Section {{ class_section.section_code }})</p>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <!-- Session Details Card -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-header">
+        <h3>Session Details</h3>
+      </div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem;">
+          <div class="form-group">
+            <label class="form-label">Session Date *</label>
+            <input type="date" name="session_date" value="{{ today_date }}" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Session Title / Topic *</label>
+            <input type="text" name="title" value="Lecture Session" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Syllabus Topic Focus</label>
+            <select name="topic" class="form-select">
+              <option value="">General / Overview</option>
+              {% for t in topics %}
+                <option value="{{ t.pk }}">Topic {{ t.order_index }}: {{ t.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Attendance Matrix -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Student Attendance Roster ({{ roster|length }} Students)</h3>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.querySelectorAll('.status-radio-present').forEach(r => r.checked = true);">Mark All Present</button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Roll Number</th>
+              <th>Student Name</th>
+              <th>Status</th>
+              <th>Remarks / Excuse</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in roster %}
+              <tr>
+                <td><strong>{{ item.student.student_id }}</strong></td>
+                <td>
+                  <strong>{{ item.student.user.get_full_name }}</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.student.program.code }}</div>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 1rem; font-size: 0.85rem;">
+                    <label style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; color: var(--color-success);">
+                      <input type="radio" name="status_{{ item.student.pk }}" value="PRESENT" class="status-radio-present" checked>
+                      <span>Present</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; color: var(--color-danger);">
+                      <input type="radio" name="status_{{ item.student.pk }}" value="ABSENT">
+                      <span>Absent</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; color: var(--color-warning);">
+                      <input type="radio" name="status_{{ item.student.pk }}" value="LATE">
+                      <span>Late</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; color: var(--color-info);">
+                      <input type="radio" name="status_{{ item.student.pk }}" value="EXCUSED">
+                      <span>Excused</span>
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  <input type="text" name="remarks_{{ item.student.pk }}" placeholder="Optional notes" class="form-input" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students enrolled in this section.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+      <a href="{% url 'portal:teacher_attendance' %}?section={{ class_section.pk }}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+        <span>Finalize Attendance Submission</span>
+      </button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}

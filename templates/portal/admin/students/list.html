@@ -1,0 +1,108 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Student Management - Admin Portal{% endblock %}
+{% block breadcrumb %}Students{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Student Directory & Management</h2>
+      <p>Enroll new students, edit profiles, assign programs, and update academic standings</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'portal_admin:student_create' %}" class="btn btn-primary">
+        <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
+        <span>Enroll New Student</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="background: var(--bg-subtle);">
+      <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; width: 100%;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, roll number, or email..." class="form-input" style="flex: 1; min-width: 220px;">
+        <select name="department" class="form-select" onchange="this.form.submit()" style="min-width: 170px;">
+          <option value="">All Departments</option>
+          {% for d in departments %}
+            <option value="{{ d.pk }}" {% if selected_dept == d.pk|stringformat:"i" %}selected{% endif %}>{{ d.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="program" class="form-select" onchange="this.form.submit()" style="min-width: 170px;">
+          <option value="">All Programs</option>
+          {% for p in programs %}
+            <option value="{{ p.pk }}" {% if selected_prog == p.pk|stringformat:"i" %}selected{% endif %}>{{ p.code }}</option>
+          {% endfor %}
+        </select>
+        <select name="status" class="form-select" onchange="this.form.submit()" style="min-width: 150px;">
+          <option value="">All Statuses</option>
+          {% for s_val, s_label in statuses %}
+            <option value="{{ s_val }}" {% if selected_status == s_val %}selected{% endif %}>{{ s_label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Full Name</th>
+            <th>Department</th>
+            <th>Program</th>
+            <th>Term / Sem</th>
+            <th>Academic Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+            <tr>
+              <td><strong>{{ s.student_id }}</strong></td>
+              <td>
+                <strong>{{ s.user.get_full_name }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ s.user.email }}</div>
+              </td>
+              <td>{{ s.department.code }}</td>
+              <td><span class="badge badge-indigo">{{ s.program.code }}</span></td>
+              <td>Semester {{ s.current_semester }}</td>
+              <td>
+                <span class="badge {% if s.academic_status == 'ACTIVE' %}badge-success{% elif s.academic_status == 'PROBATION' %}badge-danger{% else %}badge-warning{% endif %}">
+                  {{ s.get_academic_status_display }}
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem;">
+                  <a href="{% url 'portal_admin:student_edit' pk=s.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                  <a href="{% url 'portal_admin:records' %}?student_id={{ s.pk }}" class="btn btn-outline btn-sm">Transcript</a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students match the criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if students.has_other_pages %}
+      <div style="padding: 1rem 1.5rem; display: flex; justify-content: center; gap: 0.5rem; border-top: 1px solid var(--border-color);">
+        {% if students.has_previous %}
+          <a href="?page={{ students.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_dept %}&department={{ selected_dept }}{% endif %}{% if selected_prog %}&program={{ selected_prog }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="btn btn-secondary btn-sm">&laquo; Prev</a>
+        {% endif %}
+        <span style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">Page {{ students.number }} of {{ students.paginator.num_pages }}</span>
+        {% if students.has_next %}
+          <a href="?page={{ students.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_dept %}&department={{ selected_dept }}{% endif %}{% if selected_prog %}&program={{ selected_prog }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" class="btn btn-secondary btn-sm">Next &raquo;</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

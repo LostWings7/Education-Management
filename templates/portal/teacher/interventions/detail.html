@@ -1,0 +1,292 @@
+{% extends "portal_base.html" %}
+{% load intervention_tags %}
+
+{% block title %}Manage Support Plan | Faculty Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <span class="badge badge-neutral">{{ intervention.course.code }} (Sec {{ intervention.class_section.section_code }})</span>
+        {{ intervention.priority|intervention_priority_badge }}
+        {{ intervention.status|intervention_status_badge }}
+        {% if is_overdue %}
+          <span class="badge badge-danger">OVERDUE</span>
+        {% endif %}
+      </div>
+      <h2>{{ intervention.title }}</h2>
+      <p style="color: var(--text-muted); margin: 0;">
+        Student: <strong>{{ intervention.student.user.get_full_name|default:intervention.student.user.email }}</strong> ({{ intervention.student.student_id }})
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <a href="{% url 'portal:teacher_interventions' %}" class="btn btn-outline">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        <span>Back to Center</span>
+      </a>
+
+      <!-- Action Modals / Buttons -->
+      {% if intervention.status in 'ASSIGNED,IN_PROGRESS,COMPLETED,EVALUATING' %}
+        <form method="post" action="{% url 'portal:teacher_intervention_evaluate' pk=intervention.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary" onclick="return confirm('Run target-aware deterministic outcome evaluation now?')">
+            <i data-lucide="award" style="width: 16px; height: 16px;"></i>
+            <span>Evaluate Outcome Impact</span>
+          </button>
+        </form>
+
+        <form method="post" action="{% url 'portal:teacher_intervention_close' pk=intervention.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-secondary" onclick="return confirm('Formally close and archive this support plan?')">
+            <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+            <span>Close & Archive</span>
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Plan Overview & Baseline Diagnostic Snapshot -->
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem;">
+    <!-- Overview Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Support Plan Specification</h3>
+      </div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+          <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Primary Target Metric</div>
+            <div style="font-weight: 700; color: var(--color-primary); margin-top: 0.25rem;">
+              {{ intervention.get_primary_target_metric_display }}
+            </div>
+          </div>
+
+          <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Due Date</div>
+            <div style="font-weight: 700; margin-top: 0.25rem; {% if is_overdue %}color: var(--color-danger);{% endif %}">
+              {{ intervention.due_date }}
+            </div>
+          </div>
+
+          <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Checklist Completion</div>
+            <div style="font-weight: 700; margin-top: 0.25rem;">
+              {{ progress_percentage }}%
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Plan Objective</h4>
+          <p style="font-size: 0.9rem; color: var(--text-primary); margin: 0 0 1rem 0;">
+            {{ intervention.objective }}
+          </p>
+
+          {% if intervention.educator_notes %}
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Educator Observations</h4>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
+              {{ intervention.educator_notes }}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Frozen Baseline Snapshot Card -->
+    <div class="card" style="background: var(--bg-subtle);">
+      <div class="card-header">
+        <h3 style="font-size: 1rem;">Frozen Trigger Evidence</h3>
+      </div>
+      <div class="card-body" style="font-size: 0.85rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div>Trigger: <strong>{{ intervention.trigger_insight_type }}</strong></div>
+          <div>Baseline Risk: <strong>{{ intervention.baseline_metrics.risk_score|default:"—" }}/100</strong> ({{ intervention.baseline_metrics.risk_level }})</div>
+          <div>Attendance: <strong>{{ intervention.baseline_metrics.attendance_percentage }}%</strong></div>
+          <div>Missing Coursework: <strong>{{ intervention.baseline_metrics.missing_assignment_rate }}%</strong></div>
+          <div>Trajectory: <strong>{{ intervention.baseline_metrics.trajectory_direction }}</strong> ({{ intervention.baseline_metrics.trajectory_slope }} pts/step)</div>
+          {% if intervention.baseline_metrics.weak_topic %}
+            <div>Topic Gap: <strong>{{ intervention.baseline_metrics.weak_topic }}</strong> ({{ intervention.baseline_metrics.topic_score }}%)</div>
+          {% endif %}
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+            Frozen at creation: {{ intervention.baseline_metrics.captured_at|slice:":19" }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Items Management -->
+  <div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <h3>Action Checklist & Tasks</h3>
+      <div style="display: flex; gap: 0.5rem;">
+        <!-- Checkpoint Button -->
+        <form method="post" action="{% url 'portal:teacher_intervention_checkpoint' pk=intervention.pk %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline btn-sm">
+            <i data-lucide="bookmark" style="width: 14px; height: 14px;"></i>
+            <span>Record Progress Checkpoint</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; flex-direction: column;">
+        {% for act in actions %}
+          <div style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div style="flex: 1; min-width: 280px;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-weight: 700;">Step {{ act.order_index }}:</span>
+                <strong style="font-size: 1rem;">{{ act.title }}</strong>
+                {{ act.status|action_status_badge }}
+                <span class="badge badge-neutral">{{ act.get_verification_type_display }}</span>
+              </div>
+
+              {% if act.description %}
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0.35rem 0 0 0;">
+                  {{ act.description }}
+                </p>
+              {% endif %}
+
+              {% if act.resource %}
+                <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-primary);">
+                  <i data-lucide="file-text" style="width: 14px; height: 14px; display: inline-block; vertical-align: text-bottom;"></i>
+                  Attached Resource: <strong>{{ act.resource.title }}</strong>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Action Status Update Form -->
+            <div>
+              <form method="post" action="{% url 'portal:teacher_intervention_action_update' pk=intervention.pk action_id=act.pk %}" style="display: flex; gap: 0.5rem; align-items: center;">
+                {% csrf_token %}
+                {% if act.status != 'COMPLETED' %}
+                  <input type="hidden" name="status" value="COMPLETED">
+                  <button type="submit" class="btn btn-primary btn-sm">
+                    <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                    <span>Verify / Complete</span>
+                  </button>
+                {% else %}
+                  <input type="hidden" name="status" value="PENDING">
+                  <button type="submit" class="btn btn-outline btn-sm">
+                    <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                    <span>Reopen</span>
+                  </button>
+                {% endif %}
+              </form>
+            </div>
+          </div>
+        {% empty %}
+          <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+            No actions configured yet.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Add Action Form -->
+    <div class="card-footer" style="background: var(--bg-subtle); padding: 1.25rem;">
+      <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Add Action Step to Plan</h4>
+      <form method="post" action="{% url 'portal:teacher_intervention_action_add' pk=intervention.pk %}" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.75rem;">
+          <input type="text" name="title" class="form-input" placeholder="Action Title (e.g. Complete Trees Problem Set 1)" required>
+          <select name="verification_type" class="form-select">
+            <option value="STUDENT_CHECK">Student Self-Check</option>
+            <option value="EDUCATOR_VERIFIED">Faculty Verified</option>
+          </select>
+          <select name="resource_id" class="form-select">
+            <option value="">-- Optional Resource --</option>
+            {% for r in suggested_resources %}
+              <option value="{{ r.pk }}">{{ r.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <input type="text" name="description" class="form-input" placeholder="Optional detailed instructions...">
+          <button type="submit" class="btn btn-secondary btn-sm" style="flex-shrink: 0;">
+            <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+            <span>Add Step</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Progress Checkpoints History -->
+  {% if evaluations %}
+    <div class="card">
+      <div class="card-header">
+        <h3>Progress Checkpoints & Final Evaluation History</h3>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div style="display: flex; flex-direction: column;">
+          {% for ev in evaluations %}
+            <div style="padding: 1.25rem; border-bottom: 1px solid var(--border-color);">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <strong>{{ ev.get_evaluation_type_display }} #{{ ev.checkpoint_number }}</strong>
+                  <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 0.5rem;">
+                    Evaluator: {{ ev.evaluator.get_full_name|default:ev.evaluator.email }} on {{ ev.created_at|date:"M d, Y H:i" }}
+                  </span>
+                </div>
+                <div>
+                  {{ ev.classification|effectiveness_badge }}
+                </div>
+              </div>
+
+              {% if ev.delta_metrics %}
+                <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary); display: flex; gap: 1rem; flex-wrap: wrap;">
+                  {% if ev.delta_metrics.delta_performance is not None %}
+                    <span>Δ Performance: <strong>{{ ev.delta_metrics.delta_performance }}%</strong></span>
+                  {% endif %}
+                  {% if ev.delta_metrics.delta_attendance is not None %}
+                    <span>Δ Attendance: <strong>{{ ev.delta_metrics.delta_attendance }}%</strong></span>
+                  {% endif %}
+                  {% if ev.delta_metrics.delta_risk is not None %}
+                    <span>Δ Risk Score: <strong>{{ ev.delta_metrics.delta_risk }} pts</strong></span>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              {% if ev.evaluation_notes %}
+                <p style="font-size: 0.875rem; color: var(--text-primary); margin: 0.5rem 0 0 0;">
+                  {{ ev.evaluation_notes }}
+                </p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Escalation Action Panel if needed -->
+  {% if is_overdue_14_days or intervention.status == 'INEFFECTIVE' %}
+    <div class="card" style="border: 1px solid #fecdd3; background: #fff1f2; padding: 1.25rem;">
+      <h3 style="color: #9f1239; margin-bottom: 0.5rem;">Escalation Recommended</h3>
+      <p style="font-size: 0.875rem; color: #9f1239; margin-bottom: 1rem;">
+        This support plan is either severely overdue (>14 days) or was evaluated as ineffective. You may escalate this case to higher-tier academic authorities.
+      </p>
+
+      <form method="post" action="{% url 'portal:teacher_intervention_escalate' pk=intervention.pk %}" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        {% csrf_token %}
+        <select name="target_role" class="form-select" style="max-width: 250px;">
+          <option value="ACADEMIC_ADVISOR">Academic Advisor</option>
+          <option value="DEPARTMENT_COORDINATOR">Department Coordinator</option>
+          <option value="HOD">Head of Department (HOD)</option>
+        </select>
+        <input type="text" name="reason" class="form-input" placeholder="Reason for escalation..." style="flex: 1; min-width: 200px;">
+        <button type="submit" class="btn btn-secondary" style="color: #9f1239; border-color: #fecdd3;">
+          <i data-lucide="shield-alert" style="width: 16px; height: 16px;"></i>
+          <span>Escalate Plan</span>
+        </button>
+      </form>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

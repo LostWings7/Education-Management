@@ -1,0 +1,151 @@
+{% extends "portal_base.html" %}
+
+{% block title %}AI Observability & Telemetry | Admin Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <h2>AI Observability & Quality Telemetry</h2>
+        <span class="badge badge-success">System Operational</span>
+      </div>
+      <p style="color: var(--text-muted); margin: 0;">
+        Operational metrics, latency monitoring, fallback frequency, validation health, and user feedback analysis.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="{% url 'portal_admin:ai_intelligence' %}" class="btn btn-outline">
+        <i data-lucide="bot" style="width: 16px; height: 16px;"></i>
+        <span>AI Intelligence Hub</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Top KPI Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Total Invocations</div>
+      <div style="font-size: 1.8rem; font-weight: 800; color: var(--color-primary); margin-top: 0.25rem;">
+        {{ metrics.total_requests }}
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Success Rate: <strong>{{ metrics.success_rate }}%</strong></div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Average Latency</div>
+      <div style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-top: 0.25rem;">
+        {{ metrics.avg_latency_ms }} ms
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Local & API response time</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Fallback Frequency</div>
+      <div style="font-size: 1.8rem; font-weight: 800; color: #d97706; margin-top: 0.25rem;">
+        {{ metrics.fallback_rate }}%
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">{{ metrics.fallback_provider_requests }} Local Heuristic / {{ metrics.online_provider_requests }} Online</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; color: var(--text-muted);">User Satisfaction</div>
+      <div style="font-size: 1.8rem; font-weight: 800; color: #10b981; margin-top: 0.25rem;">
+        {{ metrics.satisfaction_percentage }}%
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">👍 {{ metrics.helpful_count }} Helpful / 👎 {{ metrics.unhelpful_count }} Unhelpful</div>
+    </div>
+  </div>
+
+  <!-- Quality & Validation Breakdown -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+    <!-- Schema & Validation Health -->
+    <div class="card" style="padding: 1.5rem;">
+      <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.05rem;">Response Validation Status</h3>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Strict Valid Responses</span>
+          <strong>{{ metrics.validation_valid_count }} ({{ metrics.validation_pass_rate }}%)</strong>
+        </div>
+        <div style="width: 100%; height: 8px; background: var(--bg-subtle); border-radius: 4px; overflow: hidden;">
+          <div style="width: {{ metrics.validation_pass_rate }}%; height: 100%; background: #10b981;"></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+          <span>Remediated Responses</span>
+          <strong>{{ metrics.validation_remediated_count }}</strong>
+        </div>
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">
+        Evaluated against registered course codes, authentic assignment IDs, and workload feasibility limits.
+      </div>
+    </div>
+
+    <!-- User Feedback Negative Categories -->
+    <div class="card" style="padding: 1.5rem;">
+      <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.05rem;">User Negative Feedback Breakdown</h3>
+      {% if metrics.feedback_category_breakdown %}
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          {% for cat, count in metrics.feedback_category_breakdown.items %}
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem;">
+              <span>{{ cat }}</span>
+              <span class="badge badge-warning">{{ count }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="text-align: center; color: var(--text-muted); padding: 1.5rem 0;">
+          Zero negative feedback reports recorded.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Interaction Telemetry Table -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div class="card-header" style="background: var(--bg-subtle);">
+      <h3 style="margin: 0; font-size: 1.05rem;">Recent Interaction Telemetry Logs (Last 15)</h3>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border-color); text-align: left; font-size: 0.8rem; color: var(--text-muted);">
+            <th style="padding: 0.75rem 1rem;">Timestamp</th>
+            <th style="padding: 0.75rem 1rem;">User Role</th>
+            <th style="padding: 0.75rem 1rem;">Request Type</th>
+            <th style="padding: 0.75rem 1rem;">Provider</th>
+            <th style="padding: 0.75rem 1rem;">Model</th>
+            <th style="padding: 0.75rem 1rem; text-align: right;">Latency</th>
+            <th style="padding: 0.75rem 1rem; text-align: center;">Validation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in metrics.recent_interactions %}
+            <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.85rem;">
+              <td style="padding: 0.6rem 1rem; color: var(--text-muted);">{{ log.created_at|date:"M d, H:i:s" }}</td>
+              <td style="padding: 0.6rem 1rem;"><span class="badge badge-neutral">{{ log.role }}</span></td>
+              <td style="padding: 0.6rem 1rem; font-weight: 600;">{{ log.request_type }}</td>
+              <td style="padding: 0.6rem 1rem;">{{ log.provider }}</td>
+              <td style="padding: 0.6rem 1rem; color: var(--text-muted);">{{ log.model }}</td>
+              <td style="padding: 0.6rem 1rem; text-align: right; font-weight: 600;">{{ log.latency_ms }} ms</td>
+              <td style="padding: 0.6rem 1rem; text-align: center;">
+                <span class="badge {% if log.validation_status == 'VALID' %}badge-success{% else %}badge-warning{% endif %}">
+                  {{ log.validation_status }}
+                </span>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                No telemetry logs recorded yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

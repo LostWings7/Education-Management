@@ -1,0 +1,118 @@
+{% extends "portal_base.html" %}
+{% load ai_tags %}
+
+{% block title %}AI Academic Study Planner | Student Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <h2>Personalized AI Study Planner</h2>
+        {% ai_provider_status_indicator %}
+        <span class="badge badge-success">{{ study_plan.validation_status }}</span>
+      </div>
+      <p style="color: var(--text-muted); margin: 0;">
+        Synthesized schedule balancing weak syllabus topics (<60%), pending coursework deadlines, and active support actions.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="{% url 'portal:student_ai_copilot' %}" class="btn btn-outline">
+        <i data-lucide="message-square" style="width: 16px; height: 16px;"></i>
+        <span>Ask Copilot</span>
+      </a>
+      <a href="{% url 'portal:student_ai_planner' %}" class="btn btn-primary">
+        <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+        <span>Regenerate Schedule</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Weekly Overview Banner -->
+  <div class="card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; padding: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h3 style="margin: 0 0 0.25rem 0; color: #ffffff;">{{ study_plan.plan_title }}</h3>
+        <div style="font-size: 0.9rem; opacity: 0.9;">Target Period: <strong>{{ study_plan.target_week }}</strong></div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 2rem; font-weight: 700;">{{ study_plan.total_estimated_hours }} hrs</div>
+        <div style="font-size: 0.8rem; opacity: 0.85;">Total Suggested Study Load</div>
+      </div>
+    </div>
+    <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.2); font-size: 0.8rem; opacity: 0.9;">
+      ℹ️ {{ study_plan.disclaimer }}
+    </div>
+  </div>
+
+  <!-- 5-Day Schedule Grid -->
+  <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+    {% for day in study_plan.days %}
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="card-header" style="background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-weight: 700; font-size: 1.05rem;">{{ day.day_name }}</span>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">({{ day.date_str }})</span>
+          </div>
+          <span class="badge badge-neutral">{{ day.total_study_minutes }} mins</span>
+        </div>
+
+        <div class="card-body" style="padding: 0;">
+          <div style="display: flex; flex-direction: column;">
+            {% for task in day.tasks %}
+              <div style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                <div style="flex: 1; min-width: 280px;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <span class="badge badge-neutral">{{ task.course_code }}</span>
+                    {% if task.task_type == 'TOPIC_STUDY' %}
+                      <span class="badge badge-info">Concept Remediation</span>
+                    {% elif task.task_type == 'ASSIGNMENT_PREP' %}
+                      <span class="badge badge-warning">Coursework Catch-Up</span>
+                    {% elif task.task_type == 'INTERVENTION_TASK' %}
+                      <span class="badge badge-danger">Support Plan Action</span>
+                    {% else %}
+                      <span class="badge badge-neutral">{{ task.task_type }}</span>
+                    {% endif %}
+                    <strong style="font-size: 0.95rem;">{{ task.title }}</strong>
+                  </div>
+
+                  <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0.35rem 0 0 0;">
+                    {{ task.description }}
+                  </p>
+
+                  <!-- Attached Resource or Deadline -->
+                  {% if task.resource_title %}
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--color-primary);">
+                      <i data-lucide="file-text" style="width: 14px; height: 14px; display: inline-block; vertical-align: text-bottom;"></i>
+                      Recommended Material: <strong>{{ task.resource_title }}</strong>
+                    </div>
+                  {% endif %}
+
+                  {% if task.due_date %}
+                    <div style="margin-top: 0.35rem; font-size: 0.8rem; color: var(--color-warning); font-weight: 600;">
+                      <i data-lucide="clock" style="width: 14px; height: 14px; display: inline-block; vertical-align: text-bottom;"></i>
+                      Assignment Due Date: {{ task.due_date }}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <div style="text-align: right; flex-shrink: 0;">
+                  <div style="font-weight: 700; color: var(--color-primary); font-size: 1.1rem;">
+                    {{ task.duration_minutes }} min
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Suggested Block</div>
+                </div>
+              </div>
+            {% empty %}
+              <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.875rem;">
+                No study blocks scheduled for this day. Free study or rest period.
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

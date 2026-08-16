@@ -1,0 +1,119 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}My Courses - Student Portal{% endblock %}
+{% block breadcrumb %}My Courses{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem;">
+    <div>
+      <h2>My Enrolled Courses</h2>
+      <p>Active registrations for {{ active_semester.name|default:"Current Term" }} and past academic history</p>
+    </div>
+    <span class="badge badge-student">Active Program: {{ user.student_profile.program.code }}</span>
+  </div>
+
+  <!-- Active Semester Courses -->
+  <div style="margin-bottom: 2.5rem;">
+    <h3 style="font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+      <i data-lucide="book-open" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+      <span>Current Term Offerings ({{ active_semester.name|default:"Spring 2026" }})</span>
+    </h3>
+
+    <div class="grid-3">
+      {% for enrollment in active_enrollments %}
+        <div class="card">
+          <div class="card-body">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <span class="badge badge-secondary">{{ enrollment.class_section.course.code }}</span>
+              <span class="badge badge-success">Enrolled</span>
+            </div>
+
+            <h3 style="font-size: 1.15rem; margin-bottom: 0.4rem;">{{ enrollment.class_section.course.title }}</h3>
+            <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">
+              Instructor: <strong>{{ enrollment.class_section.primary_teacher.user.get_full_name }}</strong>
+            </p>
+
+            <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md); font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.25rem;">
+              <div><strong>Section:</strong> {{ enrollment.class_section.section_code }}</div>
+              <div><strong>Credits:</strong> {{ enrollment.class_section.course.credits }}</div>
+              <div><strong>Room:</strong> {{ enrollment.class_section.room_number|default:"TBA" }}</div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+              <a href="{% url 'portal:student_course_detail' section_id=enrollment.class_section.pk %}" class="btn btn-primary btn-sm btn-block">
+                <span>View Course Details</span>
+                <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <div class="empty-state-icon">
+            <i data-lucide="book-open"></i>
+          </div>
+          <div class="empty-state-title">No Active Enrollments</div>
+          <p class="empty-state-desc">You are not actively enrolled in any courses for the current semester.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Historical Completed Semesters -->
+  {% if historical_enrollments %}
+    <div style="margin-top: 2rem;">
+      <h3 style="font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i data-lucide="archive" style="width: 18px; height: 18px; color: var(--text-muted);"></i>
+        <span>Historical Completed Semesters</span>
+      </h3>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Semester</th>
+                <th>Course</th>
+                <th>Instructor</th>
+                <th>Final Grade</th>
+                <th>Percentage</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for enrollment in historical_enrollments %}
+                <tr>
+                  <td><strong>{{ enrollment.class_section.semester.name }}</strong></td>
+                  <td>
+                    <strong>{{ enrollment.class_section.course.code }}</strong>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">{{ enrollment.class_section.course.title }}</div>
+                  </td>
+                  <td>{{ enrollment.class_section.primary_teacher.user.get_full_name }}</td>
+                  <td>
+                    {% if enrollment.final_grade_letter %}
+                      <span class="badge badge-indigo">{{ enrollment.final_grade_letter }}</span>
+                    {% else %}
+                      <span class="badge badge-secondary">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if enrollment.final_percentage %}
+                      <strong>{{ enrollment.final_percentage }}%</strong>
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td><span class="badge badge-success">{{ enrollment.get_status_display }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

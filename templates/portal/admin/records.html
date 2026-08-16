@@ -1,0 +1,148 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Academic Records & Transcripts - Admin Portal{% endblock %}
+{% block breadcrumb %}Academic Records{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Master Academic Records & Transcripts</h2>
+      <p>Search student profiles and retrieve complete multi-term academic histories</p>
+    </div>
+
+    <!-- Search Form -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, ID, or email..." class="form-input" style="min-width: 260px;">
+      <button type="submit" class="btn btn-primary">
+        <i data-lucide="search" style="width: 14px; height: 14px;"></i>
+        <span>Search</span>
+      </button>
+    </form>
+  </div>
+
+  <div class="grid-sidebar">
+    
+    <!-- Left Column: Student Search Results List -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div class="card">
+        <div class="card-header">
+          <h3>Student Directory</h3>
+          <span class="badge badge-secondary">{{ students|length }} Matches</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Program</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in students %}
+                <tr {% if selected_student.pk == s.pk %}style="background: var(--bg-subtle);"{% endif %}>
+                  <td>
+                    <strong>{{ s.user.get_full_name }}</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ s.student_id }} &bull; {{ s.user.email }}</div>
+                  </td>
+                  <td>{{ s.program.code }}</td>
+                  <td><span class="badge badge-success">{{ s.get_academic_status_display }}</span></td>
+                  <td>
+                    <a href="?student_id={{ s.pk }}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-secondary btn-sm">
+                      Select
+                    </a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No matching students found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Selected Student's Academic Record / Transcript -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {% if selected_student %}
+        <div class="card">
+          <div class="card-header">
+            <h3>Student Academic Transcript</h3>
+            <span class="badge badge-student">Roll: {{ selected_student.student_id }}</span>
+          </div>
+          <div class="card-body" style="border-bottom: 1px solid var(--border-color); padding: 1.25rem 1.5rem; background: var(--bg-subtle);">
+            <h4 style="font-size: 1.15rem; margin-bottom: 0.25rem;">{{ selected_student.user.get_full_name }}</h4>
+            <p style="font-size: 0.85rem; margin: 0 0 0.5rem; color: var(--text-muted);">{{ selected_student.user.email }}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.825rem;">
+              <span><strong>Department:</strong> {{ selected_student.department.name }}</span>
+              <span><strong>Program:</strong> {{ selected_student.program.name }}</span>
+              <span><strong>Current Term:</strong> Semester {{ selected_student.current_semester }}</span>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Semester</th>
+                  <th>Course Code</th>
+                  <th>Credits</th>
+                  <th>Final %</th>
+                  <th>Grade</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in student_history %}
+                  <tr>
+                    <td><strong>{{ item.class_section.semester.name }}</strong></td>
+                    <td>
+                      <strong>{{ item.class_section.course.code }}</strong>
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.class_section.course.title }}</div>
+                    </td>
+                    <td>{{ item.class_section.course.credits }}</td>
+                    <td>
+                      {% if item.final_percentage %}
+                        <strong>{{ item.final_percentage }}%</strong>
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if item.final_grade_letter %}
+                        <span class="badge badge-indigo">{{ item.final_grade_letter }}</span>
+                      {% else %}
+                        <span class="badge badge-secondary">Pending</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="badge badge-success">{{ item.get_status_display }}</span></td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No historical course records found for this student.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% else %}
+        <div class="card" style="padding: 3rem 1.5rem; text-align: center;">
+          <div class="stat-icon indigo" style="margin: 0 auto 1rem;">
+            <i data-lucide="user-search"></i>
+          </div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">No Student Selected</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Select a student from the directory on the left to view their complete academic transcript and historical enrollment records.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

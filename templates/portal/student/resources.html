@@ -1,0 +1,89 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Learning Resources - Student Portal{% endblock %}
+{% block breadcrumb %}Learning Resources{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Learning Resources & Course Materials</h2>
+      <p>Lecture slides, notes, reference problem sheets, and links</p>
+    </div>
+
+    <!-- Course Filter -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="course" class="form-select" onchange="this.form.submit()" style="min-width: 220px;">
+        {% for c in courses %}
+          <option value="{{ c.pk }}" {% if selected_course.pk == c.pk %}selected{% endif %}>{{ c.code }} - {{ c.title }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if selected_course %}
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-header">
+        <h3>{{ selected_course.code }}: {{ selected_course.title }}</h3>
+        <span class="badge badge-info">{{ resources|length }} Materials</span>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          {% for res in resources %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; background: var(--bg-subtle); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <div class="stat-icon indigo" style="width: 40px; height: 40px; font-size: 1.1rem; flex-shrink: 0;">
+                  {% if res.resource_type == 'PDF' %}
+                    <i data-lucide="file-text"></i>
+                  {% elif res.resource_type == 'VIDEO' %}
+                    <i data-lucide="video"></i>
+                  {% elif res.resource_type == 'LINK' %}
+                    <i data-lucide="external-link"></i>
+                  {% else %}
+                    <i data-lucide="book-open"></i>
+                  {% endif %}
+                </div>
+                <div>
+                  <h4 style="font-size: 1rem; margin-bottom: 0.2rem;">{{ res.title }}</h4>
+                  <p style="font-size: 0.85rem; margin-bottom: 0.35rem; color: var(--text-muted);">{{ res.description|default:"No description provided." }}</p>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; gap: 0.75rem;">
+                    <span><strong>Type:</strong> {{ res.get_resource_type_display }}</span>
+                    {% if res.topic %}<span><strong>Topic:</strong> {{ res.topic.title }}</span>{% endif %}
+                    <span><strong>Uploaded:</strong> {{ res.created_at|date:"M d, Y" }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                {% if res.file %}
+                  <a href="{{ res.file.url }}" class="btn btn-primary btn-sm" target="_blank" download>
+                    <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                    <span>Download</span>
+                  </a>
+                {% elif res.external_url %}
+                  <a href="{{ res.external_url }}" class="btn btn-secondary btn-sm" target="_blank">
+                    <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                    <span>Open Link</span>
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          {% empty %}
+            <p style="color: var(--text-muted); text-align: center; padding: 2rem;">No educational resources uploaded for this course yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <i data-lucide="folder-open"></i>
+      </div>
+      <div class="empty-state-title">No Enrolled Courses Found</div>
+      <p class="empty-state-desc">You are not actively enrolled in courses with available resources.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

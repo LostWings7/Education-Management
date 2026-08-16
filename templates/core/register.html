@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration - Education Management Portal{% endblock %}
+
+{% block content %}
+<div style="min-height: calc(100vh - var(--header-height) - 200px); display: flex; align-items: center; justify-content: center; padding: 2.5rem 1rem;">
+  <div style="width: 100%; max-width: 520px;">
+    
+    <div class="card" style="box-shadow: var(--shadow-lg);">
+      <div class="card-body" style="padding: 2.25rem 2rem;">
+        
+        <div style="text-align: center; margin-bottom: 1.75rem;">
+          <div class="brand-icon" style="margin: 0 auto 1rem; width: 44px; height: 44px; font-size: 1.25rem;">
+            <i data-lucide="user-plus"></i>
+          </div>
+          <h2 style="font-size: 1.5rem; margin-bottom: 0.25rem;">Create Student Account</h2>
+          <p style="font-size: 0.875rem;">Join the institution portal to track courses and academic progress</p>
+        </div>
+
+        <form method="post" action="{% url 'core:register' %}">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger" style="margin-bottom: 1.25rem;">
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name *</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <div class="form-error">{{ form.first_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name *</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <div class="form-error">{{ form.last_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.email.id_for_label }}">Email Address *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="form-error">{{ form.email.errors.0 }}</div>
+            {% endif %}
+            <div class="form-help">Your email will be used as your unique login ID.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+            {{ form.phone_number }}
+            {% if form.phone_number.errors %}
+              <div class="form-error">{{ form.phone_number.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="{{ form.password.id_for_label }}">Password *</label>
+              {{ form.password }}
+              {% if form.password.errors %}
+                <div class="form-error">{{ form.password.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="{{ form.confirm_password.id_for_label }}">Confirm Password *</label>
+              {{ form.confirm_password }}
+              {% if form.confirm_password.errors %}
+                <div class="form-error">{{ form.confirm_password.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.5rem; padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md); font-size: 0.8rem; color: var(--text-muted);">
+            <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+              <i data-lucide="shield" style="width: 16px; height: 16px; color: var(--brand-primary); flex-shrink: 0; margin-top: 2px;"></i>
+              <span>Public registration creates a <strong>Student</strong> account. Faculty and administrator accounts must be provisioned by the department administration.</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg">
+            <span>Complete Registration</span>
+            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+          </button>
+        </form>
+
+      </div>
+
+      <div class="card-footer" style="text-align: center; font-size: 0.875rem;">
+        <span>Already have an account?</span>
+        <a href="{% url 'core:login' %}" style="font-weight: 600; margin-left: 0.35rem;">Sign in here</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

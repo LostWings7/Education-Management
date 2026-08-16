@@ -1,0 +1,154 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Gradebook - Faculty Portal{% endblock %}
+{% block breadcrumb %}Gradebook{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Course Gradebook & Assessment Matrix</h2>
+      <p>Continuous grading, weighted totals calculation, and snapshot publishing</p>
+    </div>
+
+    <!-- Section Filter Form -->
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+      <select name="section" class="form-select" onchange="this.form.submit()" style="min-width: 220px;">
+        {% for s in sections %}
+          <option value="{{ s.pk }}" {% if selected_section.pk == s.pk %}selected{% endif %}>{{ s.course.code }} (Sec {{ s.section_code }})</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if selected_section and gradebook_data %}
+    
+    <!-- Top Action Bar -->
+    <div class="card" style="margin-bottom: 1.5rem; background: var(--bg-subtle);">
+      <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1.25rem 1.5rem;">
+        <div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.25rem;">{{ selected_section.course.code }}: {{ selected_section.course.title }} (Sec {{ selected_section.section_code }})</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+            Evaluative Components: <strong>{{ gradebook_data.assessments|length }}</strong> &bull; Total Students: <strong>{{ gradebook_data.student_rows|length }}</strong>
+          </p>
+        </div>
+
+        <form method="post" action="{% url 'portal:teacher_publish_grades' section_id=selected_section.pk %}" onsubmit="return confirm('Publish authoritative calculated grade snapshots to all enrolled students?');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="send" style="width: 16px; height: 16px;"></i>
+            <span>Publish Final Grade Snapshots</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Assessment Components Weights Strip -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3>Evaluative Assessment Structure</h3>
+          <a href="{% url 'portal:teacher_assessment_create' %}" class="btn btn-secondary btn-sm">
+            <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+            <span>Add Assessment Component</span>
+          </a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+          {% for ass in gradebook_data.assessments %}
+            <div style="padding: 0.75rem 1rem; background: var(--bg-subtle); border-radius: var(--radius-md); border: 1px solid var(--border-color); flex: 1; min-width: 200px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <strong style="font-size: 0.95rem;">{{ ass.title }}</strong>
+                <a href="{% url 'portal:teacher_assessment_enter_marks' pk=ass.pk %}" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                  Enter Scores
+                </a>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+                {{ ass.get_assessment_type_display }} &bull; Max: {{ ass.max_marks }}
+              </div>
+              <div style="margin-top: 0.5rem;">
+                <span class="badge badge-indigo">Weight: {{ ass.weightage_percentage }}%</span>
+              </div>
+            </div>
+          {% empty %}
+            <p style="color: var(--text-muted); margin: 0;">No evaluative assessments configured for this class section.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Gradebook Matrix Table -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Student Gradebook Matrix</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              {% for ass in gradebook_data.assessments %}
+                <th>{{ ass.title }}<br><span style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted);">({{ ass.weightage_percentage }}%)</span></th>
+              {% endfor %}
+              <th>Calculated %</th>
+              <th>Calculated Grade</th>
+              <th>Snapshot Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in gradebook_data.student_rows %}
+              <tr>
+                <td><strong>{{ row.student.student_id }}</strong></td>
+                <td>
+                  <strong>{{ row.student.user.get_full_name }}</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">{{ row.student.program.code }}</div>
+                </td>
+                {% for b in row.breakdowns %}
+                  <td>
+                    <strong>{{ b.marks_obtained }}</strong> / {{ b.max_marks }}
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">({{ b.percentage }}%)</div>
+                  </td>
+                {% endfor %}
+                <td>
+                  <div style="font-size: 1.15rem; font-weight: 800; color: var(--brand-primary);">
+                    {{ row.calculated_percentage }}%
+                  </div>
+                </td>
+                <td>
+                  <span class="badge badge-indigo" style="font-size: 0.9rem; font-weight: 700;">
+                    {{ row.calculated_grade_letter }}
+                  </span>
+                </td>
+                <td>
+                  {% if row.is_published %}
+                    <span class="badge badge-success" title="Published: {{ row.published_percentage }}% ({{ row.published_grade_letter }})">Published</span>
+                  {% else %}
+                    <span class="badge badge-warning">Unpublished</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students enrolled.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <i data-lucide="file-spreadsheet"></i>
+      </div>
+      <div class="empty-state-title">No Section Selected</div>
+      <p class="empty-state-desc">Select a class section to view or update the gradebook.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

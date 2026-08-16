@@ -1,0 +1,72 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Course Announcements - Admin Portal{% endblock %}
+{% block breadcrumb %}Announcements{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Course Bulletins & Announcements</h2>
+      <p>Institutional feed of class notifications, urgent schedule changes, and notices</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Active Course Announcements</h3>
+      <span class="badge badge-info">{{ announcements|length }} Total</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Class Section</th>
+            <th>Announcement Title</th>
+            <th>Posted By</th>
+            <th>Pinned</th>
+            <th>Date Posted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in announcements %}
+            <tr>
+              <td>
+                <strong>{{ a.class_section.course.code }}</strong> (Sec {{ a.class_section.section_code }})
+              </td>
+              <td>
+                <strong>{{ a.title }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ a.content|truncatewords:10 }}</div>
+              </td>
+              <td>{{ a.teacher.user.get_full_name }}</td>
+              <td>
+                {% if a.is_pinned %}
+                  <span class="badge badge-warning">Pinned</span>
+                {% else %}
+                  <span style="color: var(--text-muted);">&ndash;</span>
+                {% endif %}
+              </td>
+              <td>{{ a.created_at|date:"M d, Y H:i" }}</td>
+              <td>
+                <form method="post" action="{% url 'portal_admin:announcement_delete' pk=a.pk %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline" style="color: var(--color-danger);" onclick="return confirm('Delete announcement {{ a.title }}?');">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No announcements posted.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

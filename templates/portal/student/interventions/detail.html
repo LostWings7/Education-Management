@@ -1,0 +1,192 @@
+{% extends "portal_base.html" %}
+{% load intervention_tags %}
+
+{% block title %}{{ intervention.title }} | Student Support{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <span class="badge badge-neutral">{{ intervention.course.code }} (Sec {{ intervention.class_section.section_code }})</span>
+        {{ intervention.priority|intervention_priority_badge }}
+        {{ intervention.status|intervention_status_badge }}
+      </div>
+      <h2>{{ intervention.title }}</h2>
+    </div>
+    <div>
+      <a href="{% url 'portal:student_interventions' %}" class="btn btn-outline">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        <span>Back to Support Plans</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Acknowledgment Callout if Pending -->
+  {% if acknowledgement and acknowledgement.status == 'PENDING' %}
+    <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h4 style="margin: 0 0 0.25rem 0; color: #1e40af;">Faculty Support Plan Acknowledgment</h4>
+          <p style="margin: 0; font-size: 0.875rem; color: #1e3a8a;">
+            Your instructor has prepared this guided support plan. Please review the objective and action steps below and acknowledge participation to begin.
+          </p>
+        </div>
+        <form method="post" action="{% url 'portal:student_intervention_acknowledge' pk=intervention.pk %}" style="display: flex; gap: 0.5rem;">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="ACCEPTED">
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+            <span>Accept Support Plan</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Core Plan Overview Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Support Plan Overview & Objective</h3>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+        <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Supervising Instructor</div>
+          <div style="font-weight: 600; margin-top: 0.25rem;">{{ intervention.assigned_to.user.get_full_name|default:intervention.assigned_to.user.email }}</div>
+        </div>
+        <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Target Completion Due Date</div>
+          <div style="font-weight: 600; margin-top: 0.25rem;">{{ intervention.due_date }}</div>
+        </div>
+        <div style="padding: 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Checklist Progress</div>
+          <div style="font-weight: 600; margin-top: 0.25rem;">{{ intervention.action_progress_percentage }}% Completed</div>
+        </div>
+      </div>
+
+      <div>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Plan Objective</h4>
+        <p style="font-size: 0.9rem; color: var(--text-primary); margin: 0 0 1rem 0;">
+          {{ intervention.objective }}
+        </p>
+
+        {% if intervention.educator_notes %}
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Faculty Observations</h4>
+          <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
+            {{ intervention.educator_notes }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Checklist & Resources -->
+  <div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>Action Checklist & Curricular Materials</h3>
+      <span style="font-size: 0.85rem; color: var(--text-muted);">{{ intervention.action_progress_percentage }}% complete</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; flex-direction: column;">
+        {% for act in actions %}
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 1.25rem; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; background: {% if act.status == 'COMPLETED' %}#f0fdf4{% else %}var(--surface-color){% endif %};">
+            <div style="flex: 1; min-width: 260px;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-muted);">Step {{ act.order_index }}:</span>
+                <strong style="font-size: 1rem; {% if act.status == 'COMPLETED' %}text-decoration: line-through; color: var(--text-muted);{% endif %}">{{ act.title }}</strong>
+                {{ act.status|action_status_badge }}
+              </div>
+
+              {% if act.description %}
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0.35rem 0 0 0;">
+                  {{ act.description }}
+                </p>
+              {% endif %}
+
+              <!-- Attached Learning Resource -->
+              {% if act.resource %}
+                <div style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
+                  <i data-lucide="file-text" style="width: 16px; height: 16px; color: var(--color-primary);"></i>
+                  <span>Curricular Resource: <strong>{{ act.resource.title }}</strong> ({{ act.resource.get_resource_type_display }})</span>
+                  {% if act.resource.file %}
+                    <a href="{{ act.resource.file.url }}" target="_blank" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                      <i data-lucide="download" style="width: 12px; height: 12px;"></i>
+                      <span>Download</span>
+                    </a>
+                  {% elif act.resource.external_url %}
+                    <a href="{{ act.resource.external_url }}" target="_blank" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                      <i data-lucide="external-link" style="width: 12px; height: 12px;"></i>
+                      <span>Open Link</span>
+                    </a>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Action Status Toggle for Student Check items -->
+            <div>
+              {% if act.verification_type == 'STUDENT_CHECK' and intervention.status in 'ASSIGNED,IN_PROGRESS' %}
+                <form method="post" action="{% url 'portal:student_intervention_action_toggle' pk=intervention.pk action_id=act.pk %}">
+                  {% csrf_token %}
+                  {% if act.status == 'COMPLETED' %}
+                    <input type="hidden" name="status" value="PENDING">
+                    <button type="submit" class="btn btn-outline btn-sm">
+                      <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                      <span>Mark Pending</span>
+                    </button>
+                  {% else %}
+                    <input type="hidden" name="status" value="COMPLETED">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                      <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                      <span>Mark Step Completed</span>
+                    </button>
+                  {% endif %}
+                </form>
+              {% elif act.verification_type == 'EDUCATOR_VERIFIED' %}
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Requires Faculty Verification</span>
+              {% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+            No action steps configured for this plan.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Checkpoints & Impact History -->
+  {% if evaluations %}
+    <div class="card">
+      <div class="card-header">
+        <h3>Progress Checkpoints & Outcome Evaluations</h3>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div style="display: flex; flex-direction: column;">
+          {% for ev in evaluations %}
+            <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <strong>{{ ev.get_evaluation_type_display }} #{{ ev.checkpoint_number }}</strong>
+                  <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 0.5rem;">Recorded: {{ ev.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div>
+                  {{ ev.classification|effectiveness_badge }}
+                </div>
+              </div>
+              {% if ev.evaluation_notes %}
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0.5rem 0 0 0;">
+                  {{ ev.evaluation_notes }}
+                </p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

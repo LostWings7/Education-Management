@@ -1,0 +1,135 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Institutional Academic Risk Heatmap - Education Management{% endblock %}
+{% block breadcrumb %}
+  <a href="{% url 'portal_admin:dashboard' %}">Admin Dashboard</a> / <span>Risk Heatmap</span>
+{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  
+  <div class="card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white; border-radius: var(--radius-lg);">
+    <div class="card-body" style="padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge" style="background: rgba(239, 68, 68, 0.3); color: #fca5a5; margin-bottom: 0.5rem;">Privacy-Guarded Academic Risk Matrix</span>
+          <h1 style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.5rem;">
+            Institutional Academic Risk Heatmap
+          </h1>
+          <p style="color: #cbd5e1; margin: 0; font-size: 0.95rem;">
+            Active Term: <strong>{{ active_semester.name|default:"Active Term" }}</strong> &bull; Aggregation Threshold: <strong>N &ge; {{ min_population }}</strong>
+          </p>
+        </div>
+        <a href="{% url 'portal_admin:dashboard' %}" class="btn btn-outline btn-sm" style="color: white; border-color: rgba(255,255,255,0.3);">
+          Back to Command Hub
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Guard Notice -->
+  <div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--primary); padding: 1rem 1.25rem; border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-secondary);">
+    <strong style="color: var(--primary);">Privacy-Safe Aggregation Architecture:</strong>
+    In compliance with institutional privacy standards, risk distributions for departments or programs with fewer than {{ min_population }} enrolled students are suppressed to prevent indirect student re-identification.
+  </div>
+
+  <!-- Department Risk Matrix -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Department-Level Risk Distribution</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Enrolled Students</th>
+            <th style="color: #15803d;">Low Risk</th>
+            <th style="color: #475569;">Moderate</th>
+            <th style="color: #b45309;">High Risk</th>
+            <th style="color: #b91c1c;">Critical</th>
+            <th>Risk Concentration</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in dept_matrix %}
+            <tr>
+              <td><strong>{{ row.department.name }}</strong> ({{ row.department.code }})</td>
+              <td>{{ row.total_students }}</td>
+              {% if row.is_suppressed %}
+                <td colspan="5" style="text-align: center; color: var(--text-muted); font-style: italic; background: var(--bg-surface-secondary);">
+                  {{ row.suppression_reason }}
+                </td>
+              {% else %}
+                <td><span class="badge badge-success">{{ row.counts.LOW|default:0 }}</span></td>
+                <td><span class="badge badge-neutral">{{ row.counts.MODERATE|default:0 }}</span></td>
+                <td><span class="badge badge-warning">{{ row.counts.HIGH|default:0 }}</span></td>
+                <td><span class="badge badge-danger">{{ row.counts.CRITICAL|default:0 }}</span></td>
+                <td>
+                  {% with critical=row.counts.CRITICAL|default:0 high=row.counts.HIGH|default:0 %}
+                    {% if critical > 0 or high > 0 %}
+                      <span class="badge badge-danger" style="font-size: 0.75rem;">Action Recommended</span>
+                    {% else %}
+                      <span class="badge badge-success" style="font-size: 0.75rem;">Healthy</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+              {% endif %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No active departments found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Program Risk Matrix -->
+  <div class="card">
+    <div class="card-header">
+      <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Degree Program Risk Distribution</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Program</th>
+            <th>Department</th>
+            <th>Enrolled Students</th>
+            <th style="color: #15803d;">Low Risk</th>
+            <th style="color: #475569;">Moderate</th>
+            <th style="color: #b45309;">High Risk</th>
+            <th style="color: #b91c1c;">Critical</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in prog_matrix %}
+            <tr>
+              <td><strong>{{ row.program.name }}</strong> ({{ row.program.code }})</td>
+              <td>{{ row.program.department.name }}</td>
+              <td>{{ row.total_students }}</td>
+              {% if row.is_suppressed %}
+                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; background: var(--bg-surface-secondary);">
+                  {{ row.suppression_reason }}
+                </td>
+              {% else %}
+                <td><span class="badge badge-success">{{ row.counts.LOW|default:0 }}</span></td>
+                <td><span class="badge badge-neutral">{{ row.counts.MODERATE|default:0 }}</span></td>
+                <td><span class="badge badge-warning">{{ row.counts.HIGH|default:0 }}</span></td>
+                <td><span class="badge badge-danger">{{ row.counts.CRITICAL|default:0 }}</span></td>
+              {% endif %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No degree programs found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

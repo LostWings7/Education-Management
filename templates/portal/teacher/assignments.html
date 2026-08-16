@@ -1,0 +1,144 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Assignments Management - Faculty Portal{% endblock %}
+{% block breadcrumb %}Assignments{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Coursework Assignments Management</h2>
+      <p>Create problem sets, configure deadlines, and review student solutions</p>
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="document.getElementById('createAssignmentModal').style.display='block'">
+      <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+      <span>Create New Assignment</span>
+    </button>
+  </div>
+
+  <!-- Assignments Table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Course Section</th>
+            <th>Assignment Title</th>
+            <th>Topic</th>
+            <th>Max Marks</th>
+            <th>Deadline</th>
+            <th>Submissions</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for assignment in assignments %}
+            <tr>
+              <td>
+                <strong>{{ assignment.class_section.course.code }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Sec {{ assignment.class_section.section_code }}</div>
+              </td>
+              <td>
+                <strong>{{ assignment.title }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ assignment.description|truncatewords:8 }}</div>
+              </td>
+              <td>{{ assignment.topic.title|default:"General" }}</td>
+              <td><strong>{{ assignment.max_marks }}</strong></td>
+              <td>{{ assignment.due_date|date:"M d, Y H:i" }}</td>
+              <td>
+                <span class="badge badge-info">{{ assignment.submissions.count }} Delivered</span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem;">
+                  <a href="{% url 'portal:teacher_assignment_submissions' assignment_id=assignment.pk %}" class="btn btn-secondary btn-sm">
+                    <i data-lucide="check-square" style="width: 14px; height: 14px;"></i>
+                    <span>Submissions</span>
+                  </a>
+                  <a href="{% url 'portal:teacher_assignment_edit' pk=assignment.pk %}" class="btn btn-outline btn-sm">Edit</a>
+                  <form method="post" action="{% url 'portal:teacher_assignment_delete' pk=assignment.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline" style="color: var(--color-danger);" onclick="return confirm('Delete assignment {{ assignment.title }}?');">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No assignments created yet. Click "Create New Assignment" above to get started.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Create Assignment Modal -->
+  <div id="createAssignmentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem;">
+    <div style="max-width: 600px; margin: 3rem auto; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); overflow: hidden;">
+      <div class="card-header" style="background: var(--bg-subtle);">
+        <h3>Create New Assignment</h3>
+        <button type="button" onclick="document.getElementById('createAssignmentModal').style.display='none'" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">&times;</button>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'portal:teacher_assignment_create' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Target Class Section *</label>
+            <select name="class_section" class="form-select" required>
+              {% for s in sections %}
+                <option value="{{ s.pk }}">{{ s.course.code }}: {{ s.course.title }} (Sec {{ s.section_code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Assignment Title *</label>
+            <input type="text" name="title" placeholder="e.g. Problem Set 2 - Binary Trees" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Instructions / Problem Statement *</label>
+            <textarea name="description" rows="3" class="form-textarea" placeholder="Detailed submission guidelines..." required></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Maximum Marks *</label>
+              <input type="number" name="max_marks" value="50.00" step="0.5" min="1" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Submission Deadline *</label>
+              <input type="datetime-local" name="due_date" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Reference Worksheet (Optional File)</label>
+            <input type="file" name="attachment" class="form-input">
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+              <input type="checkbox" name="allow_late_submission" checked>
+              <span>Allow late submissions with automatic late tag</span>
+            </label>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('createAssignmentModal').style.display='none'">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create & Publish Assignment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

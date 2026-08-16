@@ -1,0 +1,194 @@
+{% extends "portal_base.html" %}
+{% load intervention_tags %}
+
+{% block title %}Institutional Academic Interventions Oversight | Admin Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Institutional Support & Intervention Oversight</h2>
+      <p style="color: var(--text-muted); margin: 0;">University-wide academic support volume, priority distribution, and target recovery effectiveness.</p>
+    </div>
+    <div>
+      <a href="{% url 'portal_admin:analytics' %}" class="btn btn-outline">
+        <i data-lucide="line-chart" style="width: 16px; height: 16px;"></i>
+        <span>University Analytics</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Macro KPIs Row -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Total Interventions</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-primary); margin-top: 0.25rem;">
+        {{ total_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Recorded support plans to date</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Active Assigned Plans</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-info); margin-top: 0.25rem;">
+        {{ active_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Currently in progress with students</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Overdue Support Plans</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: {% if overdue_count > 0 %}var(--color-danger){% else %}var(--color-success){% endif %}; margin-top: 0.25rem;">
+        {{ overdue_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Plans past target completion date</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Overall Effectiveness Rate</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-success); margin-top: 0.25rem;">
+        {{ effectiveness_rate }}%
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Evaluated plans with target improvement</div>
+    </div>
+  </div>
+
+  <!-- Priority Segmentation Cards -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Intervention Priority Segmentation</h3>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+        <div style="padding: 1.25rem; border-radius: var(--radius-md); background: #fff1f2; border: 1px solid #fecdd3;">
+          <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #9f1239;">Urgent Priority</div>
+          <div style="font-size: 2rem; font-weight: 700; color: #be123c; margin: 0.25rem 0;">
+            {{ priority_counts.URGENT }}
+          </div>
+          <div style="font-size: 0.75rem; color: #9f1239;">Acute drops & critical deficits</div>
+        </div>
+
+        <div style="padding: 1.25rem; border-radius: var(--radius-md); background: #fff7ed; border: 1px solid #fed7aa;">
+          <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #9a3412;">High Priority</div>
+          <div style="font-size: 2rem; font-weight: 700; color: #ea580c; margin: 0.25rem 0;">
+            {{ priority_counts.HIGH }}
+          </div>
+          <div style="font-size: 0.75rem; color: #9a3412;">Attendance deficits & declining trends</div>
+        </div>
+
+        <div style="padding: 1.25rem; border-radius: var(--radius-md); background: #fffbeb; border: 1px solid #fde68a;">
+          <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #854d0e;">Medium Priority</div>
+          <div style="font-size: 2rem; font-weight: 700; color: #b45309; margin: 0.25rem 0;">
+            {{ priority_counts.MEDIUM }}
+          </div>
+          <div style="font-size: 0.75rem; color: #854d0e;">Topic remediation & coursework catch-up</div>
+        </div>
+
+        <div style="padding: 1.25rem; border-radius: var(--radius-md); background: #f0fdf4; border: 1px solid #bbf7d0;">
+          <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #166534;">Low Priority</div>
+          <div style="font-size: 2rem; font-weight: 700; color: #15803d; margin: 0.25rem 0;">
+            {{ priority_counts.LOW }}
+          </div>
+          <div style="font-size: 0.75rem; color: #166534;">Routine advisory support</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department-by-Department Support Matrix -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Academic Department Support Plan Matrix</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Total Support Plans</th>
+            <th>Active Plans</th>
+            <th>Overdue Plans</th>
+            <th>Effective Outcomes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in dept_summary %}
+            <tr>
+              <td><strong>{{ d.department.name }}</strong> ({{ d.department.code }})</td>
+              <td>{{ d.total_interventions }}</td>
+              <td>{{ d.active_count }}</td>
+              <td>
+                <span style="{% if d.overdue_count > 0 %}color: var(--color-danger); font-weight: 700;{% endif %}">
+                  {{ d.overdue_count }}
+                </span>
+              </td>
+              <td>
+                <span class="badge badge-success">{{ d.effective_count }}</span>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No department records found.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- All Institutional Support Plans Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Institutional Intervention Registry</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Course</th>
+            <th>Plan Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Supervising Faculty</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for plan in recent_interventions %}
+            <tr>
+              <td>
+                <strong>{{ plan.student.student_id }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  {{ plan.student.user.get_full_name|default:plan.student.user.email }}
+                </div>
+              </td>
+              <td>{{ plan.course.code }}</td>
+              <td>{{ plan.title }}</td>
+              <td>{{ plan.priority|intervention_priority_badge }}</td>
+              <td>{{ plan.status|intervention_status_badge }}</td>
+              <td>{{ plan.assigned_to.user.get_full_name|default:plan.assigned_to.user.email }}</td>
+              <td>{{ plan.due_date }}</td>
+              <td>
+                <a href="{% url 'portal_admin:intervention_detail' pk=plan.pk %}" class="btn btn-outline btn-sm">
+                  <span>Inspect</span>
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No intervention records registered yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

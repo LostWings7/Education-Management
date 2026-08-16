@@ -1,0 +1,110 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Assignments - Student Portal{% endblock %}
+{% block breadcrumb %}Assignments{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem;">
+    <div>
+      <h2>Coursework Assignments</h2>
+      <p>Track problem sets, deadlines, submission status, and instructor feedback</p>
+    </div>
+    <span class="badge badge-student">{{ active_semester.name|default:"Spring 2026" }}</span>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Assignment Title</th>
+            <th>Topic</th>
+            <th>Deadline</th>
+            <th>Max Marks</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in assignments %}
+            <tr>
+              <td>
+                <strong>{{ item.assignment.class_section.course.code }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Sec {{ item.assignment.class_section.section_code }}</div>
+              </td>
+              <td>
+                <strong>{{ item.assignment.title }}</strong>
+                <p style="font-size: 0.8rem; margin: 0.2rem 0 0; max-width: 300px; color: var(--text-muted);">{{ item.assignment.description|truncatewords:10 }}</p>
+              </td>
+              <td>{{ item.assignment.topic.title|default:"General" }}</td>
+              <td>
+                <div>{{ item.assignment.due_date|date:"M d, Y" }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.assignment.due_date|time:"H:i" }}</div>
+              </td>
+              <td><strong>{{ item.assignment.max_marks }}</strong></td>
+              <td>
+                <span class="badge {% if item.submission.status == 'GRADED' %}badge-success{% elif item.submission %}badge-info{% elif item.is_overdue %}badge-danger{% else %}badge-warning{% endif %}">
+                  {{ item.status }}
+                </span>
+              </td>
+              <td>
+                {% if item.submission.obtained_marks is not None %}
+                  <strong style="color: var(--color-success); font-size: 1rem;">{{ item.submission.obtained_marks }}</strong> / {{ item.assignment.max_marks }}
+                  {% if item.submission.feedback %}
+                    <div style="font-size: 0.75rem; color: var(--text-muted);" title="{{ item.submission.feedback }}">Feedback added</div>
+                  {% endif %}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('submitModal_{{ item.assignment.pk }}').style.display='block'">
+                  {% if item.submission %}Resubmit{% else %}Submit Solution{% endif %}
+                </button>
+
+                <!-- Submission Modal -->
+                <div id="submitModal_{{ item.assignment.pk }}" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem;">
+                  <div style="max-width: 540px; margin: 5rem auto; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); overflow: hidden;">
+                    <div class="card-header" style="background: var(--bg-subtle);">
+                      <h3>Submit: {{ item.assignment.title }}</h3>
+                      <button type="button" onclick="document.getElementById('submitModal_{{ item.assignment.pk }}').style.display='none'" style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">&times;</button>
+                    </div>
+                    <div class="card-body">
+                      <form method="post" action="{% url 'portal:student_assignment_submit' assignment_id=item.assignment.pk %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                          <label class="form-label">Solution Text / Code Submission</label>
+                          <textarea name="submission_text" rows="5" class="form-textarea" placeholder="Paste your solution, response, or github repository link here...">{{ item.submission.submission_text|default:'' }}</textarea>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Attachment File (PDF, Code zip, etc.)</label>
+                          <input type="file" name="attachment" class="form-input">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                          <button type="button" class="btn btn-secondary" onclick="document.getElementById('submitModal_{{ item.assignment.pk }}').style.display='none'">Cancel</button>
+                          <button type="submit" class="btn btn-primary">Upload & Submit</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No assignments posted for your enrolled courses.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

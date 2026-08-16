@@ -1,0 +1,121 @@
+{% extends "portal_base.html" %}
+{% load intervention_tags %}
+
+{% block title %}Academic Support & Recovery Plans | Student Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Academic Support & Recovery Center</h2>
+      <p style="color: var(--text-muted); margin: 0;">Personalized support plans, guided action steps, and curricular learning resources.</p>
+    </div>
+    <div>
+      <a href="{% url 'portal:student_analytics' %}" class="btn btn-outline">
+        <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+        <span>View Academic Intelligence</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Active Support Plans Section -->
+  <div style="display: flex; flex-direction: column; gap: 1rem;">
+    <h3 style="margin: 0;">Active Support Plans</h3>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+      {% for item in active_interventions %}
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid {% if item.priority == 'URGENT' or item.priority == 'HIGH' %}var(--color-danger){% elif item.priority == 'MEDIUM' %}var(--color-warning){% else %}var(--color-info){% endif %};">
+          <div class="card-body">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <span class="badge badge-neutral">{{ item.course.code }} (Sec {{ item.class_section.section_code }})</span>
+              <div style="display: flex; gap: 0.35rem;">
+                {{ item.priority|intervention_priority_badge }}
+                {{ item.status|intervention_status_badge }}
+              </div>
+            </div>
+
+            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">
+              <a href="{% url 'portal:student_intervention_detail' pk=item.pk %}" style="text-decoration: none; color: var(--text-primary);">
+                {{ item.title }}
+              </a>
+            </h4>
+
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+              {{ item.objective }}
+            </p>
+
+            <!-- Progress Bar -->
+            <div style="margin-bottom: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                <span style="color: var(--text-muted);">Action Checklist Progress</span>
+                <strong>{{ item.action_progress_percentage }}%</strong>
+              </div>
+              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 3px; overflow: hidden;">
+                <div style="width: {{ item.action_progress_percentage }}%; height: 100%; background: var(--color-primary);"></div>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <span>Supervising Faculty: {{ item.assigned_to.user.get_full_name|default:item.assigned_to.user.email }}</span>
+              <span>Due: <strong>{{ item.due_date }}</strong></span>
+            </div>
+          </div>
+
+          <div class="card-footer" style="background: var(--bg-subtle); padding: 0.75rem 1.25rem; display: flex; justify-content: flex-end;">
+            <a href="{% url 'portal:student_intervention_detail' pk=item.pk %}" class="btn btn-primary btn-sm">
+              <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+              <span>Open Support Plan</span>
+            </a>
+          </div>
+        </div>
+      {% empty %}
+        <div class="card" style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1;">
+          <i data-lucide="check-circle" style="width: 32px; height: 32px; color: var(--color-success); margin-bottom: 0.5rem;"></i>
+          <div>No active academic support plans required. You are currently meeting all course expectations!</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Historical / Archived Support Plans -->
+  {% if archived_interventions %}
+    <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+      <h3 style="margin: 0;">Concluded Support Plans</h3>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Plan Title</th>
+                <th>Outcome Classification</th>
+                <th>Outcome Summary</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for plan in archived_interventions %}
+                <tr>
+                  <td><strong>{{ plan.course.code }}</strong></td>
+                  <td>{{ plan.title }}</td>
+                  <td>{{ plan.status|intervention_status_badge }}</td>
+                  <td style="font-size: 0.85rem; color: var(--text-secondary);">
+                    {{ plan.effectiveness_summary|default:"Plan completed and archived." }}
+                  </td>
+                  <td>
+                    <a href="{% url 'portal:student_intervention_detail' pk=plan.pk %}" class="btn btn-outline btn-sm">
+                      <span>View</span>
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

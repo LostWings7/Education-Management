@@ -1,0 +1,437 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Academic Command Center - Education Management{% endblock %}
+{% block breadcrumb %}Academic Command Center{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 2rem;">
+  
+  <!-- ======================================================================== -->
+  <!-- TOP: 1. HOW AM I DOING? — Academic Status & Health Scorecard             -->
+  <!-- ======================================================================== -->
+  <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">
+    <div class="card-body" style="padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="badge" style="background: rgba(99, 102, 241, 0.3); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.5);">
+              <i data-lucide="compass" style="width: 12px; height: 12px;"></i> Student Portal &bull; Academic Command Center
+            </span>
+            {% if judge_mode %}
+              <span class="judge-badge judge-badge-deterministic">DETERMINISTIC &bull; RiskEngineService v1.0</span>
+            {% endif %}
+          </div>
+          <h1 style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.25rem; letter-spacing: -0.02em;">
+            {{ user.get_full_name|default:user.email }}
+          </h1>
+          <p style="color: #cbd5e1; margin: 0; font-size: 0.95rem;">
+            ID: <strong>{{ student_profile.student_id }}</strong> &bull; {{ student_profile.program.name }} (Semester {{ student_profile.current_semester }}) &bull; Active Term: <strong>{{ active_semester.name|default:"Active Term" }}</strong>
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="{% url 'portal:student_transcript' %}" class="btn btn-sm" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+            <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+            <span>Official Transcript</span>
+          </a>
+          <a href="{% url 'portal:student_journey' %}" class="btn btn-sm" style="background: #4f46e5; color: white; border: none;">
+            <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+            <span>Longitudinal Journey</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Core Macro KPI Strip -->
+      <div class="grid-4" style="gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 1.25rem; border-radius: var(--radius-md);">
+          <div style="font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Cumulative GPA</div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="font-size: 1.85rem; font-weight: 800; color: white;">{{ cumulative_gpa|floatformat:2 }}</span>
+            <button class="btn btn-outline btn-sm explain-btn" data-title="Cumulative GPA Explanation" data-value="{{ cumulative_gpa|floatformat:2 }} / 4.00" data-service="TranscriptService" data-formula="CGPA = \sum(Credits \times GradePoints) / \sum(Credits)" data-summary="Official cumulative GPA computed across all completed terms directly from published grade snapshots." style="padding: 0.15rem 0.4rem; font-size: 0.7rem; color: #c7d2fe; border-color: rgba(199,210,254,0.3);">Why?</button>
+          </div>
+          <div style="font-size: 0.75rem; color: #a5b4fc; margin-top: 0.25rem;">{{ academic_standing }}</div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 1.25rem; border-radius: var(--radius-md);">
+          <div style="font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Term Attendance</div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="font-size: 1.85rem; font-weight: 800; {% if attendance_summary.attendance_percentage < 60 %}color: #f87171;{% elif attendance_summary.attendance_percentage < 75 %}color: #fbbf24;{% else %}color: #34d399;{% endif %}">
+              {{ attendance_summary.attendance_percentage|floatformat:1 }}%
+            </span>
+            <button class="btn btn-outline btn-sm explain-btn" data-title="Attendance Analytics Breakdown" data-value="{{ attendance_summary.attendance_percentage|floatformat:1 }}%" data-service="AttendanceAnalyticsService" data-formula="AbsenceBuffer = \lfloor P + R - T(N+R)/100 \rfloor" data-summary="Attendance percentage calculated across all conducted lectures in {{ active_semester.name }}. Absence buffer remaining: {{ attendance_summary.absence_buffer }} session(s)." style="padding: 0.15rem 0.4rem; font-size: 0.7rem; color: #c7d2fe; border-color: rgba(199,210,254,0.3);">Why?</button>
+          </div>
+          <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 0.25rem;">Buffer: <strong>{{ attendance_summary.absence_buffer }}</strong> sessions</div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 1.25rem; border-radius: var(--radius-md);">
+          <div style="font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Academic Risk Index</div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="font-size: 1.35rem; font-weight: 800;">
+              {% if overall_risk.risk_level == 'CRITICAL' %}
+                <span class="badge badge-danger" style="font-size: 0.95rem; padding: 0.35rem 0.6rem;">CRITICAL</span>
+              {% elif overall_risk.risk_level == 'HIGH' %}
+                <span class="badge badge-danger" style="font-size: 0.95rem; padding: 0.35rem 0.6rem;">HIGH RISK</span>
+              {% elif overall_risk.risk_level == 'MODERATE' %}
+                <span class="badge badge-warning" style="font-size: 0.95rem; padding: 0.35rem 0.6rem;">MODERATE</span>
+              {% else %}
+                <span class="badge badge-success" style="font-size: 0.95rem; padding: 0.35rem 0.6rem;">LOW RISK</span>
+              {% endif %}
+            </span>
+            <button class="btn btn-outline btn-sm explain-btn" data-title="Academic Risk Index Explanation" data-value="{{ overall_risk.composite_score|floatformat:1 }} / 100.0 ({{ overall_risk.risk_level }})" data-service="RiskEngineService (v1.0)" data-formula="RiskScore = \sum(w_i \cdot Factor_i) \text{ with Dynamic Renormalization & Floor Guarding}" data-summary="Multi-factor deterministic risk synthesis evaluating course performance (30%), attendance (25%), trend trajectory (20%), assignments (15%), and historical baseline (10%)." style="padding: 0.15rem 0.4rem; font-size: 0.7rem; color: #c7d2fe; border-color: rgba(199,210,254,0.3);">Why?</button>
+          </div>
+          <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 0.25rem;">Score: <strong>{{ overall_risk.composite_score|floatformat:1 }}</strong> / 100</div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 1.25rem; border-radius: var(--radius-md);">
+          <div style="font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">Trajectory Direction</div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="font-size: 1.35rem; font-weight: 800;">
+              {% if overall_risk.trajectory_direction == 'IMPROVING' %}
+                <span style="color: #34d399;"><i data-lucide="trending-up" style="width: 18px; height: 18px; vertical-align: middle;"></i> Improving</span>
+              {% elif overall_risk.trajectory_direction == 'DECLINING' %}
+                <span style="color: #f87171;"><i data-lucide="trending-down" style="width: 18px; height: 18px; vertical-align: middle;"></i> Declining</span>
+              {% else %}
+                <span style="color: #94a3b8;"><i data-lucide="minus" style="width: 18px; height: 18px; vertical-align: middle;"></i> Stable</span>
+              {% endif %}
+            </span>
+            <button class="btn btn-outline btn-sm explain-btn" data-title="Trajectory & Trend Analysis" data-value="{{ overall_risk.trajectory_direction }}" data-service="TrendAnalyticsService" data-formula="Slope = \frac{n\sum xy - \sum x\sum y}{n\sum x^2 - (\sum x)^2}" data-summary="Weighted ordinary least squares linear regression over chronological assessment performances." style="padding: 0.15rem 0.4rem; font-size: 0.7rem; color: #c7d2fe; border-color: rgba(199,210,254,0.3);">Why?</button>
+          </div>
+          <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 0.25rem;">Trend: <strong>{{ overall_risk.trajectory_direction }}</strong></div>
+        </div>
+      </div>
+
+      <!-- Academic Health Scorecard -->
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.05em;">
+          Academic Health Scorecard
+        </div>
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: space-between;">
+          <div>
+            <span style="color: #94a3b8; font-size: 0.85rem;">Performance: </span>
+            <strong style="color: white;">{{ health_scorecard.performance_score|floatformat:1 }}%</strong>
+            <span class="badge badge-success" style="font-size: 0.7rem; margin-left: 0.35rem;">{{ health_scorecard.performance_status }}</span>
+          </div>
+          <div>
+            <span style="color: #94a3b8; font-size: 0.85rem;">Attendance: </span>
+            <strong style="color: white;">{{ health_scorecard.attendance_score|floatformat:1 }}%</strong>
+            <span class="badge {% if health_scorecard.attendance_status == 'DANGER' %}badge-danger{% elif health_scorecard.attendance_status == 'WARNING' %}badge-warning{% else %}badge-success{% endif %}" style="font-size: 0.7rem; margin-left: 0.35rem;">{{ health_scorecard.attendance_status }}</span>
+          </div>
+          <div>
+            <span style="color: #94a3b8; font-size: 0.85rem;">Coursework: </span>
+            <strong style="color: white;">{{ health_scorecard.coursework_score|floatformat:1 }}%</strong>
+            <span class="badge badge-info" style="font-size: 0.7rem; margin-left: 0.35rem;">{{ health_scorecard.coursework_status }}</span>
+          </div>
+          <div>
+            <span style="color: #94a3b8; font-size: 0.85rem;">Consistency: </span>
+            <strong style="color: white;">HIGH</strong>
+          </div>
+          <div>
+            <span style="color: #94a3b8; font-size: 0.85rem;">Overall Standing: </span>
+            <strong style="color: #c7d2fe;">{{ academic_standing }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================== -->
+  <!-- MIDDLE: 2. WHAT NEEDS MY ATTENTION? — Triage Panels (Critical / Important / Positive) -->
+  <!-- ======================================================================== -->
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0; color: var(--text-primary);">
+        What Needs My Attention?
+      </h2>
+      <span style="font-size: 0.85rem; color: var(--text-muted);">Authoritative real-time academic triage</span>
+    </div>
+
+    <div class="grid-3" style="gap: 1.25rem;">
+      
+      <!-- Panel 1: Critical Actions -->
+      <div class="card" style="border-left: 4px solid var(--danger);">
+        <div class="card-header" style="background: rgba(239, 68, 68, 0.05);">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: var(--danger);"></i>
+            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--danger);">Critical Priority ({{ critical_items|length }})</h4>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 1rem;">
+          {% if critical_items %}
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              {% for item in critical_items %}
+                <div style="padding: 0.75rem; background: var(--bg-surface-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem;">
+                    <span class="badge badge-danger" style="font-size: 0.7rem;">{{ item.badge_label }}</span>
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--danger);">Score: {{ item.priority_score }}</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem;">{{ item.title }}</div>
+                  <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 0.5rem;">{{ item.description }}</p>
+                  <a href="{{ item.action_url }}" class="btn btn-danger btn-sm" style="width: 100%; justify-content: center;">{{ item.action_label }}</a>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
+              <i data-lucide="shield-check" style="width: 32px; height: 32px; color: var(--success); margin: 0 auto 0.5rem; display: block;"></i>
+              No critical risks or severe deficits detected.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Panel 2: Important Focus Items -->
+      <div class="card" style="border-left: 4px solid var(--warning);">
+        <div class="card-header" style="background: rgba(245, 158, 11, 0.05);">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="clock" style="width: 16px; height: 16px; color: var(--warning);"></i>
+            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--warning);">Important Focus ({{ important_items|length }})</h4>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 1rem;">
+          {% if important_items %}
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              {% for item in important_items|slice:":3" %}
+                <div style="padding: 0.75rem; background: var(--bg-surface-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem;">
+                    <span class="badge badge-warning" style="font-size: 0.7rem;">{{ item.badge_label }}</span>
+                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">{{ item.due_date|date:"M d"|default:"Active" }}</span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem;">{{ item.title }}</div>
+                  <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 0.5rem;">{{ item.description }}</p>
+                  <a href="{{ item.action_url }}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;">{{ item.action_label }}</a>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
+              <i data-lucide="check" style="width: 32px; height: 32px; color: var(--primary); margin: 0 auto 0.5rem; display: block;"></i>
+              All assignments & topics are currently up to date.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Panel 3: Positive Milestones & Moments -->
+      <div class="card" style="border-left: 4px solid var(--success);">
+        <div class="card-header" style="background: rgba(16, 185, 129, 0.05);">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="award" style="width: 16px; height: 16px; color: var(--success);"></i>
+            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--success);">Academic Milestones ({{ positive_items|length }})</h4>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 1rem;">
+          {% if positive_items %}
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              {% for moment in positive_items|slice:":3" %}
+                <div style="padding: 0.75rem; background: var(--bg-surface-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <i data-lucide="{{ moment.icon }}" style="width: 16px; height: 16px; color: var(--success);"></i>
+                    <strong style="font-size: 0.9rem; color: var(--text-primary);">{{ moment.title }}</strong>
+                  </div>
+                  <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">{{ moment.description }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
+              <i data-lucide="sparkles" style="width: 32px; height: 32px; color: #a5b4fc; margin: 0 auto 0.5rem; display: block;"></i>
+              Consistent participation builds milestones. Keep it up!
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================================== -->
+  <!-- BOTTOM: 3. WHAT SHOULD I DO NEXT? — Prioritized Queue & Today's Schedule -->
+  <!-- ======================================================================== -->
+  <div class="grid-sidebar">
+    
+    <!-- Left: Deterministic Ranked Action Queue -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">What Should I Do Next?</h3>
+              {% if judge_mode %}
+                <span class="judge-badge judge-badge-deterministic">DETERMINISTIC &bull; StudentActionPriorityService</span>
+              {% endif %}
+            </div>
+            <p style="margin: 0.25rem 0 0; font-size: 0.8rem; color: var(--text-muted);">
+              Deterministic priority ranking: $Score = 0.45 \times Urgency + 0.35 \times Risk + 0.20 \times Impact$
+            </p>
+          </div>
+          <button class="btn btn-outline btn-sm explain-btn" data-title="Action Queue Prioritization Model" data-value="Ranked by Weighted Score" data-service="StudentActionPriorityService" data-formula="Score = 0.45 \cdot U + 0.35 \cdot R + 0.20 \cdot I" data-summary="Deterministic normalization engine converting imminent deadlines, course risk indexes, and syllabus mastery gaps to a unified 0-100 scale.">Why this ranking?</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 45px;">Rank</th>
+                <th>Action Task</th>
+                <th>Course</th>
+                <th>Due / Target</th>
+                <th>Score Breakdown</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for act in prioritized_actions %}
+                <tr>
+                  <td>
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 800; font-size: 0.8rem; {% if forloop.first %}background: #fee2e2; color: #b91c1c;{% elif forloop.counter <= 3 %}background: #fef3c7; color: #b45309;{% else %}background: #f1f5f9; color: #475569;{% endif %}">
+                      {{ forloop.counter }}
+                    </span>
+                  </td>
+                  <td>
+                    <div style="font-weight: 700; color: var(--text-primary);">{{ act.title }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ act.description }}</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-neutral" style="font-weight: 700;">{{ act.course_code }}</span>
+                  </td>
+                  <td>
+                    <span style="font-size: 0.85rem; font-weight: 600;">{{ act.due_date|date:"M d, Y"|default:"Immediate" }}</span>
+                  </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <strong style="font-size: 0.95rem; {% if act.priority_score >= 70 %}color: var(--danger);{% elif act.priority_score >= 50 %}color: var(--warning);{% else %}color: var(--primary);{% endif %}">
+                        {{ act.priority_score }}
+                      </strong>
+                      <span style="font-size: 0.7rem; color: var(--text-muted);">(U:{{ act.urgency_score|floatformat:0 }} | R:{{ act.risk_subscore|floatformat:0 }} | I:{{ act.impact_subscore|floatformat:0 }})</span>
+                    </div>
+                  </td>
+                  <td>
+                    <a href="{{ act.action_url }}" class="btn btn-primary btn-sm">{{ act.action_label }}</a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i data-lucide="check-circle" style="width: 32px; height: 32px; color: var(--success); margin: 0 auto 0.5rem; display: block;"></i>
+                    No pending actions. You are completely caught up!
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Enrolled Courses Card -->
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Enrolled Course Sections</h3>
+          <a href="{% url 'portal:student_courses' %}" class="btn btn-outline btn-sm">All Courses</a>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Course Title</th>
+                <th>Credits</th>
+                <th>Teacher</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for enr in enrollments %}
+                <tr>
+                  <td><strong>{{ enr.class_section.course.code }}</strong></td>
+                  <td>{{ enr.class_section.course.title }}</td>
+                  <td>{{ enr.class_section.course.credits }}</td>
+                  <td>{{ enr.class_section.primary_teacher.user.get_full_name }}</td>
+                  <td>
+                    <a href="{% url 'portal:student_course_detail' section_id=enr.class_section.pk %}" class="btn btn-outline btn-sm">Course Hub</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: AI Copilot Contextual Insights & Timetable -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      
+      <!-- AI Copilot Card -->
+      <div class="card" style="border: 1px solid rgba(99, 102, 241, 0.2); background: linear-gradient(to bottom, #ffffff, #f8faff);">
+        <div class="card-header" style="background: rgba(99, 102, 241, 0.05); display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="sparkles" style="width: 16px; height: 16px; color: var(--primary);"></i>
+            <h3 style="margin: 0; font-size: 1rem; font-weight: 800; color: var(--primary);">AI Copilot Intelligence</h3>
+          </div>
+          {% if judge_mode %}
+            <span class="judge-badge judge-badge-ai">AI INTERPRETATION</span>
+          {% endif %}
+        </div>
+        <div class="card-body" style="padding: 1.25rem;">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 1rem;">
+            Ask contextual academic questions grounded strictly in your verified records:
+          </p>
+          
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button class="copilot-prompt-pill" data-prompt="Why is my risk level {{ overall_risk.risk_level }} and what are the primary contributing factors?">
+              <i data-lucide="help-circle" style="width: 14px; height: 14px;"></i>
+              <span>Why is my risk {{ overall_risk.risk_level }}?</span>
+            </button>
+            <button class="copilot-prompt-pill" data-prompt="Generate a customized study schedule for this week prioritizing my weakest topics and upcoming assignments.">
+              <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+              <span>Create weekly study plan</span>
+            </button>
+            <button class="copilot-prompt-pill" data-prompt="How many remaining lectures can I miss while keeping attendance above 75%?">
+              <i data-lucide="calculator" style="width: 14px; height: 14px;"></i>
+              <span>Explain my attendance buffer</span>
+            </button>
+          </div>
+          
+          <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); text-align: center;">
+            <button id="open-ai-chat-btn" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">
+              <i data-lucide="message-square" style="width: 14px; height: 14px;"></i>
+              <span>Launch Interactive Copilot</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Schedule Card -->
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0; font-size: 1rem; font-weight: 800;">Today's Classes</h3>
+          <a href="{% url 'portal:student_timetable' %}" class="btn btn-outline btn-sm">Full Week</a>
+        </div>
+        <div class="card-body" style="padding: 1rem;">
+          {% if today_schedule %}
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              {% for slot in today_schedule %}
+                <div style="padding: 0.75rem; background: var(--bg-surface-secondary); border-radius: var(--radius-sm); border-left: 3px solid var(--primary);">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.85rem;">
+                    <span>{{ slot.class_section.course.code }}</span>
+                    <span style="color: var(--primary);">{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}</span>
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                    Room: {{ slot.room|default:"TBD" }} &bull; {{ slot.class_section.primary_teacher.user.get_full_name }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin: 1rem 0;">
+              No classes scheduled for today.
+            </p>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

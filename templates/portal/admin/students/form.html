@@ -1,0 +1,137 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{% if is_create %}Enroll Student{% else %}Edit Student Profile{% endif %} - Admin Portal{% endblock %}
+{% block breadcrumb %}{% if is_create %}Enroll Student{% else %}Edit Student{% endif %}{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 760px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'portal_admin:student_list' %}" class="btn btn-secondary btn-sm" style="margin-bottom: 1rem;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Back to Student Directory</span>
+    </a>
+    <h2>{% if is_create %}Enroll New Student Account{% else %}Edit Student: {{ student.user.get_full_name }} ({{ student.student_id }}){% endif %}</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+            {{ form.non_field_errors.0 }}
+          </div>
+        {% endif %}
+
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+          User Account Details
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">First Name *</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<div class="form-error">{{ form.first_name.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Last Name *</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<div class="form-error">{{ form.last_name.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Email Address (Login Identity) *</label>
+            {% if is_create %}
+              {{ form.email }}
+              {% if form.email.errors %}<div class="form-error">{{ form.email.errors.0 }}</div>{% endif %}
+            {% else %}
+              <input type="email" value="{{ student.user.email }}" class="form-input" disabled>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Email cannot be modified directly.</div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            {{ form.phone_number }}
+            {% if form.phone_number.errors %}<div class="form-error">{{ form.phone_number.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        {% if is_create %}
+          <div class="form-group">
+            <label class="form-label">Initial Password *</label>
+            {{ form.password }}
+            {% if form.password.errors %}<div class="form-error">{{ form.password.errors.0 }}</div>{% endif %}
+          </div>
+        {% else %}
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              {{ form.is_active_user }}
+              <span>User Login Account Active</span>
+            </label>
+          </div>
+        {% endif %}
+
+        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+          Academic Enrollment Profile
+        </h3>
+
+        {% if is_create %}
+          <div class="form-group">
+            <label class="form-label">Student ID / Roll Number *</label>
+            {{ form.student_id }}
+            {% if form.student_id.errors %}<div class="form-error">{{ form.student_id.errors.0 }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Department *</label>
+            {{ form.department }}
+            {% if form.department.errors %}<div class="form-error">{{ form.department.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Program *</label>
+            {{ form.program }}
+            {% if form.program.errors %}<div class="form-error">{{ form.program.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Current Semester *</label>
+            {{ form.current_semester }}
+            {% if form.current_semester.errors %}<div class="form-error">{{ form.current_semester.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Academic Year *</label>
+            {{ form.academic_year }}
+            {% if form.academic_year.errors %}<div class="form-error">{{ form.academic_year.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Standing Status *</label>
+            {{ form.academic_status }}
+            {% if form.academic_status.errors %}<div class="form-error">{{ form.academic_status.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <a href="{% url 'portal_admin:student_list' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if is_create %}Create & Enroll Student{% else %}Save Profile Changes{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

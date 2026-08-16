@@ -1,0 +1,61 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Student Enrollments - Admin Portal{% endblock %}
+{% block breadcrumb %}Student Enrollments{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Active Student Course Enrollments</h2>
+      <p>Institutional registration roster for {{ active_semester.name|default:"Spring 2026" }}</p>
+    </div>
+    <span class="badge badge-admin">{{ enrollments|length }} Active Enrollments</span>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Program</th>
+            <th>Enrolled Course</th>
+            <th>Section</th>
+            <th>Instructor</th>
+            <th>Enrollment Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enrollment in enrollments %}
+            <tr>
+              <td><strong>{{ enrollment.student.student_id }}</strong></td>
+              <td>
+                <strong>{{ enrollment.student.user.get_full_name }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ enrollment.student.user.email }}</div>
+              </td>
+              <td>{{ enrollment.student.program.code }}</td>
+              <td>
+                <strong>{{ enrollment.class_section.course.code }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ enrollment.class_section.course.title }}</div>
+              </td>
+              <td><span class="badge badge-secondary">{{ enrollment.class_section.section_code }}</span></td>
+              <td>{{ enrollment.class_section.primary_teacher.user.get_full_name }}</td>
+              <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+              <td><span class="badge badge-success">{{ enrollment.get_status_display }}</span></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active student enrollments found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

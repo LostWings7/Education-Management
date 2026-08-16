@@ -1,0 +1,121 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Academic Terms & Semesters - Admin Portal{% endblock %}
+{% block breadcrumb %}Academic Terms{% endblock %}
+
+{% block portal_content %}
+<div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Academic Periods & Semesters</h2>
+      <p>Configure institutional academic years, active live terms, and completed historical terms</p>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'portal_admin:year_create' %}" class="btn btn-secondary">
+        <i data-lucide="calendar" style="width: 15px; height: 15px;"></i>
+        <span>New Academic Year</span>
+      </a>
+      <a href="{% url 'portal_admin:semester_create' %}" class="btn btn-primary">
+        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+        <span>New Semester / Term</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="grid-sidebar">
+    
+    <!-- Left Column: Semesters List -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div class="card">
+        <div class="card-header">
+          <h3>Academic Semesters / Terms</h3>
+          <span class="badge badge-info">{{ semesters|length }} Terms</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Semester Name</th>
+                <th>Academic Year</th>
+                <th>Term Type</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sem in semesters %}
+                <tr>
+                  <td><strong>{{ sem.name }}</strong></td>
+                  <td>{{ sem.academic_year.name }}</td>
+                  <td><span class="badge badge-secondary">{{ sem.get_term_type_display }}</span></td>
+                  <td>{{ sem.start_date|date:"M d, Y" }} &ndash; {{ sem.end_date|date:"M d, Y" }}</td>
+                  <td>
+                    {% if sem.is_active %}
+                      <span class="badge badge-success">Live Active</span>
+                    {% elif sem.is_completed %}
+                      <span class="badge badge-indigo">Completed Historical</span>
+                    {% else %}
+                      <span class="badge badge-secondary">Upcoming / Inactive</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <a href="{% url 'portal_admin:semester_edit' pk=sem.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                      {% if not sem.is_active %}
+                        <form method="post" action="{% url 'portal_admin:semester_toggle_active' pk=sem.pk %}" style="display: inline;">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Set {{ sem.name }} as the active ongoing semester across the institution?');">
+                            Set Active
+                          </button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No semesters defined.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Academic Years List -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div class="card">
+        <div class="card-header">
+          <h3>Academic Years</h3>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for ay in academic_years %}
+              <div style="padding: 1rem; background: var(--bg-subtle); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h4 style="margin-bottom: 0.2rem; font-size: 1rem;">{{ ay.name }}</h4>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    {{ ay.start_date|date:"M Y" }} &ndash; {{ ay.end_date|date:"M Y" }} &bull; {{ ay.semesters.count }} Terms
+                  </div>
+                  {% if ay.is_current %}
+                    <span class="badge badge-success" style="margin-top: 0.4rem;">Current Year</span>
+                  {% endif %}
+                </div>
+                <a href="{% url 'portal_admin:year_edit' pk=ay.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+              </div>
+            {% empty %}
+              <p style="color: var(--text-muted); margin: 0;">No academic years configured.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

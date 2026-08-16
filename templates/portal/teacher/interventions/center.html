@@ -1,0 +1,253 @@
+{% extends "portal_base.html" %}
+{% load intervention_tags %}
+
+{% block title %}Academic Intervention Center | Faculty Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2>Academic Intervention & Support Center</h2>
+      <p style="color: var(--text-muted); margin: 0;">Deterministic pre-crisis recommendations, support plan management, and outcome evaluations.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <form method="post" action="{% url 'portal:teacher_intervention_scan' %}">
+        {% csrf_token %}
+        {% if selected_section %}<input type="hidden" name="section_id" value="{{ selected_section.pk }}">{% endif %}
+        <button type="submit" class="btn btn-secondary">
+          <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+          <span>Run Analytics Recommendation Scan</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Section Filter -->
+  <div class="card" style="padding: 1rem 1.25rem;">
+    <form method="get" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      <label class="form-label" style="margin: 0; font-weight: 600;">Teaching Section:</label>
+      <select name="section_id" class="form-select" style="max-width: 400px;" onchange="location.href='{% url 'portal:teacher_interventions' %}?section_id=' + this.value">
+        <option value="">All Teaching Sections</option>
+        {% for s in sections %}
+          <option value="{{ s.pk }}" {% if selected_section and selected_section.pk == s.pk %}selected{% endif %}>
+            {{ s.course.code }}: {{ s.course.title }} (Sec {{ s.section_code }})
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <!-- KPI Row -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--color-warning);">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Pending Recommendations</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-warning); margin-top: 0.25rem;">
+        {{ recommendations_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Awaiting faculty review & approval</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--color-primary);">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Active Support Plans</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-primary); margin-top: 0.25rem;">
+        {{ active_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Assigned & In Progress with students</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--color-danger);">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Overdue Support Plans</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-danger); margin-top: 0.25rem;">
+        {{ overdue_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Past target completion deadline</div>
+    </div>
+
+    <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--color-success);">
+      <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Completed / In Evaluation</div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: var(--color-success); margin-top: 0.25rem;">
+        {{ completed_count }}
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Actions finished & outcomes evaluated</div>
+    </div>
+  </div>
+
+  <!-- 1. Recommendation Inbox (Human in the loop approval) -->
+  <div class="card">
+    <div class="card-header" style="background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0;">1. Recommendation Review Inbox</h3>
+      <span class="badge badge-warning">{{ recommendations_count }} Recommendations</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; flex-direction: column;">
+        {% for rec in recommendations %}
+          <div style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div style="flex: 1; min-width: 300px;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                {{ rec.priority|intervention_priority_badge }}
+                <strong style="font-size: 1.05rem;">{{ rec.title }}</strong>
+                <span class="badge badge-neutral">{{ rec.course.code }} (Sec {{ rec.class_section.section_code }})</span>
+              </div>
+
+              <div style="margin-top: 0.35rem; font-size: 0.9rem; color: var(--text-secondary);">
+                <strong>Target Student:</strong> {{ rec.student.user.get_full_name|default:rec.student.user.email }} ({{ rec.student.student_id }})
+              </div>
+
+              <p style="font-size: 0.875rem; color: var(--text-primary); margin: 0.35rem 0 0.5rem 0;">
+                {{ rec.objective }}
+              </p>
+
+              <!-- Baseline Snapshot Evidence Summary -->
+              <div style="font-size: 0.8rem; color: var(--text-muted); background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: var(--radius-md); display: inline-block;">
+                Trigger: <strong>{{ rec.trigger_insight_type }}</strong> | Baseline Risk: {{ rec.baseline_metrics.risk_score|default:"—" }}/100 | Attendance: {{ rec.baseline_metrics.attendance_percentage }}%
+              </div>
+            </div>
+
+            <!-- Approval / Dismissal Actions -->
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; min-width: 180px;">
+              <form method="post" action="{% url 'portal:teacher_intervention_approve' pk=rec.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+                  <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                  <span>Approve & Assign</span>
+                </button>
+              </form>
+
+              <form method="post" action="{% url 'portal:teacher_intervention_dismiss' pk=rec.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline btn-sm" style="width: 100%; color: var(--color-danger);" onclick="return confirm('Dismiss this recommendation?')">
+                  <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                  <span>Dismiss</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        {% empty %}
+          <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+            No pending recommendations requiring educator review.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Active Support Plans Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3>2. Active Support Plans & Checklist Monitoring</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Course & Title</th>
+            <th>Target Metric</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Checklist Progress</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for plan in active_plans %}
+            <tr>
+              <td>
+                <strong>{{ plan.student.student_id }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  {{ plan.student.user.get_full_name|default:plan.student.user.email }}
+                </div>
+              </td>
+              <td>
+                <strong>{{ plan.course.code }}</strong>
+                <div style="font-size: 0.85rem;">{{ plan.title }}</div>
+              </td>
+              <td>
+                <span class="badge badge-neutral">{{ plan.get_primary_target_metric_display }}</span>
+              </td>
+              <td>{{ plan.priority|intervention_priority_badge }}</td>
+              <td>{{ plan.status|intervention_status_badge }}</td>
+              <td style="min-width: 130px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.2rem;">
+                  <span>Progress</span>
+                  <strong>{{ plan.action_progress_percentage }}%</strong>
+                </div>
+                <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 3px; overflow: hidden;">
+                  <div style="width: {{ plan.action_progress_percentage }}%; height: 100%; background: var(--color-primary);"></div>
+                </div>
+              </td>
+              <td>
+                <span style="{% if plan.is_overdue %}color: var(--color-danger); font-weight: 700;{% endif %}">
+                  {{ plan.due_date }}
+                </span>
+                {% if plan.is_overdue %}
+                  <span class="badge badge-danger" style="display: block; font-size: 0.7rem; margin-top: 0.2rem;">OVERDUE</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'portal:teacher_intervention_detail' pk=plan.pk %}" class="btn btn-outline btn-sm">
+                  <span>Manage</span>
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No active support plans currently in progress.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. Completed & Outcome Evaluated Plans -->
+  {% if evaluation_plans %}
+    <div class="card">
+      <div class="card-header">
+        <h3>3. Completed & Outcome Evaluated Plans</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Course & Plan Title</th>
+              <th>Status</th>
+              <th>Outcome Evaluation Summary</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for plan in evaluation_plans %}
+              <tr>
+                <td>
+                  <strong>{{ plan.student.student_id }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    {{ plan.student.user.get_full_name|default:plan.student.user.email }}
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ plan.course.code }}</strong> - {{ plan.title }}
+                </td>
+                <td>{{ plan.status|intervention_status_badge }}</td>
+                <td style="font-size: 0.85rem; color: var(--text-secondary);">
+                  {{ plan.effectiveness_summary|default:"Actions completed. Awaiting outcome evaluation." }}
+                </td>
+                <td>
+                  <a href="{% url 'portal:teacher_intervention_detail' pk=plan.pk %}" class="btn btn-outline btn-sm">
+                    <span>Manage / Evaluate</span>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

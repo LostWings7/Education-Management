@@ -1,0 +1,112 @@
+{% extends "portal_base.html" %}
+
+{% block title %}Notifications Inbox | Education Management Portal{% endblock %}
+
+{% block portal_content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <h2>Notifications & Alerts</h2>
+        {% if unread_count > 0 %}
+          <span class="badge badge-danger">{{ unread_count }} Unread</span>
+        {% else %}
+          <span class="badge badge-success">All Read</span>
+        {% endif %}
+      </div>
+      <p style="color: var(--text-muted); margin: 0;">
+        Real-time deterministic academic warnings, assignment deadlines, and system alerts.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="{% url 'notifications:preferences' %}" class="btn btn-outline">
+        <i data-lucide="settings" style="width: 16px; height: 16px;"></i>
+        <span>Preferences</span>
+      </a>
+      {% if unread_count > 0 %}
+        <form method="post" action="{% url 'notifications:mark_all_read' %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check-check" style="width: 16px; height: 16px;"></i>
+            <span>Mark All Read</span>
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Priority Filters -->
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <a href="{% url 'notifications:list' %}" class="btn {% if not selected_priority %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All</a>
+    <a href="{% url 'notifications:list' %}?priority=CRITICAL" class="btn {% if selected_priority == 'CRITICAL' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-color: #ef4444; color: {% if selected_priority == 'CRITICAL' %}#ffffff{% else %}#ef4444{% endif %};">🔴 Critical</a>
+    <a href="{% url 'notifications:list' %}?priority=WARNING" class="btn {% if selected_priority == 'WARNING' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-color: #f59e0b; color: {% if selected_priority == 'WARNING' %}#ffffff{% else %}#d97706{% endif %};">⚠ Warnings</a>
+    <a href="{% url 'notifications:list' %}?priority=INFO" class="btn {% if selected_priority == 'INFO' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">ℹ Info</a>
+  </div>
+
+  <!-- Notifications Stream -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="display: flex; flex-direction: column;">
+      {% for notif in notifications %}
+        <div id="notif-{{ notif.pk }}" style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; {% if not notif.is_read %}background: var(--bg-subtle);{% endif %}">
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span class="badge {{ notif.badge_class }}">{{ notif.get_priority_display }}</span>
+              <span class="badge badge-neutral" style="font-size: 0.75rem;">{{ notif.get_notification_type_display }}</span>
+              <strong style="font-size: 0.95rem;">{{ notif.title }}</strong>
+              {% if not notif.is_read %}
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-primary);" title="Unread"></span>
+              {% endif %}
+            </div>
+
+            <p style="margin: 0.25rem 0 0.5rem 0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+              {{ notif.message }}
+            </p>
+
+            <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+              <span>{{ notif.created_at|date:"M d, Y H:i" }}</span>
+              {% if notif.link_url %}
+                <a href="{{ notif.link_url }}" style="color: var(--color-primary); font-weight: 600;">View Details &rarr;</a>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="flex-shrink: 0;">
+            {% if not notif.is_read %}
+              <button type="button" class="btn btn-outline btn-sm" onclick="markRead({{ notif.pk }})" style="font-size: 0.75rem; padding: 4px 8px;">
+                Mark Read
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+          <i data-lucide="bell-off" style="width: 32px; height: 32px; margin-bottom: 0.5rem; opacity: 0.6;"></i>
+          <div>No notifications in this filter category.</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+function markRead(pk) {
+  fetch(`/notifications/${pk}/read/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '{{ csrf_token }}',
+      "X-Requested-With": "XMLHttpRequest"
+    }
+  }).then(res => res.json()).then(data => {
+    if (data.success) {
+      const el = document.getElementById(`notif-${pk}`);
+      if (el) {
+        el.style.background = 'var(--surface-color)';
+        const btn = el.querySelector('button');
+        if (btn) btn.remove();
+      }
+    }
+  });
+}
+</script>
+{% endblock %}
