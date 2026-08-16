@@ -697,6 +697,10 @@ class Assignment(TimeStampedModel):
         if self.issue_date and self.due_date and self.issue_date >= self.due_date:
             raise ValidationError({'due_date': _('Deadline must be strictly after the issue date.')})
 
+    @property
+    def is_overdue(self):
+        return timezone.now() > self.due_date if self.due_date else False
+
 
 class AssignmentSubmission(TimeStampedModel):
     """

@@ -175,8 +175,8 @@ class StudentContextBuilder(BaseContextBuilder):
             assign_res = AssignmentAnalyticsService.calculate_course_assignments(student, sec)
             assignments = Assignment.objects.filter(class_section=sec).order_by('due_date')
             for a in assignments:
-                sub = student.submissions.filter(assignment=a).first()
-                if not sub or sub.status != 'SUBMITTED':
+                sub = student.assignment_submissions.filter(assignment=a).first()
+                if not sub or sub.status not in ['SUBMITTED', 'GRADED', 'RESUBMITTED']:
                     all_pending_assignments.append({
                         'id': a.pk,
                         'course_code': course.code,

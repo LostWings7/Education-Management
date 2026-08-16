@@ -108,3 +108,12 @@ class AIStudyPlanValidationTest(TestCase):
         sanitized, is_valid = StudyPlanValidator.validate_plan(plan, self.student)
         self.assertFalse(is_valid)
         self.assertTrue(sanitized.days[0].total_study_minutes <= 270)
+
+    def test_student_ai_study_planner_view_endpoint(self):
+        """Student study planner view renders successfully with 200 and generates context."""
+        from django.urls import reverse
+        self.client.login(email='student.plan@example.com', password='Password@123')
+        res = self.client.get(reverse('portal:student_ai_planner'))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'AI Study Planner')
+
