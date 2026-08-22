@@ -1,5 +1,6 @@
 /* ==========================================================================
    Education Management Portal - Layout & Navigation Architecture
+   Modern SaaS Layout: Clean Sticky Sidebar, Minimal Topbar, Responsive Grid
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -27,45 +28,56 @@
    -------------------------------------------------------------------------- */
 .portal-sidebar {
   width: var(--sidebar-width);
-  background-color: #0f172a;
+  background-color: #0b0f19;
   color: #f8fafc;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
   z-index: var(--z-sidebar);
-  transition: width var(--duration-normal) var(--ease-standard), transform var(--duration-normal) var(--ease-standard);
+  transition: transform var(--duration-normal) var(--ease-standard);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.portal-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.portal-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .sidebar-header {
   height: var(--header-height);
-  padding: 0 1.5rem;
+  padding: 0 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 1.15rem;
-  font-weight: var(--weight-extrabold);
+  gap: 0.65rem;
+  font-size: 1.05rem;
+  font-weight: var(--weight-bold);
   color: #ffffff;
   text-decoration: none;
   letter-spacing: var(--tracking-tight);
 }
 
 .sidebar-logo-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: var(--brand-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,31 +85,31 @@
 }
 
 .sidebar-nav {
-  padding: 1.25rem 0.85rem;
+  padding: 1rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.15rem;
   flex: 1;
 }
 
 .sidebar-section-title {
-  font-size: 0.7rem;
+  font-size: var(--text-micro);
   font-weight: var(--weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #64748b;
-  padding: 1rem 0.75rem 0.4rem;
+  padding: 0.85rem 0.65rem 0.35rem;
 }
 
 .sidebar-section-title:first-child {
-  padding-top: 0.25rem;
+  padding-top: 0.15rem;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.85rem;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
   color: #94a3b8;
   text-decoration: none;
   font-size: var(--text-body-sm);
@@ -109,28 +121,28 @@
 
 .sidebar-item:hover {
   color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-item.active {
   color: #ffffff;
   background-color: var(--brand-primary);
   font-weight: var(--weight-semibold);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
 }
 
 .sidebar-item .sidebar-badge {
   margin-left: auto;
   font-size: var(--text-micro);
   font-weight: var(--weight-bold);
-  padding: 0.15rem 0.45rem;
+  padding: 0.1rem 0.4rem;
   border-radius: var(--radius-full);
 }
 
 .sidebar-footer {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.85rem 1.15rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
 /* --------------------------------------------------------------------------
@@ -147,25 +159,26 @@
   height: var(--header-height);
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-color);
-  padding: 0 1.75rem;
+  padding: 0 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: var(--z-header);
+  backdrop-filter: blur(8px);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .sidebar-toggle-btn {
@@ -173,28 +186,65 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.4rem;
+  padding: 0.35rem;
   border-radius: var(--radius-sm);
   display: none;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
 }
 
 .breadcrumbs {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   font-size: var(--text-body-sm);
 }
 
 .breadcrumb-sep {
   color: var(--text-tertiary);
+  font-size: 0.8rem;
+}
+
+/* Search Trigger in Topbar */
+.search-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.search-trigger-btn:hover {
+  border-color: var(--border-color-hover);
+  background-color: #e2e8f0;
+  color: var(--text-primary);
+}
+
+.search-kbd {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  color: var(--text-secondary);
 }
 
 /* User Profile Menu Trigger */
 .user-profile-menu {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.35rem 0.65rem;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   position: relative;
@@ -206,8 +256,8 @@
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-full);
   background: var(--brand-primary);
   color: #ffffff;
@@ -215,21 +265,21 @@
   align-items: center;
   justify-content: center;
   font-weight: var(--weight-bold);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 0.35rem);
   right: 0;
-  width: 230px;
+  width: 210px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-lg);
   display: none;
   flex-direction: column;
-  padding: 0.4rem;
+  padding: 0.35rem;
   z-index: var(--z-modal);
   animation: dropdownEnter 0.15s var(--ease-spring) forwards;
 }
@@ -241,8 +291,8 @@
 .dropdown-item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0.85rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
   font-size: var(--text-body-sm);
   color: var(--text-secondary);
   text-decoration: none;
@@ -257,15 +307,15 @@
 
 .dropdown-divider {
   height: 1px;
-  background-color: var(--border-color);
-  margin: 0.35rem 0;
+  background-color: var(--border-color-subtle);
+  margin: 0.25rem 0;
 }
 
 /* --------------------------------------------------------------------------
    4. Content Body & Responsive Layout Grids
    -------------------------------------------------------------------------- */
 .portal-content {
-  padding: 2rem 2.25rem;
+  padding: 1.75rem 2rem;
   flex: 1;
   max-width: var(--max-content-width);
   width: 100%;
@@ -275,23 +325,23 @@
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 /* Responsive Overrides */
-@media (max-width: 1100px) {
+@media (max-width: 1150px) {
   .grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -313,6 +363,7 @@
   }
   .portal-sidebar.open {
     transform: translateX(0);
+    box-shadow: var(--shadow-2xl);
   }
   .portal-content {
     padding: 1.25rem 1rem;
@@ -323,10 +374,10 @@
 }
 
 /* --------------------------------------------------------------------------
-   5. Public Website Navigation & Footer
+   5. Public Website Header & Footer
    -------------------------------------------------------------------------- */
 .public-header {
-  background-color: #0f172a;
+  background-color: #0b0f19;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: sticky;
   top: 0;
@@ -341,7 +392,7 @@
 }
 
 .public-navbar {
-  height: 72px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -350,19 +401,19 @@
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 1.15rem;
-  font-weight: var(--weight-extrabold);
+  gap: 0.65rem;
+  font-size: 1.1rem;
+  font-weight: var(--weight-bold);
   color: #ffffff;
   text-decoration: none;
   letter-spacing: var(--tracking-tight);
 }
 
 .brand-icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: var(--brand-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -372,7 +423,7 @@
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -383,26 +434,26 @@
   font-size: var(--text-body-sm);
   font-weight: var(--weight-medium);
   text-decoration: none;
-  padding: 0.5rem 0.25rem;
+  padding: 0.4rem 0.2rem;
   transition: color var(--duration-fast);
   border-bottom: 2px solid transparent;
 }
 
 .nav-link:hover, .nav-link.active {
   color: #ffffff;
-  border-bottom-color: var(--brand-accent);
+  border-bottom-color: var(--brand-primary);
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .public-footer {
-  background-color: #0b0f19;
+  background-color: #080c14;
   color: #94a3b8;
-  padding: 4.5rem 0 2rem;
+  padding: 3.5rem 0 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin-top: auto;
 }
@@ -410,15 +461,15 @@
 .footer-grid {
   display: grid;
   grid-template-columns: 2fr repeat(3, 1fr);
-  gap: 3rem;
-  margin-bottom: 3.5rem;
+  gap: 2.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .footer-col h4 {
   color: #ffffff;
   font-size: var(--text-body-sm);
   font-weight: var(--weight-bold);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -429,7 +480,7 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .footer-links a {
@@ -447,7 +498,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 2rem;
+  padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   font-size: var(--text-caption);
   color: #64748b;
@@ -456,7 +507,7 @@
 @media (max-width: 900px) {
   .footer-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 }
 

@@ -28,7 +28,7 @@
       <div class="sidebar-header">
         <a href="{% url 'portal:dispatcher' %}" class="sidebar-logo">
           <div class="sidebar-logo-icon">
-            <i data-lucide="graduation-cap" style="width: 20px; height: 20px;"></i>
+            <i data-lucide="graduation-cap" style="width: 18px; height: 18px;"></i>
           </div>
           <span>EduPortal</span>
         </a>
@@ -37,71 +37,71 @@
       <nav class="sidebar-nav">
         {% if user.is_student %}
           <!-- Student Navigation Hierarchy -->
-          <div class="sidebar-section-title">Overview & Journey</div>
+          <div class="sidebar-section-title">Overview</div>
           <a href="{% url 'portal:student_dashboard' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
-            <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="layout-dashboard" style="width: 17px; height: 17px;"></i>
             <span>Command Center</span>
           </a>
           <a href="{% url 'portal:student_journey' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_journey' %}active{% endif %}">
-            <i data-lucide="compass" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="compass" style="width: 17px; height: 17px;"></i>
             <span>Academic Journey</span>
           </a>
 
-          <div class="sidebar-section-title">Academics & Schedule</div>
+          <div class="sidebar-section-title">Academics</div>
           <a href="{% url 'portal:student_courses' %}" class="sidebar-item {% if request.resolver_match.url_name in 'student_courses,student_course_detail' %}active{% endif %}">
-            <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="book-open" style="width: 17px; height: 17px;"></i>
             <span>Courses</span>
           </a>
           <a href="{% url 'portal:student_attendance' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_attendance' %}active{% endif %}">
-            <i data-lucide="calendar-check" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="calendar-check" style="width: 17px; height: 17px;"></i>
             <span>Attendance & Buffers</span>
           </a>
           <a href="{% url 'portal:student_assignments' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_assignments' %}active{% endif %}">
-            <i data-lucide="file-text" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="file-text" style="width: 17px; height: 17px;"></i>
             <span>Assignments</span>
           </a>
           <a href="{% url 'portal:student_grades' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_grades' %}active{% endif %}">
-            <i data-lucide="award" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="award" style="width: 17px; height: 17px;"></i>
             <span>Grades & Results</span>
           </a>
           <a href="{% url 'portal:student_timetable' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_timetable' %}active{% endif %}">
-            <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="calendar" style="width: 17px; height: 17px;"></i>
             <span>Class Timetable</span>
           </a>
           <a href="{% url 'portal:student_resources' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_resources' %}active{% endif %}">
-            <i data-lucide="folder-down" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="folder-down" style="width: 17px; height: 17px;"></i>
             <span>Learning Resources</span>
           </a>
 
-          <div class="sidebar-section-title">Intelligence & Support</div>
+          <div class="sidebar-section-title">Intelligence</div>
           <a href="{% url 'portal:student_analytics' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_analytics' %}active{% endif %}">
-            <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="sparkles" style="width: 17px; height: 17px;"></i>
             <span>Risk Radar & Analytics</span>
           </a>
           <a href="{% url 'portal:student_what_if' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_what_if' %}active{% endif %}">
-            <i data-lucide="calculator" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="calculator" style="width: 17px; height: 17px;"></i>
             <span>What-If Simulator</span>
           </a>
           <a href="{% url 'portal:student_interventions' %}" class="sidebar-item {% if 'intervention' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="shield-check" style="width: 17px; height: 17px;"></i>
             <span>Support & Recovery</span>
           </a>
           <a href="{% url 'portal:student_ai_copilot' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_ai_copilot' %}active{% endif %}">
-            <i data-lucide="bot" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="bot" style="width: 17px; height: 17px;"></i>
             <span>AI Academic Copilot</span>
           </a>
           <a href="{% url 'portal:student_ai_planner' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_ai_planner' %}active{% endif %}">
-            <i data-lucide="calendar-range" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="calendar-range" style="width: 17px; height: 17px;"></i>
             <span>AI Study Planner</span>
           </a>
 
           <div class="sidebar-section-title">Records & Audit</div>
           <a href="{% url 'portal:student_timeline' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_timeline' %}active{% endif %}">
-            <i data-lucide="git-commit" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="git-commit" style="width: 17px; height: 17px;"></i>
             <span>Academic Timeline</span>
           </a>
           <a href="{% url 'portal:student_transcript' %}" class="sidebar-item {% if request.resolver_match.url_name == 'student_transcript' %}active{% endif %}">
-            <i data-lucide="file-check" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="file-check" style="width: 17px; height: 17px;"></i>
             <span>Official Transcript</span>
           </a>
 
@@ -109,49 +109,49 @@
           <!-- Teacher Navigation Hierarchy -->
           <div class="sidebar-section-title">Teaching Command</div>
           <a href="{% url 'portal:teacher_dashboard' %}" class="sidebar-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
-            <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="layout-dashboard" style="width: 17px; height: 17px;"></i>
             <span>Attention Radar</span>
           </a>
           <a href="{% url 'portal:teacher_classes' %}" class="sidebar-item {% if request.resolver_match.url_name in 'teacher_classes,teacher_class_detail' %}active{% endif %}">
-            <i data-lucide="users" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="users" style="width: 17px; height: 17px;"></i>
             <span>My Classes</span>
           </a>
           <a href="{% url 'portal:teacher_attendance' %}" class="sidebar-item {% if request.resolver_match.url_name in 'teacher_attendance,teacher_take_attendance' %}active{% endif %}">
-            <i data-lucide="clipboard-check" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="clipboard-check" style="width: 17px; height: 17px;"></i>
             <span>Attendance Roll-Call</span>
           </a>
           <a href="{% url 'portal:teacher_assignments' %}" class="sidebar-item {% if request.resolver_match.url_name in 'teacher_assignments,teacher_assignment_submissions' %}active{% endif %}">
-            <i data-lucide="file-text" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="file-text" style="width: 17px; height: 17px;"></i>
             <span>Assignments & Marking</span>
           </a>
           <a href="{% url 'portal:teacher_gradebook' %}" class="sidebar-item {% if request.resolver_match.url_name == 'teacher_gradebook' %}active{% endif %}">
-            <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="file-spreadsheet" style="width: 17px; height: 17px;"></i>
             <span>Gradebook Snapshot</span>
           </a>
           <a href="{% url 'portal:teacher_timetable' %}" class="sidebar-item {% if request.resolver_match.url_name == 'teacher_timetable' %}active{% endif %}">
-            <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="calendar" style="width: 17px; height: 17px;"></i>
             <span>Teaching Schedule</span>
           </a>
           <a href="{% url 'portal:teacher_resources' %}" class="sidebar-item {% if request.resolver_match.url_name in 'teacher_resources,teacher_resource_create' %}active{% endif %}">
-            <i data-lucide="folder" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="folder" style="width: 17px; height: 17px;"></i>
             <span>Curricular Resources</span>
           </a>
 
-          <div class="sidebar-section-title">Diagnostics & Intervention</div>
+          <div class="sidebar-section-title">Diagnostics & Action</div>
           <a href="{% url 'portal:teacher_early_warnings' %}" class="sidebar-item {% if request.resolver_match.url_name == 'teacher_early_warnings' %}active{% endif %}">
-            <i data-lucide="bell-ring" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="bell-ring" style="width: 17px; height: 17px;"></i>
             <span>Early Warning Alerts</span>
           </a>
           <a href="{% url 'portal:teacher_interventions' %}" class="sidebar-item {% if 'intervention' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="shield-alert" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="shield-alert" style="width: 17px; height: 17px;"></i>
             <span>Intervention Center</span>
           </a>
           <a href="{% url 'portal:teacher_analytics' %}" class="sidebar-item {% if request.resolver_match.url_name in 'teacher_analytics,teacher_class_analytics' %}active{% endif %}">
-            <i data-lucide="bar-chart-2" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="bar-chart-2" style="width: 17px; height: 17px;"></i>
             <span>Class Intelligence</span>
           </a>
           <a href="{% url 'portal:teacher_ai_copilot' %}" class="sidebar-item {% if request.resolver_match.url_name == 'teacher_ai_copilot' %}active{% endif %}">
-            <i data-lucide="bot" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="bot" style="width: 17px; height: 17px;"></i>
             <span>AI Teaching Assistant</span>
           </a>
 
@@ -159,113 +159,109 @@
           <!-- Administrator Navigation Hierarchy -->
           <div class="sidebar-section-title">Macro Oversight</div>
           <a href="{% url 'portal_admin:dashboard' %}" class="sidebar-item {% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="layout-dashboard" style="width: 17px; height: 17px;"></i>
             <span>Institutional Pulse</span>
           </a>
           <a href="{% url 'portal_admin:analytics' %}" class="sidebar-item {% if request.resolver_match.url_name == 'analytics' and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="line-chart" style="width: 18px; height: 18px;"></i>
-            <span>University Intelligence</span>
+            <i data-lucide="line-chart" style="width: 17px; height: 17px;"></i>
+            <span>University Analytics</span>
           </a>
           <a href="{% url 'portal_admin:risk_heatmap' %}" class="sidebar-item {% if request.resolver_match.url_name == 'risk_heatmap' %}active{% endif %}">
-            <i data-lucide="grid" style="width: 18px; height: 18px;"></i>
-            <span>Risk Heatmap ($N \ge 3$)</span>
+            <i data-lucide="grid" style="width: 17px; height: 17px;"></i>
+            <span>Risk Heatmap</span>
           </a>
           <a href="{% url 'portal_admin:interventions_overview' %}" class="sidebar-item {% if 'intervention' in request.resolver_match.url_name and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="shield-check" style="width: 18px; height: 18px;"></i>
-            <span>Intervention Oversight</span>
+            <i data-lucide="shield-check" style="width: 17px; height: 17px;"></i>
+            <span>Interventions</span>
           </a>
           <a href="{% url 'portal_admin:data_quality' %}" class="sidebar-item {% if request.resolver_match.url_name == 'data_quality' and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="shield-alert" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="shield-alert" style="width: 17px; height: 17px;"></i>
             <span>Data Quality Center</span>
           </a>
           <a href="{% url 'portal_admin:ai_observability' %}" class="sidebar-item {% if request.resolver_match.url_name == 'ai_observability' and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="activity" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="activity" style="width: 17px; height: 17px;"></i>
             <span>AI Observability</span>
           </a>
 
-          <div class="sidebar-section-title">Academic Structure & CRUD</div>
+          <div class="sidebar-section-title">Academic Structure</div>
           <a href="{% url 'portal_admin:department_list' %}" class="sidebar-item {% if 'department' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="building-2" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="building-2" style="width: 17px; height: 17px;"></i>
             <span>Departments</span>
           </a>
           <a href="{% url 'portal_admin:program_list' %}" class="sidebar-item {% if 'program' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="graduation-cap" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="graduation-cap" style="width: 17px; height: 17px;"></i>
             <span>Degree Programs</span>
           </a>
           <a href="{% url 'portal_admin:terms_list' %}" class="sidebar-item {% if 'term' in request.resolver_match.url_name or 'year' in request.resolver_match.url_name or 'semester' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="calendar-range" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="calendar-range" style="width: 17px; height: 17px;"></i>
             <span>Academic Terms</span>
           </a>
 
           <div class="sidebar-section-title">People Management</div>
           <a href="{% url 'portal_admin:student_list' %}" class="sidebar-item {% if 'student' in request.resolver_match.url_name and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="users" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="users" style="width: 17px; height: 17px;"></i>
             <span>Students Roster</span>
           </a>
           <a href="{% url 'portal_admin:teacher_list' %}" class="sidebar-item {% if 'teacher' in request.resolver_match.url_name and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="briefcase" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="briefcase" style="width: 17px; height: 17px;"></i>
             <span>Faculty Roster</span>
           </a>
 
           <div class="sidebar-section-title">Curriculum & Classes</div>
           <a href="{% url 'portal_admin:courses' %}" class="sidebar-item {% if 'course' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="layers" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="layers" style="width: 17px; height: 17px;"></i>
             <span>Courses & Topics</span>
           </a>
           <a href="{% url 'portal_admin:sections' %}" class="sidebar-item {% if 'section' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="grid" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="grid" style="width: 17px; height: 17px;"></i>
             <span>Class Sections</span>
           </a>
           <a href="{% url 'portal_admin:enrollments' %}" class="sidebar-item {% if 'enrollment' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="user-check" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="user-check" style="width: 17px; height: 17px;"></i>
             <span>Enrollments</span>
           </a>
 
           <div class="sidebar-section-title">Operations & Logs</div>
           <a href="{% url 'portal_admin:timetable' %}" class="sidebar-item {% if 'timetable' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="calendar" style="width: 17px; height: 17px;"></i>
             <span>Master Timetable</span>
           </a>
           <a href="{% url 'portal_admin:attendance_list' %}" class="sidebar-item {% if 'attendance' in request.resolver_match.url_name and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="clipboard-check" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="clipboard-check" style="width: 17px; height: 17px;"></i>
             <span>Attendance Logs</span>
           </a>
           <a href="{% url 'portal_admin:assessment_list' %}" class="sidebar-item {% if 'assessment' in request.resolver_match.url_name %}active{% endif %}">
-            <i data-lucide="award" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="award" style="width: 17px; height: 17px;"></i>
             <span>Assessments & Grades</span>
           </a>
           <a href="{% url 'portal_admin:resource_list' %}" class="sidebar-item {% if 'resource' in request.resolver_match.url_name and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="folder" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="folder" style="width: 17px; height: 17px;"></i>
             <span>Learning Resources</span>
           </a>
           <a href="{% url 'portal_admin:announcement_list' %}" class="sidebar-item {% if 'announcement' in request.resolver_match.url_name and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="bell" style="width: 17px; height: 17px;"></i>
             <span>Announcements</span>
           </a>
           <a href="{% url 'portal_admin:records' %}" class="sidebar-item {% if request.resolver_match.url_name == 'records' and request.resolver_match.namespace == 'portal_admin' %}active{% endif %}">
-            <i data-lucide="archive" style="width: 18px; height: 18px;"></i>
+            <i data-lucide="archive" style="width: 17px; height: 17px;"></i>
             <span>Academic Records</span>
           </a>
           <a href="{% url 'public:demo_showcase' %}" class="sidebar-item" target="_blank">
-            <i data-lucide="play-circle" style="width: 18px; height: 18px; color: #38bdf8;"></i>
+            <i data-lucide="play-circle" style="width: 17px; height: 17px; color: #38bdf8;"></i>
             <span>Demo Showcase</span>
-          </a>
-          <a href="/django-admin/" class="sidebar-item" target="_blank">
-            <i data-lucide="database" style="width: 18px; height: 18px;"></i>
-            <span>Django Admin</span>
           </a>
         {% endif %}
 
         <div class="sidebar-section-title">Account</div>
         <a href="{% url 'core:profile' %}" class="sidebar-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-          <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+          <i data-lucide="user" style="width: 17px; height: 17px;"></i>
           <span>My Profile</span>
         </a>
       </nav>
 
       <div class="sidebar-footer">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">ACTIVE ROLE</div>
+          <div style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">ACTIVE ROLE</div>
           <span class="badge {{ user.role_badge_class }}">{{ user.get_role_display }}</span>
         </div>
       </div>
@@ -277,7 +273,7 @@
       <header class="portal-header">
         <div class="header-left">
           <button type="button" class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle Sidebar Navigation">
-            <i data-lucide="menu"></i>
+            <i data-lucide="menu" style="width: 18px; height: 18px;"></i>
           </button>
           
           <div class="breadcrumbs">
@@ -289,72 +285,65 @@
 
         <div class="header-right">
           <!-- Judge Mode Presentation Indicator -->
-          <a href="?judge_mode={% if judge_mode %}0{% else %}1{% endif %}" class="btn btn-sm" style="{% if judge_mode %}background: #7c3aed; color: white; border: none;{% else %}background: var(--bg-surface-secondary); color: var(--text-muted); border: 1px solid var(--border-color);{% endif %} font-size: 0.75rem; padding: 0.35rem 0.65rem;" title="Toggle Presentation / Judge Mode">
+          <a href="?judge_mode={% if judge_mode %}0{% else %}1{% endif %}" class="btn btn-sm" style="{% if judge_mode %}background: #7c3aed; color: white; border: none;{% else %}background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border-color);{% endif %} font-size: 0.75rem; padding: 0.3rem 0.65rem;" title="Toggle Presentation / Judge Mode">
             <i data-lucide="scale" style="width: 13px; height: 13px;"></i>
             <span>Judge Mode: <strong>{% if judge_mode %}ON{% else %}OFF{% endif %}</strong></span>
           </a>
 
           <!-- System Architecture Flow Trigger -->
-          <button type="button" class="btn btn-outline btn-sm" id="architectureFlowBtn" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; padding: 0.35rem 0.65rem;" title="View Closed-Loop Academic Intelligence Flow">
+          <button type="button" class="btn btn-outline btn-sm" id="architectureFlowBtn" style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; padding: 0.3rem 0.65rem;" title="View Closed-Loop Academic Intelligence Flow">
             <i data-lucide="workflow" style="width: 13px; height: 13px; color: var(--brand-primary);"></i>
             <span>System Flow</span>
           </button>
 
           <!-- Quick Search Button -->
-          <button type="button" class="btn btn-outline btn-sm" id="searchTriggerBtn" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; padding: 0.4rem 0.75rem; border-color: var(--border-color);" title="Search (Ctrl+K)">
-            <i data-lucide="search" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
-            <span style="color: var(--text-muted);">Search...</span>
-            <kbd style="background: var(--bg-subtle); border: 1px solid var(--border-color); padding: 1px 4px; border-radius: 3px; font-size: 0.7rem;">Ctrl K</kbd>
+          <button type="button" class="search-trigger-btn" id="searchTriggerBtn" title="Search (Ctrl+K)">
+            <i data-lucide="search" style="width: 13px; height: 13px; color: var(--text-muted);"></i>
+            <span>Search...</span>
+            <span class="search-kbd">Ctrl K</span>
           </button>
 
           <!-- Notification Bell -->
           {% unread_notifications_count as unread_count %}
-          <a href="{% url 'notifications:list' %}" class="btn btn-outline btn-sm" style="position: relative; padding: 0.45rem; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" title="Notifications">
-            <i data-lucide="bell" style="width: 16px; height: 16px;"></i>
+          <a href="{% url 'notifications:list' %}" class="btn btn-outline btn-sm btn-icon" style="position: relative;" title="Notifications">
+            <i data-lucide="bell" style="width: 15px; height: 15px;"></i>
             {% if unread_count > 0 %}
-              <span style="position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; background: #ef4444; color: #ffffff; border-radius: 50%; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-surface);">
+              <span style="position: absolute; top: -2px; right: -2px; width: 16px; height: 16px; background: var(--color-danger); color: #ffffff; border-radius: 50%; font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-surface);">
                 {{ unread_count }}
               </span>
             {% endif %}
           </a>
-
-          <!-- Role Badge -->
-          <span class="badge {{ user.role_badge_class }}">{{ user.get_role_display }}</span>
 
           <!-- User Menu Dropdown -->
           <div class="user-profile-menu" id="userMenuTrigger">
             <div class="user-avatar">
               {{ user.first_name|first|default:user.email|first|upper }}
             </div>
-            <div class="user-info" style="display: none; @media(min-width: 640px){ display: flex; flex-direction: column; }">
-              <span class="user-name" style="font-size: 0.85rem; font-weight: 600;">{{ user.get_full_name|default:user.email }}</span>
-              <span class="user-role-label" style="font-size: 0.75rem; color: var(--text-muted);">{{ user.email }}</span>
-            </div>
-            <i data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
 
             <!-- Dropdown Options -->
             <div class="dropdown-menu" id="userDropdown">
-              <div style="padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-color);">
+              <div style="padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--border-color-subtle);">
                 <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">{{ user.get_full_name|default:user.email }}</div>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">{{ user.email }}</div>
               </div>
               <a href="{% url 'core:profile' %}" class="dropdown-item">
-                <i data-lucide="user" style="width: 15px; height: 15px;"></i>
+                <i data-lucide="user" style="width: 14px; height: 14px;"></i>
                 <span>Profile Settings</span>
               </a>
               <a href="{% url 'core:password_change' %}" class="dropdown-item">
-                <i data-lucide="key-round" style="width: 15px; height: 15px;"></i>
+                <i data-lucide="key-round" style="width: 14px; height: 14px;"></i>
                 <span>Change Password</span>
               </a>
               <a href="{% url 'notifications:preferences' %}" class="dropdown-item">
-                <i data-lucide="settings" style="width: 15px; height: 15px;"></i>
+                <i data-lucide="settings" style="width: 14px; height: 14px;"></i>
                 <span>Notification Settings</span>
               </a>
               <div class="dropdown-divider"></div>
               <form method="post" action="{% url 'core:logout' %}" style="margin: 0;">
                 {% csrf_token %}
                 <button type="submit" class="dropdown-item" style="width: 100%; border: none; background: none; text-align: left; cursor: pointer; color: var(--color-danger);">
-                  <i data-lucide="log-out" style="width: 15px; height: 15px;"></i>
+                  <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
                   <span>Log Out</span>
                 </button>
               </form>
@@ -363,9 +352,9 @@
         </div>
       </header>
 
-      <!-- Messages Alert Container -->
+      <!-- Global Flash Messages -->
       {% if messages %}
-        <div style="padding: 1.5rem 2.25rem 0;">
+        <div style="padding: 1.25rem 2rem 0;">
           {% for message in messages %}
             <div class="toast toast-{{ message.tags|default:'info' }}" style="margin-bottom: 0.5rem;">
               <span>{{ message }}</span>
@@ -375,23 +364,23 @@
         </div>
       {% endif %}
 
-      <!-- Content Body -->
-      <main class="portal-content">
+      <!-- Content Body with Subtle Entrance Animation -->
+      <main class="portal-content page-enter">
         {% block portal_content %}{% endblock %}
       </main>
     </div>
   </div>
 
   <!-- Global Command Palette Modal (Ctrl+K) -->
-  <div id="globalSearchModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 9999; align-items: flex-start; justify-content: center; padding-top: 10vh; backdrop-filter: blur(6px);">
-    <div class="card" style="width: 100%; max-width: 620px; padding: 0; overflow: hidden; box-shadow: var(--shadow-2xl);">
-      <div style="display: flex; align-items: center; padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border-color); background: var(--bg-subtle);">
-        <i data-lucide="search" style="width: 18px; height: 18px; color: var(--text-muted); margin-right: 0.75rem;"></i>
-        <input type="text" id="globalSearchInput" placeholder="Type to search courses, assignments, students, or reports..." style="width: 100%; border: none; background: transparent; font-size: 1rem; outline: none; color: var(--text-primary);" autocomplete="off">
-        <kbd id="searchCloseKbd" style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer;">ESC</kbd>
+  <div id="globalSearchModal" class="modal-backdrop" style="display: none; align-items: flex-start; padding-top: 12vh;">
+    <div class="modal-content" style="padding: 0; max-width: 580px;">
+      <div style="display: flex; align-items: center; padding: 0.75rem 1.15rem; border-bottom: 1px solid var(--border-color); background: var(--bg-surface-secondary);">
+        <i data-lucide="search" style="width: 16px; height: 16px; color: var(--text-muted); margin-right: 0.65rem;"></i>
+        <input type="text" id="globalSearchInput" placeholder="Search courses, assignments, students, or records..." style="width: 100%; border: none; background: transparent; font-size: 0.95rem; outline: none; color: var(--text-primary);" autocomplete="off">
+        <kbd id="searchCloseKbd" class="search-kbd" style="cursor: pointer;">ESC</kbd>
       </div>
 
-      <div id="globalSearchResults" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column;">
+      <div id="globalSearchResults" style="max-height: 360px; overflow-y: auto; display: flex; flex-direction: column;">
         <div style="padding: 2.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
           Type 2 or more characters to search academic entities...
         </div>
@@ -400,49 +389,49 @@
   </div>
 
   <!-- Universal 'Why?' Evidence Inspector Slide-Out Drawer -->
-  <div id="evidenceInspectorDrawer" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); z-index: 9998; backdrop-filter: blur(4px); justify-content: flex-end;">
-    <div style="background: var(--bg-surface); width: 100%; max-width: 500px; height: 100%; box-shadow: var(--shadow-2xl); display: flex; flex-direction: column; border-left: 1px solid var(--border-color); animation: slideIn 0.25s ease-out;">
-      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary);">
+  <div id="evidenceInspectorDrawer" class="drawer-backdrop" style="display: none;">
+    <div class="drawer-panel">
+      <div style="padding: 1.15rem 1.35rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary);">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="help-circle" style="width: 20px; height: 20px; color: var(--brand-primary);"></i>
-          <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">Universal Evidence Inspector</h3>
+          <i data-lucide="help-circle" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+          <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">Evidence Inspector</h3>
         </div>
-        <button type="button" id="closeInspectorBtn" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.55rem; font-size: 1rem;">&times;</button>
+        <button type="button" id="closeInspectorBtn" class="btn btn-ghost btn-sm" style="padding: 0.2rem 0.4rem; font-size: 1.1rem; color: var(--text-muted);">&times;</button>
       </div>
 
-      <div style="padding: 1.75rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.35rem; flex: 1;">
+      <div style="padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.25rem; flex: 1;">
         <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Analyzed Dimension</div>
-          <h4 id="inspectorMetricTitle" style="margin: 0.25rem 0 0; font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">Metric Title</h4>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Analyzed Dimension</div>
+          <h4 id="inspectorMetricTitle" style="margin: 0.2rem 0 0; font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">Metric Title</h4>
         </div>
 
-        <div style="background: var(--bg-surface-secondary); padding: 1.1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Authoritative Value</div>
-          <div id="inspectorMetricValue" style="font-size: 1.75rem; font-weight: 800; color: var(--brand-primary); margin-top: 0.25rem; font-variant-numeric: tabular-nums;">Value</div>
-        </div>
-
-        <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Authoritative Computing Engine</div>
-          <div id="inspectorService" style="font-weight: 700; font-size: 0.95rem; color: var(--text-secondary); margin-top: 0.25rem;">Service Name</div>
+        <div style="background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Authoritative Value</div>
+          <div id="inspectorMetricValue" style="font-size: 1.6rem; font-weight: 800; color: var(--brand-primary); margin-top: 0.2rem; font-variant-numeric: tabular-nums;">Value</div>
         </div>
 
         <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Mathematical Specification</div>
-          <code id="inspectorFormula" style="display: block; padding: 0.85rem; background: #0f172a; color: #38bdf8; border-radius: var(--radius-sm); font-size: 0.85rem; margin-top: 0.35rem; font-family: var(--font-mono); overflow-x: auto;">Formula</code>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Computing Engine</div>
+          <div id="inspectorService" style="font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.2rem;">Service Name</div>
         </div>
 
         <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Evidence Summary & Grounding</div>
-          <p id="inspectorSummary" style="margin: 0.35rem 0 0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">Summary description</p>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Mathematical Specification</div>
+          <code id="inspectorFormula" style="display: block; padding: 0.75rem; background: #0f172a; color: #38bdf8; border-radius: var(--radius-xs); font-size: 0.8rem; margin-top: 0.3rem; font-family: var(--font-mono); overflow-x: auto;">Formula</code>
         </div>
 
-        <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: auto;">
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">AI Plain-Language Synthesis</div>
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 0.85rem;">
-            Synthesize grounded plain-language explanations tailored to your academic habits.
+        <div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Evidence Summary</div>
+          <p id="inspectorSummary" style="margin: 0.3rem 0 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55;">Summary description</p>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1.15rem; margin-top: auto;">
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 0.35rem;">AI Plain-Language Synthesis</div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 0.75rem;">
+            Synthesize plain-language study recommendations tailored to this metric.
           </p>
-          <button id="askCopilotSynthesisBtn" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center; padding: 0.65rem;">
-            <i data-lucide="sparkles" style="width: 15px; height: 15px;"></i>
+          <button id="askCopilotSynthesisBtn" class="btn btn-primary btn-sm btn-block">
+            <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
             <span>Synthesize with AI Copilot</span>
           </button>
         </div>
@@ -451,77 +440,77 @@
   </div>
 
   <!-- Interactive Academic Intelligence Flow Architecture Modal -->
-  <div id="architectureFlowModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); z-index: 9999; backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="card" style="width: 100%; max-width: 860px; max-height: 90vh; overflow-y: auto; padding: 0; box-shadow: var(--shadow-2xl);">
-      <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; background: #0f172a; color: white;">
-        <div style="display: flex; align-items: center; gap: 0.6rem;">
-          <i data-lucide="workflow" style="width: 22px; height: 22px; color: #38bdf8;"></i>
-          <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: white;">Closed-Loop Academic Intelligence Flow Architecture</h3>
+  <div id="architectureFlowModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="max-width: 820px; padding: 0;">
+      <div style="padding: 1.15rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; background: #0f172a; color: white;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="workflow" style="width: 20px; height: 20px; color: #38bdf8;"></i>
+          <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: white;">Closed-Loop Academic Intelligence Flow Architecture</h3>
         </div>
-        <button type="button" id="closeArchModalBtn" class="btn btn-outline btn-sm" style="color: white; border-color: rgba(255,255,255,0.3); padding: 0.25rem 0.55rem; font-size: 1rem;">&times;</button>
+        <button type="button" id="closeArchModalBtn" class="btn btn-ghost btn-sm" style="color: #94a3b8; font-size: 1.1rem;">&times;</button>
       </div>
 
-      <div style="padding: 1.75rem;">
-        <p style="font-size: 0.95rem; color: var(--text-secondary); margin: 0 0 1.5rem; line-height: 1.6;">
-          Click any node in the closed-loop pipeline to inspect its responsible service, classification, inputs, and outputs:
+      <div style="padding: 1.5rem;">
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0 0 1.25rem; line-height: 1.55;">
+          Click any pipeline node to inspect its responsible service, classification, inputs, and outputs:
         </p>
 
         <!-- Clickable Flow Diagram -->
-        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-          <div class="flow-node" data-name="1. Academic Records Layer" data-type="AUTHORITATIVE DATA" data-service="Django ORM / SQLite" data-inputs="Class sessions, student attendance, assignment submissions, midterm/final scores" data-outputs="Raw immutable academic event records" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>1. Academic Data Intake</strong>
+        <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+          <div class="flow-node" data-name="1. Academic Records Layer" data-type="AUTHORITATIVE DATA" data-service="Django ORM / SQLite" data-inputs="Class sessions, student attendance, assignment submissions, midterm/final scores" data-outputs="Raw immutable academic event records" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">1. Academic Data Intake</strong>
             <span class="judge-badge judge-badge-system">SYSTEM EVENT</span>
           </div>
 
-          <div class="flow-node" data-name="2. Deterministic Analytics Engine" data-type="AUTHORITATIVE" data-service="PerformanceAnalyticsService, AttendanceAnalyticsService, TrendAnalyticsService" data-inputs="Student attendance credits, assessment percentages, chronological dates" data-outputs="Absence buffers, weighted regression slopes, assignment completion rates" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>2. Deterministic Analytics Engine</strong>
+          <div class="flow-node" data-name="2. Deterministic Analytics Engine" data-type="AUTHORITATIVE" data-service="PerformanceAnalyticsService, AttendanceAnalyticsService, TrendAnalyticsService" data-inputs="Student attendance credits, assessment percentages, chronological dates" data-outputs="Absence buffers, weighted regression slopes, assignment completion rates" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">2. Deterministic Analytics Engine</strong>
             <span class="judge-badge judge-badge-deterministic">DETERMINISTIC</span>
           </div>
 
-          <div class="flow-node" data-name="3. Risk & Anomaly Early Warning" data-type="AUTHORITATIVE" data-service="RiskEngineService, AnomalyDetectionService" data-inputs="Multi-factor analytics dimensions, historical cohort baselines" data-outputs="0-100 Risk Score, Risk Level (LOW, MODERATE, HIGH, CRITICAL), Acute Anomaly Events" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>3. Early Detection & Risk Scoring</strong>
+          <div class="flow-node" data-name="3. Risk & Anomaly Early Warning" data-type="AUTHORITATIVE" data-service="RiskEngineService, AnomalyDetectionService" data-inputs="Multi-factor analytics dimensions, historical cohort baselines" data-outputs="0-100 Risk Score, Risk Level (LOW, MODERATE, HIGH, CRITICAL), Acute Anomaly Events" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">3. Early Detection & Risk Scoring</strong>
             <span class="judge-badge judge-badge-deterministic">DETERMINISTIC</span>
           </div>
 
-          <div class="flow-node" data-name="4. AI Copilot Natural Language Explanation" data-type="ADVISORY" data-service="AICopilotService (Gemini / Local Heuristic)" data-inputs="Authoritative InsightObjects & role-scoped database records" data-outputs="Natural language contextual summaries, study plans, student briefings" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>4. AI Explanation & Study Planning</strong>
+          <div class="flow-node" data-name="4. AI Copilot Natural Language Explanation" data-type="ADVISORY" data-service="AICopilotService (Gemini / Local Heuristic)" data-inputs="Authoritative InsightObjects & role-scoped database records" data-outputs="Natural language contextual summaries, study plans, student briefings" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">4. AI Explanation & Study Planning</strong>
             <span class="judge-badge judge-badge-ai">AI INTERPRETATION</span>
           </div>
 
-          <div class="flow-node" data-name="5. Closed-Loop Intervention Engine" data-type="AUTHORITATIVE WORKFLOW" data-service="InterventionLifecycleService, InterventionRecommendationService" data-inputs="High/Critical risk triggers, acute score anomalies" data-outputs="Targeted recovery plans, human faculty approval requests" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>5. Support Plan & Human Review</strong>
+          <div class="flow-node" data-name="5. Closed-Loop Intervention Engine" data-type="AUTHORITATIVE WORKFLOW" data-service="InterventionLifecycleService, InterventionRecommendationService" data-inputs="High/Critical risk triggers, acute score anomalies" data-outputs="Targeted recovery plans, human faculty approval requests" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">5. Support Plan & Human Review</strong>
             <span class="judge-badge judge-badge-human">HUMAN APPROVAL</span>
           </div>
 
-          <div class="flow-node" data-name="6. Student Action Execution" data-type="STUDENT ACTION" data-service="StudentActionPriorityService" data-inputs="Assigned recovery tasks, weak topic quizzes, attendance sessions" data-outputs="Completed action items, restored absence buffers" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>6. Student Action & Remediation</strong>
+          <div class="flow-node" data-name="6. Student Action Execution" data-type="STUDENT ACTION" data-service="StudentActionPriorityService" data-inputs="Assigned recovery tasks, weak topic quizzes, attendance sessions" data-outputs="Completed action items, restored absence buffers" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">6. Student Action & Remediation</strong>
             <span class="judge-badge judge-badge-system">ACTION EXECUTION</span>
           </div>
 
-          <div class="flow-node" data-name="7. Monitoring Checkpoint & Recalculation" data-type="AUTHORITATIVE MONITORING" data-service="InterventionCheckpointService, InterventionImpactService" data-inputs="Periodic checkpoints, post-intervention assessment results" data-outputs="Measurable outcome classification (EFFECTIVE, PARTIALLY_EFFECTIVE), recalculated risk" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>7. Recalculation & Impact Measurement</strong>
+          <div class="flow-node" data-name="7. Monitoring Checkpoint & Recalculation" data-type="AUTHORITATIVE MONITORING" data-service="InterventionCheckpointService, InterventionImpactService" data-inputs="Periodic checkpoints, post-intervention assessment results" data-outputs="Measurable outcome classification (EFFECTIVE, PARTIALLY_EFFECTIVE), recalculated risk" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">7. Recalculation & Impact Measurement</strong>
             <span class="judge-badge judge-badge-deterministic">DETERMINISTIC RECALC</span>
           </div>
 
-          <div class="flow-node" data-name="8. Institutional Reporting & Audit" data-type="AUTHORITATIVE OUTPUT" data-service="TranscriptService, ReportingService" data-inputs="Official published grades, audit logs" data-outputs="Official print transcripts, streaming RFC 4180 CSV statements" style="padding: 0.85rem 1.15rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
-            <strong>8. Official Reporting & Audit Statements</strong>
+          <div class="flow-node" data-name="8. Institutional Reporting & Audit" data-type="AUTHORITATIVE OUTPUT" data-service="TranscriptService, ReportingService" data-inputs="Official published grades, audit logs" data-outputs="Official print transcripts, streaming RFC 4180 CSV statements" style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface-secondary); transition: all 0.15s ease;">
+            <strong style="font-size: 0.85rem;">8. Official Reporting & Audit Statements</strong>
             <span class="judge-badge judge-badge-deterministic">REPORTING</span>
           </div>
         </div>
 
         <!-- Node Inspector Detail Box -->
-        <div id="flowNodeDetailBox" style="margin-top: 1.5rem; padding: 1.25rem; background: #0f172a; color: white; border-radius: var(--radius-md); display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-            <h4 id="flowNodeName" style="margin: 0; color: #38bdf8; font-size: 1.05rem; font-weight: 800;">Node Name</h4>
+        <div id="flowNodeDetailBox" style="margin-top: 1.25rem; padding: 1.15rem; background: #0f172a; color: white; border-radius: var(--radius-md); display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h4 id="flowNodeName" style="margin: 0; color: #38bdf8; font-size: 1rem; font-weight: 700;">Node Name</h4>
             <span id="flowNodeType" class="judge-badge judge-badge-deterministic">Type</span>
           </div>
-          <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 0.35rem;">
+          <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">
             <strong>Responsible Service:</strong> <span id="flowNodeService">Service</span>
           </div>
-          <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 0.35rem;">
+          <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">
             <strong>Key Inputs:</strong> <span id="flowNodeInputs">Inputs</span>
           </div>
-          <div style="font-size: 0.85rem; color: #cbd5e1;">
+          <div style="font-size: 0.8rem; color: #cbd5e1;">
             <strong>Key Outputs:</strong> <span id="flowNodeOutputs">Outputs</span>
           </div>
         </div>

@@ -70,6 +70,7 @@
 
     function openSearch() {
       searchModal.style.display = 'flex';
+      searchModal.classList.add('open');
       setTimeout(function () {
         if (searchInput) searchInput.focus();
       }, 50);
@@ -77,6 +78,7 @@
 
     function closeSearch() {
       searchModal.style.display = 'none';
+      searchModal.classList.remove('open');
       if (searchInput) searchInput.value = '';
       if (searchResults) {
         searchResults.innerHTML = `
@@ -185,12 +187,16 @@
       if (summaryEl) summaryEl.textContent = data.summary || 'Authoritative data grounded in immutable academic event records.';
 
       inspectorDrawer.style.display = 'flex';
+      inspectorDrawer.classList.add('open');
       inspectorDrawer.setAttribute('aria-hidden', 'false');
     }
 
     function closeInspector() {
-      inspectorDrawer.style.display = 'none';
-      inspectorDrawer.setAttribute('aria-hidden', 'true');
+      inspectorDrawer.classList.remove('open');
+      setTimeout(function () {
+        inspectorDrawer.style.display = 'none';
+        inspectorDrawer.setAttribute('aria-hidden', 'true');
+      }, 200);
     }
 
     explainBtns.forEach(function (btn) {
@@ -218,7 +224,7 @@
     });
 
     window.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && inspectorDrawer.style.display === 'flex') {
+      if (e.key === 'Escape' && inspectorDrawer.classList.contains('open')) {
         closeInspector();
       }
     });
@@ -249,12 +255,16 @@
 
     function openModal() {
       archModal.style.display = 'flex';
+      archModal.classList.add('open');
       archModal.setAttribute('aria-hidden', 'false');
     }
 
     function closeModal() {
-      archModal.style.display = 'none';
-      archModal.setAttribute('aria-hidden', 'true');
+      archModal.classList.remove('open');
+      setTimeout(function () {
+        archModal.style.display = 'none';
+        archModal.setAttribute('aria-hidden', 'true');
+      }, 200);
     }
 
     if (archBtn) archBtn.addEventListener('click', openModal);
@@ -267,7 +277,7 @@
     });
 
     window.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && archModal.style.display === 'flex') {
+      if (e.key === 'Escape' && archModal.classList.contains('open')) {
         closeModal();
       }
     });
@@ -278,8 +288,8 @@
           n.style.borderColor = 'var(--border-color)';
           n.style.backgroundColor = 'var(--bg-surface-secondary)';
         });
-        node.style.borderColor = '#38bdf8';
-        node.style.backgroundColor = 'rgba(56, 189, 248, 0.08)';
+        node.style.borderColor = 'var(--brand-primary)';
+        node.style.backgroundColor = 'var(--brand-primary-light)';
 
         if (flowNodeDetailBox) {
           flowNodeDetailBox.style.display = 'block';
@@ -294,7 +304,43 @@
   }
 
   // ==========================================================================
-  // 5. Toast Notifications & Dismissible Alerts
+  // 5. Button Interaction State Managers
+  // ==========================================================================
+  function initButtonStates() {
+    // Form Submit Feedback State
+    document.querySelectorAll('form').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        const submitBtn = form.querySelector('button[type="submit"]:not(.btn-confirming)');
+        if (submitBtn && !submitBtn.disabled) {
+          submitBtn.classList.add('btn-loading');
+        }
+      });
+    });
+
+    // Two-Step Delete Confirmation
+    document.querySelectorAll('.btn-confirm-delete').forEach(function (btn) {
+      let isConfirming = false;
+      let originalText = btn.innerHTML;
+
+      btn.addEventListener('click', function (e) {
+        if (!isConfirming) {
+          e.preventDefault();
+          isConfirming = true;
+          btn.classList.add('btn-confirming');
+          btn.innerHTML = 'Confirm Delete?';
+
+          setTimeout(function () {
+            isConfirming = false;
+            btn.classList.remove('btn-confirming');
+            btn.innerHTML = originalText;
+          }, 3500);
+        }
+      });
+    });
+  }
+
+  // ==========================================================================
+  // 6. Toast Notifications & Dismissible Alerts
   // ==========================================================================
   function showToast(message, type, duration) {
     type = type || 'info';
@@ -350,7 +396,7 @@
   }
 
   // ==========================================================================
-  // 6. Scroll Reveals & Microinteractions
+  // 7. Scroll Reveals & Microinteractions
   // ==========================================================================
   function initInteractions() {
     const reveals = document.querySelectorAll('.reveal-on-scroll');
@@ -399,6 +445,7 @@
       initCommandPalette();
       initEvidenceInspector();
       initArchitectureFlow();
+      initButtonStates();
       initAlerts();
       initInteractions();
     });
@@ -407,6 +454,7 @@
     initCommandPalette();
     initEvidenceInspector();
     initArchitectureFlow();
+    initButtonStates();
     initAlerts();
     initInteractions();
   }

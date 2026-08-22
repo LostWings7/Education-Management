@@ -1,218 +1,203 @@
 {% extends 'portal_base.html' %}
+{% load static %}
 
 {% block title %}Institutional Pulse & Admin Command - Education Management{% endblock %}
 {% block breadcrumb %}Institutional Pulse{% endblock %}
 
 {% block portal_content %}
-<div style="display: flex; flex-direction: column; gap: 2rem;">
+<div style="display: flex; flex-direction: column; gap: 1.75rem;">
   
-  <!-- Executive Banner -->
-  <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none; border-radius: var(--radius-lg); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">
-    <div class="card-body" style="padding: 2rem;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-            <span class="badge" style="background: rgba(59, 130, 246, 0.3); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.5);">
-              <i data-lucide="activity" style="width: 12px; height: 12px;"></i> Institutional Pulse & Executive Command
-            </span>
-            {% if judge_mode %}
-              <span class="judge-badge judge-badge-deterministic">DETERMINISTIC MACRO ANALYTICS</span>
-            {% endif %}
-          </div>
-          <h1 style="color: white; font-size: 1.85rem; font-weight: 800; margin: 0 0 0.25rem;">
-            Institution Administration Dashboard: Macro Intelligence & Pulse
-          </h1>
-          <p style="color: #cbd5e1; margin: 0; font-size: 0.95rem;">
-            Active Term: <strong>{{ active_semester.name|default:"Active Term" }}</strong> &bull; Total Monitored Students: <strong>{{ total_students }}</strong> &bull; Data Quality: <strong>{{ data_quality.overall_score|floatformat:1 }}%</strong>
-          </p>
-        </div>
-
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <a href="{% url 'portal_admin:risk_heatmap' %}" class="btn btn-sm" style="background: #ef4444; color: white; border: none;">
-            <i data-lucide="grid" style="width: 14px; height: 14px;"></i>
-            <span>Institutional Risk Heatmap</span>
-          </a>
-          <a href="{% url 'portal_admin:intervention_outcomes' %}" class="btn btn-sm" style="background: #3b82f6; color: white; border: none;">
-            <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
-            <span>Intervention Outcome Analysis</span>
-          </a>
-        </div>
+  <!-- ======================================================================== -->
+  <!-- 1. EXECUTIVE HEADER & ACTIONS                                            -->
+  <!-- ======================================================================== -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <span class="badge badge-admin" style="font-size: 0.7rem;">
+          <i data-lucide="activity" style="width: 12px; height: 12px;"></i> Institutional Pulse
+        </span>
+        {% if judge_mode %}
+          <span class="judge-badge judge-badge-deterministic">DETERMINISTIC MACRO ENGINE</span>
+        {% endif %}
       </div>
-    </div>
-  </div>
-
-  <!-- Operational Statistics Strip -->
-  <div class="grid-4" style="gap: 1rem;">
-    <div class="stat-card">
-      <div class="stat-content">
-        <div class="stat-label">Total Students</div>
-        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800;">{{ total_students }}</div>
-      </div>
-      <div class="stat-icon indigo">
-        <i data-lucide="users"></i>
-      </div>
+      <h1 style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary); margin: 0 0 0.2rem; letter-spacing: var(--tracking-tight);">
+        Institutional Command Center
+      </h1>
+      <p style="color: var(--text-muted); margin: 0; font-size: 0.875rem;">
+        Active Term: <strong>{{ active_semester.name|default:"Active Term" }}</strong> &bull; 
+        <strong>{{ total_students }}</strong> Monitored Students &bull; 
+        Data Quality: <strong>{{ data_quality.overall_score|floatformat:1 }}%</strong>
+      </p>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-content">
-        <div class="stat-label">Faculty Members</div>
-        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800;">{{ total_teachers }}</div>
-      </div>
-      <div class="stat-icon emerald">
-        <i data-lucide="briefcase"></i>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-content">
-        <div class="stat-label">Active Support Plans</div>
-        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800; color: var(--primary);">
-          {{ active_interventions_count }}
-        </div>
-      </div>
-      <div class="stat-icon amber">
-        <i data-lucide="shield-alert"></i>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-content">
-        <div class="stat-label">Data Quality Score</div>
-        <div class="stat-value" style="font-size: 1.75rem; font-weight: 800; color: var(--success);">
-          {{ data_quality.overall_score|floatformat:1 }}%
-        </div>
-      </div>
-      <div class="stat-icon sky">
-        <i data-lucide="check-circle-2"></i>
-      </div>
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+      <a href="{% url 'portal_admin:risk_heatmap' %}" class="btn btn-danger-outline btn-sm">
+        <i data-lucide="grid" style="width: 14px; height: 14px;"></i>
+        <span>Risk Heatmap</span>
+      </a>
+      <a href="{% url 'portal_admin:intervention_outcomes' %}" class="btn btn-primary btn-sm">
+        <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+        <span>Intervention Outcomes</span>
+      </a>
     </div>
   </div>
 
   <!-- ======================================================================== -->
-  <!-- INSTITUTIONAL PULSE: "WHAT CHANGED?" COMPARATIVE METRICS                -->
+  <!-- 2. MACRO KPI STRIP                                                       -->
+  <!-- ======================================================================== -->
+  <div class="grid-4" style="gap: 1rem;">
+    <div class="stat-card">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value" style="color: var(--brand-primary);">{{ total_students }}</div>
+      <div class="stat-subtext">Active matriculated roster</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Faculty Members</div>
+      <div class="stat-value">{{ total_teachers }}</div>
+      <div class="stat-subtext">Academic faculty &amp; advisors</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Active Support Plans</div>
+      <div class="stat-value" style="color: var(--color-warning);">{{ active_interventions_count }}</div>
+      <div class="stat-subtext">Closed-loop recovery plans</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Data Quality Score</div>
+      <div class="stat-value" style="color: var(--color-success);">{{ data_quality.overall_score|floatformat:1 }}%</div>
+      <div class="stat-subtext">Authoritative registry health</div>
+    </div>
+  </div>
+
+  <!-- ======================================================================== -->
+  <!-- 3. PERIOD-OVER-PERIOD SHIFTS (Institutional Pulse)                       -->
   <!-- ======================================================================== -->
   <div class="card">
     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
       <div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="git-commit" style="width: 20px; height: 20px; color: var(--primary);"></i>
-          <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800;">Institutional Pulse: Period-over-Period Shifts</h3>
-        </div>
-        <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--text-muted);">
+        <h3 class="card-title">
+          <i data-lucide="git-commit" style="width: 18px; height: 18px; color: var(--brand-primary);"></i>
+          Institutional Pulse: Period-over-Period Shifts
+        </h3>
+        <p class="card-subtitle">
           Deterministic change detection comparing <strong>{{ change_detection.active_semester }}</strong> vs preceding <strong>{{ change_detection.previous_semester }}</strong>.
         </p>
       </div>
-      <button class="btn btn-outline btn-sm explain-btn" data-title="Institutional Change Detection Model" data-value="Delta Shift Comparisons" data-service="InstitutionalChangeDetectionService" data-formula="\Delta M = M_{active} - M_{previous}" data-summary="Deterministic macro comparative evaluation analyzing shifts in institutional attendance, average course performance, and intervention success rates.">Why this shift?</button>
+      <button class="btn btn-ghost btn-xs explain-btn" data-title="Institutional Change Detection Model" data-value="Delta Shift Comparisons" data-service="InstitutionalChangeDetectionService" data-formula="\Delta M = M_{active} - M_{previous}" data-summary="Deterministic macro comparative evaluation analyzing shifts in institutional attendance, average course performance, and intervention success rates." style="color: var(--brand-primary);">Why this shift?</button>
     </div>
 
-    <div class="card-body" style="padding: 1.5rem;">
+    <div class="card-body">
       {% if change_detection.status == 'VALID' %}
-        <div class="grid-3" style="gap: 1.5rem;">
+        <div class="grid-3" style="gap: 1.25rem;">
           
           <!-- Shift 1: Attendance -->
-          <div style="padding: 1.25rem; background: var(--bg-surface-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+          <div style="padding: 1.15rem; background: var(--bg-surface-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: var(--tracking-wide);">
               {{ change_detection.metrics.attendance.label }}
             </div>
-            <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0.5rem 0;">
-              <span style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary);">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0.4rem 0;">
+              <span style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary);">
                 {{ change_detection.metrics.attendance.current }}%
               </span>
-              <span class="badge {% if change_detection.metrics.attendance.status == 'IMPROVED' %}badge-success{% elif change_detection.metrics.attendance.status == 'DECLINED' %}badge-danger{% else %}badge-neutral{% endif %}" style="font-size: 0.8rem;">
+              <span class="badge {% if change_detection.metrics.attendance.status == 'IMPROVED' %}badge-success{% elif change_detection.metrics.attendance.status == 'DECLINED' %}badge-danger{% else %}badge-neutral{% endif %}">
                 {% if change_detection.metrics.attendance.delta > 0 %}+{% endif %}{{ change_detection.metrics.attendance.delta }}% ({{ change_detection.metrics.attendance.status }})
               </span>
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
               Previous Term: {{ change_detection.metrics.attendance.previous }}%
             </div>
           </div>
 
           <!-- Shift 2: Average Course Performance -->
-          <div style="padding: 1.25rem; background: var(--bg-surface-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+          <div style="padding: 1.15rem; background: var(--bg-surface-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: var(--tracking-wide);">
               {{ change_detection.metrics.performance.label }}
             </div>
-            <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0.5rem 0;">
-              <span style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary);">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0.4rem 0;">
+              <span style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary);">
                 {{ change_detection.metrics.performance.current }}%
               </span>
-              <span class="badge {% if change_detection.metrics.performance.status == 'IMPROVED' %}badge-success{% elif change_detection.metrics.performance.status == 'DECLINED' %}badge-danger{% else %}badge-neutral{% endif %}" style="font-size: 0.8rem;">
+              <span class="badge {% if change_detection.metrics.performance.status == 'IMPROVED' %}badge-success{% elif change_detection.metrics.performance.status == 'DECLINED' %}badge-danger{% else %}badge-neutral{% endif %}">
                 {% if change_detection.metrics.performance.delta > 0 %}+{% endif %}{{ change_detection.metrics.performance.delta }}% ({{ change_detection.metrics.performance.status }})
               </span>
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
               Previous Term: {{ change_detection.metrics.performance.previous }}%
             </div>
           </div>
 
           <!-- Shift 3: Intervention Resolution Rate -->
-          <div style="padding: 1.25rem; background: var(--bg-surface-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+          <div style="padding: 1.15rem; background: var(--bg-surface-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: var(--tracking-wide);">
               {{ change_detection.metrics.interventions.label }}
             </div>
-            <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0.5rem 0;">
-              <span style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary);">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0.4rem 0;">
+              <span style="font-size: 1.65rem; font-weight: 800; color: var(--text-primary);">
                 {{ change_detection.metrics.interventions.current }}%
               </span>
-              <span class="badge {% if change_detection.metrics.interventions.status == 'IMPROVED' %}badge-success{% elif change_detection.metrics.interventions.status == 'DECLINED' %}badge-danger{% else %}badge-neutral{% endif %}" style="font-size: 0.8rem;">
+              <span class="badge {% if change_detection.metrics.interventions.status == 'IMPROVED' %}badge-success{% elif change_detection.metrics.interventions.status == 'DECLINED' %}badge-danger{% else %}badge-neutral{% endif %}">
                 {% if change_detection.metrics.interventions.delta > 0 %}+{% endif %}{{ change_detection.metrics.interventions.delta }}% ({{ change_detection.metrics.interventions.status }})
               </span>
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
               Previous Term: {{ change_detection.metrics.interventions.previous }}%
             </div>
           </div>
 
         </div>
       {% else %}
-        <p style="text-align: center; color: var(--text-muted); padding: 1.5rem 0;">
+        <p style="text-align: center; color: var(--text-muted); padding: 1.25rem 0; margin: 0; font-size: 0.85rem;">
           {{ change_detection.summary }}
         </p>
       {% endif %}
     </div>
   </div>
 
-  <!-- Institutional Risk Overview & Management Hub -->
-  <div class="grid-2" style="gap: 1.5rem;">
+  <!-- ======================================================================== -->
+  <!-- 4. RISK OVERVIEW & MANAGEMENT HUBS                                       -->
+  <!-- ======================================================================== -->
+  <div class="grid-2" style="gap: 1.25rem;">
     
     <!-- Macro Risk Breakdown -->
     <div class="card">
       <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Institutional Risk Distribution</h3>
-        <a href="{% url 'portal_admin:risk_heatmap' %}" class="btn btn-outline btn-sm">Full Heatmap</a>
+        <h3 class="card-title">Risk Distribution</h3>
+        <a href="{% url 'portal_admin:risk_heatmap' %}" class="btn btn-outline btn-xs">Full Heatmap</a>
       </div>
-      <div class="card-body" style="padding: 1.5rem;">
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #fee2e2; border-radius: var(--radius-sm);">
+      <div class="card-body">
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--color-danger-bg); border-radius: var(--radius-sm); border: 1px solid var(--color-danger-border);">
             <div>
               <span class="badge badge-danger">CRITICAL RISK</span>
-              <div style="font-size: 0.8rem; color: #991b1b; margin-top: 0.2rem;">Immediate faculty diagnostic & remediation required</div>
+              <div style="font-size: 0.75rem; color: var(--color-danger-text); margin-top: 0.15rem;">Immediate faculty diagnostic required</div>
             </div>
-            <strong style="font-size: 1.5rem; color: #b91c1c;">{{ macro_risk.CRITICAL|default:0 }}</strong>
+            <strong style="font-size: 1.35rem; color: var(--color-danger-text);">{{ macro_risk.CRITICAL|default:0 }}</strong>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #fef3c7; border-radius: var(--radius-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--color-warning-bg); border-radius: var(--radius-sm); border: 1px solid var(--color-warning-border);">
             <div>
               <span class="badge badge-warning">HIGH RISK</span>
-              <div style="font-size: 0.8rem; color: #92400e; margin-top: 0.2rem;">Attendance deficits (&lt;60%) or acute decline</div>
+              <div style="font-size: 0.75rem; color: var(--color-warning-text); margin-top: 0.15rem;">Attendance deficits or acute score plunge</div>
             </div>
-            <strong style="font-size: 1.5rem; color: #b45309;">{{ macro_risk.HIGH|default:0 }}</strong>
+            <strong style="font-size: 1.35rem; color: var(--color-warning-text);">{{ macro_risk.HIGH|default:0 }}</strong>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f1f5f9; border-radius: var(--radius-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-surface-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
             <div>
               <span class="badge badge-neutral">MODERATE RISK</span>
-              <div style="font-size: 0.8rem; color: #475569; margin-top: 0.2rem;">Ongoing monitoring</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">Ongoing automated monitoring</div>
             </div>
-            <strong style="font-size: 1.5rem; color: #334155;">{{ macro_risk.MODERATE|default:0 }}</strong>
+            <strong style="font-size: 1.35rem; color: var(--text-primary);">{{ macro_risk.MODERATE|default:0 }}</strong>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #dcfce7; border-radius: var(--radius-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--color-success-bg); border-radius: var(--radius-sm); border: 1px solid var(--color-success-border);">
             <div>
               <span class="badge badge-success">LOW RISK / STABLE</span>
-              <div style="font-size: 0.8rem; color: #166534; margin-top: 0.2rem;">Consistent academic performance & attendance</div>
+              <div style="font-size: 0.75rem; color: var(--color-success-text); margin-top: 0.15rem;">Consistent performance and attendance</div>
             </div>
-            <strong style="font-size: 1.5rem; color: #15803d;">{{ macro_risk.LOW|default:0 }}</strong>
+            <strong style="font-size: 1.35rem; color: var(--color-success-text);">{{ macro_risk.LOW|default:0 }}</strong>
           </div>
         </div>
       </div>
@@ -221,32 +206,32 @@
     <!-- Administrative Quick Navigation -->
     <div class="card">
       <div class="card-header">
-        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">Academic Management Hubs</h3>
+        <h3 class="card-title">Academic Management Hubs</h3>
       </div>
-      <div class="card-body" style="padding: 1.5rem;">
-        <div class="grid-2" style="gap: 0.75rem;">
-          <a href="{% url 'portal_admin:departments' %}" class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;">
-            <i data-lucide="building" style="width: 16px; height: 16px; color: var(--primary);"></i>
+      <div class="card-body">
+        <div class="grid-2" style="gap: 0.65rem;">
+          <a href="{% url 'portal_admin:department_list' %}" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="building-2" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
             <span>Departments</span>
           </a>
-          <a href="{% url 'portal_admin:programs' %}" class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;">
-            <i data-lucide="award" style="width: 16px; height: 16px; color: var(--primary);"></i>
+          <a href="{% url 'portal_admin:program_list' %}" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="graduation-cap" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
             <span>Degree Programs</span>
           </a>
-          <a href="{% url 'portal_admin:courses' %}" class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;">
-            <i data-lucide="book-open" style="width: 16px; height: 16px; color: var(--primary);"></i>
-            <span>Curriculum Courses</span>
+          <a href="{% url 'portal_admin:courses' %}" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="layers" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
+            <span>Courses &amp; Topics</span>
           </a>
-          <a href="{% url 'portal_admin:students' %}" class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;">
-            <i data-lucide="users" style="width: 16px; height: 16px; color: var(--primary);"></i>
+          <a href="{% url 'portal_admin:student_list' %}" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="users" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
             <span>Students Roster</span>
           </a>
-          <a href="{% url 'portal_admin:teachers' %}" class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;">
-            <i data-lucide="briefcase" style="width: 16px; height: 16px; color: var(--primary);"></i>
+          <a href="{% url 'portal_admin:teacher_list' %}" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="briefcase" style="width: 16px; height: 16px; color: var(--brand-primary);"></i>
             <span>Faculty Roster</span>
           </a>
-          <a href="{% url 'portal_admin:data_quality' %}" class="btn btn-outline" style="justify-content: flex-start; padding: 0.75rem;">
-            <i data-lucide="shield-check" style="width: 16px; height: 16px; color: var(--success);"></i>
+          <a href="{% url 'portal_admin:data_quality' %}" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="shield-check" style="width: 16px; height: 16px; color: var(--color-success);"></i>
             <span>Data Quality Health</span>
           </a>
         </div>
